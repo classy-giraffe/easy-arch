@@ -132,9 +132,10 @@ chmod 600 /mnt/swap/swapfile
 mkswap /mnt/swap/swapfile
 swapon /mnt/swap/swapfile
 echo "/swap/swapfile    none    swap    defaults    0   0" >> /mnt/etc/fstab
-    
 
+# Configuring the system.    
 arch-chroot /mnt /bin/bash -xe <<"EOF"
+    
     # Setting up clock.
     hwclock --systohc
 
@@ -149,7 +150,17 @@ arch-chroot /mnt /bin/bash -xe <<"EOF"
 
     # Creating grub config file.
     grub-mkconfig -o /boot/grub/grub.cfg
-    
-    # Create user
-    useradd -m user
+
 EOF
+
+# Setting root password.
+print "Setting root password."
+arch-chroot /mnt /bin/passwd
+
+# Enabling auto-trimming.
+echo "Enabling auto-trimming."
+systemctl enable fstrim.timer --root=/mnt
+
+# Enabling NetworkManager.
+echo "Enabling NetworkManager."
+systemctl enable NetworkManager --root=/mnt
