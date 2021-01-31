@@ -102,7 +102,7 @@ EOF
 # Setting up locales.
 echo "Please insert the locale you use in this format (xx_XX.UTF-8): "
 read locale
-echo $locale > /mnt/etc/locale.gen
+echo "$locale UTF-8"  > /mnt/etc/locale.gen
 echo "LANG=\"$locale\"" > /mnt/etc/locale.conf
 
 # Setting up keyboard layout.
@@ -143,7 +143,7 @@ arch-chroot /mnt /bin/bash -xe <<"EOF"
     locale-gen
 
     # Generating a new initramfs.
-    mkinitcpio -p
+    mkinitcpio -P
 
     # Installing Grub.
     grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
@@ -164,3 +164,8 @@ systemctl enable fstrim.timer --root=/mnt
 # Enabling NetworkManager.
 echo "Enabling NetworkManager."
 systemctl enable NetworkManager --root=/mnt
+
+# Unmounting partitions.
+umount -R /mnt
+echo "Done."
+exit
