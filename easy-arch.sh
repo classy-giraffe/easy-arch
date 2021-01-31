@@ -21,7 +21,6 @@ else
 	exit
 fi
 
-
 # Creating a new partition scheme.
 echo "Creating new partition scheme on $DISK."
 
