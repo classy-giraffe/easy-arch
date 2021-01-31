@@ -12,8 +12,8 @@ done
 # Deleting old partition scheme.
 read -r -p "This will delete the current partition table on $DISK. Do you agree [y/N]? " response
 response=${response,,}
-then
 if [[ "$response" =~ ^(yes|y)$ ]]
+then
     wipefs -af $DISK
     sgdisk -Zo $DISK
 else
