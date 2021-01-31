@@ -8,7 +8,7 @@ timedatectl set-ntp true
 
 # Selecting the target for the installation.
 echo "Select the disk where Arch Linux is going to be installed."
-select ENTRY in $(lsblk -dpn -I 8 -oNAME);
+select ENTRY in $(lsblk -dpn -oNAME);
 do
     DISK=$ENTRY
     echo "Installing Arch Linux on $DISK."
