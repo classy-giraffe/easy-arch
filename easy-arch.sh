@@ -119,7 +119,7 @@ sed -i -e 's,modconf block filesystems keyboard,keyboard keymap modconf block en
 # Enabling LUKS in GRUB.
 UUID=$(blkid $Cryptroot | cut -f2 -d'"')
 sed -i 's/#\(GRUB_ENABLE_CRYPTODISK=y\)/\1/' /mnt/etc/default/grub
-sed -i "s,quiet,quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS" /mnt/etc/default/grub
+sed -i -e "s,quiet,quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS,g" /mnt/etc/default/grub
 
 # Creating a swapfile.
 echo "How much big should the swap file be? Type the size, just a number (eg: 1 = 1GB..) "
