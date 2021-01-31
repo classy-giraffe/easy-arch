@@ -79,3 +79,22 @@ pacstrap /mnt base linux linux-firmware btrfs-progs neovim networkmanager
 # Fstab generation.
 echo "Generating a new fstab."
 genfstab -U /mnt >> /mnt/etc/fstab
+
+# Setting hostname.
+echo "Please enter the hostname: "
+read hostname
+echo $hostname > /mnt/etc/hostname
+
+# Setting hosts file.
+echo "Setting hosts file."
+cat > /mnt/etc/hosts <<EOF
+127.0.0.1   localhost
+::1         localhost
+127.0.1.1   $hostname.localdomain   $hostname
+EOF
+
+# Setting up locales.
+echo "Please insert the locale you use in this format (xx_XX.UTF-8): "
+read locale
+echo $locale > /mnt/etc/locale.gen
+echo "LANG=\"$locale\"" > /mnt/etc/locale.conf
