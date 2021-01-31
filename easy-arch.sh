@@ -18,7 +18,7 @@ then
     sgdisk -Zo $DISK
 else
 	echo "Quitting."
-	break
+	exit
 fi
 
 
