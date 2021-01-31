@@ -63,6 +63,7 @@ btrfs su cr /mnt/@swap
 
 # Mounting the newly created subvolumes.
 umount /mnt
+echo "Mounting the newly created subvolumes."
 mount -o compress=zstd,subvol=@ $BTRFS /mnt
 mkdir -p /mnt/{home,.snapshots,/var/log,swap,boot}
 mount -o compress=zstd,subvol=@home $BTRFS /mnt/home
@@ -70,4 +71,11 @@ mount -o compress=zstd,subvol=@snapshots $BTRFS /mnt/.snapshots
 mount -o nodatacow,subvol=@var_log $BTRFS /mnt/var/log
 mount -o nodatacow,subvol=@swap $BTRFS /mnt/swap
 mount $ESP /mnt/boot
-echo "Done."
+
+# Pacstrap (setting up a base sytem onto the new root).
+echo "Installing the base sytem."
+pacstrap /mnt base linux linux-firmware btrfs-progs neovim networkmanager
+
+# Fstab generation.
+echo "Generating a new fstab."
+genfstab -U /mnt >> /mnt/etc/fstab
