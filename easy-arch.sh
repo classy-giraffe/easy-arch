@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Exit on STDERR.
+set -e
+
+# Setting up the correct time.
+timedatectl set-ntp true
+
 # Selecting the target for the installation.
 echo "Select the disk where Arch Linux is going to be installed."
 select ENTRY in $(lsblk -dpn -I 8 -oNAME);
