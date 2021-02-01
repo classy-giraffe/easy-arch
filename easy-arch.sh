@@ -80,7 +80,7 @@ mount -o nodatacow,subvol=@swap $BTRFS /mnt/swap
 mount $ESP /mnt/boot
 
 # Pacstrap (setting up a base sytem onto the new root).
-echo "Installing the base sytem."
+echo "Installing the base system."
 pacstrap /mnt base linux linux-firmware btrfs-progs grub grub-btrfs efibootmgr snapper sudo neovim networkmanager &>/dev/null
 
 # Fstab generation.
