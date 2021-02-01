@@ -87,9 +87,17 @@ echo "Generating a new fstab."
 genfstab -U /mnt >> /mnt/etc/fstab
 
 # Setting hostname.
-echo "Please enter the hostname: "
-read hostname
+read -r -p "Please enter the hostname: " hostname
 echo $hostname > /mnt/etc/hostname
+
+# Setting up locales.
+read -r -p "Please insert the locale you use in this format (xx_XX.UTF-8): " locale
+echo "$locale UTF-8"  > /mnt/etc/locale.gen
+echo "LANG=\"$locale\"" > /mnt/etc/locale.conf
+
+# Setting up keyboard layout.
+read -r -p "Please insert the keyboard layout you use: " kblayout
+echo "KEYMAP=\"$kblayout\"" > /mnt/etc/vconsole.conf
 
 # Setting hosts file.
 echo "Setting hosts file."
@@ -98,17 +106,6 @@ cat > /mnt/etc/hosts <<EOF
 ::1         localhost
 127.0.1.1   $hostname.localdomain   $hostname
 EOF
-
-# Setting up locales.
-echo "Please insert the locale you use in this format (xx_XX.UTF-8): "
-read locale
-echo "$locale UTF-8"  > /mnt/etc/locale.gen
-echo "LANG=\"$locale\"" > /mnt/etc/locale.conf
-
-# Setting up keyboard layout.
-echo "Please insert the keyboard layout you use: "
-read kblayout
-echo "KEYMAP=\"$kblayout\"" > /mnt/etc/vconsole.conf
 
 # Configuring /etc/mkinitcpio.conf
 echo "Configuring /etc/mkinitcpio for ZSTD compression, BTRFS and LUKS hook."
