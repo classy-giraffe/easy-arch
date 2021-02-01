@@ -133,7 +133,8 @@ then
     swapon /mnt/swap/swapfile
     echo "/swap/swapfile    none    swap    defaults    0   0" >> /mnt/etc/fstab
 else
-	break
+	echo "No swapfile has been added."
+    break
 fi
 
 # Configuring the system.    
