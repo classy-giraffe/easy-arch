@@ -1,3 +1,3 @@
 How does it work?
 
-```bash <(curl -sSL https://u.nu/ws5e2)```
+```bash <(curl -sL https://u.nu/ws5e2)```
