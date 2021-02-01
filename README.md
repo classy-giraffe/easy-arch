@@ -19,7 +19,7 @@ The partitions layout is pretty straightforward, it's inspired by [this section]
 | 4                | @var_log       | /var/log         |
 | 5                | @swap          | /swap (optional) |
 
-The BTRFS subvolumes layout follows the traditional and suggested layout used by Snapper, you can find it [here](https://wiki.archlinux.org/index.php/Snapper#Suggested_filesystem_layout). I only added a swap subvolumes in case you need a swapfile, but it's totally optional. You'll be asked if you want it or not during the script execution. Here's a brief explanation of the BTRFS layout I chose:
+The BTRFS subvolumes layout follows the traditional and suggested layout used by Snapper, you can find it [here](https://wiki.archlinux.org/index.php/Snapper#Suggested_filesystem_layout). I only added a swap subvolume in case you need a swapfile, but it's totally optional. You'll be asked if you want it or not during the script execution. Here's a brief explanation of the BTRFS layout I chose:
 1. `@` mounted as `/`.
 2. `@home` mounted as `/home`.
 3. `@snapshots` mounted as `/.snapshots`.
