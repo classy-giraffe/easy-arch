@@ -157,7 +157,11 @@ arch-chroot /mnt /bin/bash -e <<"EOF"
     # Snapper configuration
     umount /.snapshots
     rm -r /.snapshots
-    snapper -c root create-config /
+    snapper --no-dbus -c root create-config /
+    btrfs subvolume delete /.snapshots
+    mkdir /.snapshots
+    mount -a
+    chmod 750 /.snapshots
 
     # Installing GRUB.
     echo "Installing GRUB on /boot."
