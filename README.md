@@ -1,4 +1,4 @@
-#### Introduction
+### Introduction
 easy-arch is a script made in order to boostrap a basic Arch Linux environment with snapshots and encryption by using a fully automated process.
 
 ### Partitions layout 
