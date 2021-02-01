@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Setting up the correct time.
-timedatectl set-ntp true &>/dev/null
-
 # Cleaning the TTY.
 clear
 
