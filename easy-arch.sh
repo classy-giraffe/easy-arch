@@ -136,6 +136,7 @@ then
 else
     echo "Deleting BTRFS swap subvolume."
     mount $BTRFS -o subvolid=5 /home
+    head -n -4 /home/etc/fstab
     btrfs su de /home/@swap &>/dev/null
     umount -R /home
     echo "No swapfile has been added."
