@@ -134,6 +134,7 @@ then
     swapon /mnt/swap/swapfile &>/dev/null
     echo "/swap/swapfile    none    swap    defaults    0   0" >> /mnt/etc/fstab
 else
+    # Removing swap subvolumes and fstab entry in case it's not needed.
     echo "Deleting BTRFS swap subvolume."
     mount $BTRFS -o subvolid=5 /home
     head -n -4 /home/etc/fstab
