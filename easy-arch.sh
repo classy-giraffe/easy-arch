@@ -40,8 +40,9 @@ parted -s $DISK \
 
 ESP="/dev/disk/by-partlabel/ESP"
 Cryptroot="/dev/disk/by-partlabel/Cryptroot"
-echo "Done."
 
+# Informing the Kernel of the changes.
+echo "Informing the Kernel about the disk changes."
 partprobe $DISK
 
 # Formatting the ESP as FAT32.
