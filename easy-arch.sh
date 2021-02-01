@@ -113,22 +113,28 @@ sed -i -e 's,BINARIES=(),BINARIES=(/usr/bin/btrfs),g' /mnt/etc/mkinitcpio.conf
 sed -i -e 's,#COMPRESSION="zstd",COMPRESSION="zstd",g' /mnt/etc/mkinitcpio.conf
 sed -i -e 's,modconf block filesystems keyboard,keyboard keymap modconf block encrypt filesystems,g' /mnt/etc/mkinitcpio.conf
 
-# Enabling LUKS in GRUB.
+# Enabling LUKS in GRUB and setting the UUID of the LUKS container.
 UUID=$(blkid $Cryptroot | cut -f2 -d'"')
 sed -i 's/#\(GRUB_ENABLE_CRYPTODISK=y\)/\1/' /mnt/etc/default/grub
 sed -i -e "s,quiet,quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS,g" /mnt/etc/default/grub
 
 # Creating a swapfile.
-echo "How much big should the swap file be? Type the size, just a number (eg: 1 = 1GB..) "
-read swap
-truncate -s 0 /mnt/swap/swapfile
-chattr +C /mnt/swap/swapfile
-btrfs property set /mnt/swap/swapfile compression none
-dd if=/dev/zero of=/mnt/swap/swapfile bs=1G count=$swap status=progress
-chmod 600 /mnt/swap/swapfile
-mkswap /mnt/swap/swapfile
-swapon /mnt/swap/swapfile
-echo "/swap/swapfile    none    swap    defaults    0   0" >> /mnt/etc/fstab
+read -r -p "Do you want a swapfile? [y/N]? " response
+response=${response,,}
+if [[ "$response" =~ ^(yes|y)$ ]]
+then
+    read -r -p "How much big should the swap file be? Type the size, just a number (eg: 1 = 1GB..): " swap
+    truncate -s 0 /mnt/swap/swapfile
+    chattr +C /mnt/swap/swapfile
+    btrfs property set /mnt/swap/swapfile compression none
+    dd if=/dev/zero of=/mnt/swap/swapfile bs=1G count=$swap status=progress
+    chmod 600 /mnt/swap/swapfile
+    mkswap /mnt/swap/swapfile
+    swapon /mnt/swap/swapfile
+    echo "/swap/swapfile    none    swap    defaults    0   0" >> /mnt/etc/fstab
+else
+	break
+fi
 
 # Configuring the system.    
 arch-chroot /mnt /bin/bash -xe <<"EOF"
