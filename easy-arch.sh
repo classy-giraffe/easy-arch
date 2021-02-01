@@ -158,7 +158,7 @@ arch-chroot /mnt /bin/bash -xe <<"EOF"
 EOF
 
 # Setting root password.
-print "Setting root password."
+echo "Setting root password."
 arch-chroot /mnt /bin/passwd
 
 # Enabling auto-trimming.
