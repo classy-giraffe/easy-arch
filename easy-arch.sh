@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Unmounting partitions.
+echo "Unmounting /mnt in order to proceed with the installation of Arch Linux."
+umount -R /mnt
+
 # Exit on STDERR.
 set -e
 
@@ -23,13 +27,12 @@ then
     wipefs -af $DISK
     sgdisk -Zo $DISK
 else
-	echo "Quitting."
-	exit
+    echo "Quitting."
+    exit
 fi
 
 # Creating a new partition scheme.
 echo "Creating new partition scheme on $DISK."
-
 parted -s $DISK \
     mklabel gpt \
     mkpart ESP fat32 1MiB 513MiB \
@@ -51,8 +54,6 @@ cryptsetup --type luks1 luksFormat $Cryptroot
 echo "Opening the newly created LUKS Container."
 cryptsetup open $Cryptroot cryptroot
 BTRFS=/dev/mapper/cryptroot
-
-partprobe $DISK
 
 # Formatting the LUKS Container as BTRFS.
 echo "Formatting the LUKS container as BTRFS."
@@ -173,6 +174,7 @@ echo "Enabling NetworkManager."
 systemctl enable NetworkManager --root=/mnt
 
 # Unmounting partitions.
+echo "Unmounting /mnt."
 umount -R /mnt
-echo "Done."
+echo "Done, you may now wish to reboot."
 exit
