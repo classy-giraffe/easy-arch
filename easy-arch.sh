@@ -2,7 +2,7 @@
 
 # Unmounting partitions.
 echo "Unmounting /mnt in order to proceed with the installation of Arch Linux."
-umount -R /mnt
+umount -R /mnt &>/dev/null
 
 # Exit on STDERR.
 set -e
