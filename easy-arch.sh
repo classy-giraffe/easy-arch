@@ -80,7 +80,7 @@ mount $ESP /mnt/boot
 
 # Pacstrap (setting up a base sytem onto the new root).
 echo "Installing the base sytem."
-pacstrap /mnt base linux linux-firmware btrfs-progs grub grub-btrfs efibootmgr snapper neovim networkmanager
+pacstrap /mnt base linux linux-firmware btrfs-progs grub grub-btrfs efibootmgr snapper sudo neovim networkmanager
 
 # Fstab generation.
 echo "Generating a new fstab."
@@ -133,7 +133,10 @@ then
     swapon /mnt/swap/swapfile
     echo "/swap/swapfile    none    swap    defaults    0   0" >> /mnt/etc/fstab
 else
-	echo "No swapfile has been added."
+	mount $BTRFS -o subvolid=5 /home
+    btrfs su de /home/@swap
+    umount -R /home
+    echo "No swapfile has been added."
 fi
 
 # Configuring the system.    
