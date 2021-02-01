@@ -91,11 +91,11 @@ echo $hostname > /mnt/etc/hostname
 # Setting up locales.
 read -r -p "Please insert the locale you use in this format (xx_XX): " locale
 echo "$locale.UTF-8 UTF-8"  > /mnt/etc/locale.gen
-echo "LANG=\"$locale\"" > /mnt/etc/locale.conf
+echo "LANG=\"$locale\".UTF-8" > /mnt/etc/locale.conf
 
 # Setting up keyboard layout.
 read -r -p "Please insert the keyboard layout you use: " kblayout
-echo "KEYMAP=\"$kblayout\"" > /mnt/etc/vconsole.conf
+echo "KEYMAP=\$kblayout\"" > /mnt/etc/vconsole.conf
 
 # Setting hosts file.
 echo "Setting hosts file."
@@ -154,6 +154,11 @@ arch-chroot /mnt /bin/bash -e <<"EOF"
     echo "Creating a new initramfs."
     mkinitcpio -P &>/dev/null
 
+    # Snapper configuration
+    umount /.snapshots
+    rm -r /.snapshots
+    snapper -c root create-config /
+
     # Installing GRUB.
     echo "Installing GRUB on /boot."
     grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB &>/dev/null
@@ -175,6 +180,11 @@ systemctl enable fstrim.timer --root=/mnt &>/dev/null
 # Enabling NetworkManager.
 echo "Enabling NetworkManager."
 systemctl enable NetworkManager --root=/mnt &>/dev/null
+
+# Enabling Snapper.
+echo "Enabling Snapper."
+systemctl enable snapper-timeline.timer --root=/mnt &>/dev/null
+systemctl enable snapper-cleanup.timer --root=/mnt &>/dev/null
 
 # Unmounting partitions.
 echo "Unmounting /mnt."
