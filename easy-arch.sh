@@ -1,13 +1,13 @@
 #!/bin/bash
 
+# Setting up the correct time.
+timedatectl set-ntp true &>/dev/null
+
 # Cleaning the TTY.
 clear
 
 # Exit on STDERR.
 set -e
-
-# Setting up the correct time.
-timedatectl set-ntp true &>/dev/null
 
 # Selecting the target for the installation.
 echo "Select the disk where Arch Linux is going to be installed."
