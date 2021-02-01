@@ -134,7 +134,6 @@ then
     echo "/swap/swapfile    none    swap    defaults    0   0" >> /mnt/etc/fstab
 else
 	echo "No swapfile has been added."
-    break
 fi
 
 # Configuring the system.    
