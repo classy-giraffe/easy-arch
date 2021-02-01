@@ -147,16 +147,20 @@ arch-chroot /mnt /bin/bash -e <<"EOF"
     hwclock --systohc
 
     # Generating locales.
-    locale-gen
+    echo "Generating locales."
+    locale-gen &>/dev/null
 
     # Generating a new initramfs.
-    mkinitcpio -P
+    echo "Creating a new initramfs."
+    mkinitcpio -P &>/dev/null
 
-    # Installing Grub.
-    grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+    # Installing GRUB.
+    echo "Installing GRUB on /boot."
+    grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB &>/dev/null
 
     # Creating grub config file.
-    grub-mkconfig -o /boot/grub/grub.cfg
+    echo "Creating GRUB config file."
+    grub-mkconfig -o /boot/grub/grub.cfg &>/dev/null
 
 EOF
 
