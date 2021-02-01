@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# Unmounting partitions.
-echo "Unmounting /mnt in order to proceed with the installation of Arch Linux."
-umount -R /mnt &>/dev/null
+# Cleaning the TTY.
+clear
 
 # Exit on STDERR.
 set -e
