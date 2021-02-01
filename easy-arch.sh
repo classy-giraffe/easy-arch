@@ -92,8 +92,8 @@ read -r -p "Please enter the hostname: " hostname
 echo $hostname > /mnt/etc/hostname
 
 # Setting up locales.
-read -r -p "Please insert the locale you use in this format (xx_XX.UTF-8): " locale
-echo "$locale UTF-8"  > /mnt/etc/locale.gen
+read -r -p "Please insert the locale you use in this format (xx_XX): " locale
+echo "$locale.UTF-8 UTF-8"  > /mnt/etc/locale.gen
 echo "LANG=\"$locale\"" > /mnt/etc/locale.conf
 
 # Setting up keyboard layout.
