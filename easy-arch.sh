@@ -8,7 +8,7 @@ umount -R /mnt
 set -e
 
 # Setting up the correct time.
-timedatectl set-ntp true
+timedatectl set-ntp true &>/dev/null
 
 # Selecting the target for the installation.
 echo "Select the disk where Arch Linux is going to be installed."
@@ -24,8 +24,8 @@ read -r -p "This will delete the current partition table on $DISK. Do you agree 
 response=${response,,}
 if [[ "$response" =~ ^(yes|y)$ ]]
 then
-    wipefs -af $DISK
-    sgdisk -Zo $DISK
+    wipefs -af $DISK &>/dev/null
+    sgdisk -Zo $DISK &>/dev/null
 else
     echo "Quitting."
     exit
@@ -46,7 +46,7 @@ partprobe $DISK
 
 # Formatting the ESP as FAT32.
 echo "Formatting the EFI Partition as FAT32."
-mkfs.fat -F 32 $ESP
+mkfs.fat -F 32 $ESP &>/dev/null
 
 # Creating a LUKS Container for the root partition.
 echo "Creating LUKS Container for the root partition."
@@ -57,16 +57,16 @@ BTRFS=/dev/mapper/cryptroot
 
 # Formatting the LUKS Container as BTRFS.
 echo "Formatting the LUKS container as BTRFS."
-mkfs.btrfs $BTRFS
+mkfs.btrfs $BTRFS &>/dev/null
 mount $BTRFS /mnt
 
 # Creating BTRFS subvolumes.
 echo "Creating BTRFS subvolumes."
-btrfs su cr /mnt/@
-btrfs su cr /mnt/@home
-btrfs su cr /mnt/@snapshots
-btrfs su cr /mnt/@var_log
-btrfs su cr /mnt/@swap
+btrfs su cr /mnt/@ &>/dev/null
+btrfs su cr /mnt/@home &>/dev/null
+btrfs su cr /mnt/@snapshots &>/dev/null
+btrfs su cr /mnt/@var_log &>/dev/null
+btrfs su cr /mnt/@swap &>/dev/null
 
 # Mounting the newly created subvolumes.
 umount /mnt
@@ -81,7 +81,7 @@ mount $ESP /mnt/boot
 
 # Pacstrap (setting up a base sytem onto the new root).
 echo "Installing the base sytem."
-pacstrap /mnt base linux linux-firmware btrfs-progs grub grub-btrfs efibootmgr snapper sudo neovim networkmanager
+pacstrap /mnt base linux linux-firmware btrfs-progs grub grub-btrfs efibootmgr snapper sudo neovim networkmanager &>/dev/null
 
 # Fstab generation.
 echo "Generating a new fstab."
@@ -127,16 +127,16 @@ then
     read -r -p "How much big should the swap file be? Type the size, just a number (eg: 1 = 1GB..): " swap
     truncate -s 0 /mnt/swap/swapfile
     chattr +C /mnt/swap/swapfile
-    btrfs property set /mnt/swap/swapfile compression none
-    dd if=/dev/zero of=/mnt/swap/swapfile bs=1G count=$swap status=progress
+    btrfs property set /mnt/swap/swapfile compression none &>/dev/null
+    dd if=/dev/zero of=/mnt/swap/swapfile bs=1G count=$swap &>/dev/null
     chmod 600 /mnt/swap/swapfile
-    mkswap /mnt/swap/swapfile
-    swapon /mnt/swap/swapfile
+    mkswap /mnt/swap/swapfile &>/dev/null
+    swapon /mnt/swap/swapfile &>/dev/null
     echo "/swap/swapfile    none    swap    defaults    0   0" >> /mnt/etc/fstab
 else
     echo "Deleting BTRFS swap subvolume."
     mount $BTRFS -o subvolid=5 /home
-    btrfs su de /home/@swap
+    btrfs su de /home/@swap &>/dev/null
     umount -R /home
     echo "No swapfile has been added."
 fi
@@ -167,11 +167,11 @@ arch-chroot /mnt /bin/passwd
 
 # Enabling auto-trimming.
 echo "Enabling auto-trimming."
-systemctl enable fstrim.timer --root=/mnt
+systemctl enable fstrim.timer --root=/mnt &>/dev/null
 
 # Enabling NetworkManager.
 echo "Enabling NetworkManager."
-systemctl enable NetworkManager --root=/mnt
+systemctl enable NetworkManager --root=/mnt &>/dev/null
 
 # Unmounting partitions.
 echo "Unmounting /mnt."
