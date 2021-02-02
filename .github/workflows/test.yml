@@ -26,13 +26,13 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Downloading the latest Arch Linux ISO.
-        run: curl -L http://mirrors.mit.edu/archlinux/iso/latest/archlinux-2021.02.01-x86_64.iso
+        run: curl -L http://mirrors.mit.edu/archlinux/iso/latest/archlinux-2021.02.01-x86_64.iso > archlinux.iso
       - name: Installing mkisofs.
         run: sudo apt-get install mkisofs -y
       - name: Creating the ISO mountpoint.
         run: mkdir ~/archiso
       - name: Mounting the ISO.
-        run: sudo mount archlinux-* ~/archiso
+        run: sudo mount archlinux.iso ~/archiso
       - name: Extracting squashfs.
         run: sudo unsquashfs /home/runner/archiso/arch/x86_64/airootfs.sfs
       - name: Listing squashfs content
