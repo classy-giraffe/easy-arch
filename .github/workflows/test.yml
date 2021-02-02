@@ -36,4 +36,4 @@ jobs:
       - name: Extracting squashfs.
         run: sudo unsquashfs ~/archiso/arch/x86_64/airootfs.sfs
       - name: Listing squashfs content
-        run: ls ~
+        run: ls -la ~
