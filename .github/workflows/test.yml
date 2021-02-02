@@ -30,6 +30,6 @@ jobs:
       - name: Creating the ISO mountpoint
         run: mkdir ~/archiso
       - name: Mounting the ISO
-        run: mount archlinux-* ~/archiso
+        run: sudo mount archlinux-* ~/archiso
       - name: Listing files
         run: ls ~/archiso
