@@ -26,14 +26,26 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Downloading the latest Arch Linux ISO.
-        run: curl -L http://mirrors.mit.edu/archlinux/iso/latest/archlinux-2021.02.01-x86_64.iso > archlinux.iso
+        run: curl -sL http://mirrors.mit.edu/archlinux/iso/latest/archlinux-2021.02.01-x86_64.iso > archlinux.iso
       - name: Installing mkisofs.
         run: sudo apt-get install mkisofs -y
       - name: Creating the ISO mountpoint.
-        run: mkdir ~/archiso
+        run: sudo mkdir ~/archiso
       - name: Mounting the ISO.
         run: sudo mount archlinux.iso ~/archiso
+      - name: Copying the files from the ISO to a new folder.
+        run: sudo cp -r ~/archiso ~/archiso_new
       - name: Extracting squashfs.
-        run: sudo unsquashfs ~/archiso/arch/x86_64/airootfs.sfs
-      - name: Listing squashfs content
-        run: ls -la ~/work/easy-arch/easy-arch/
+        run: sudo unsquashfs ~/archiso_new/arch/x86_64/airootfs.sfs
+      - name: Setting up permissions.
+        run: sudo chmod +x ~/work/easy-arch/easy-arch/easy-arch.sh
+      - name: Copying easy-arch.sh script.
+        run: sudo cp ~/work/easy-arch/easy-arch/easy-arch.sh ~/work/easy-arch/easy-arch/squashfs-root/root
+      - name: Recreating squashfs.
+        run: sudo mksquashfs ~/work/easy-arch/easy-arch/squashfs-root ~/airootfs.sfs
+      - name: Removing the old airootfs.sfs.
+        run: sudo rm -rf ~/archiso_new/arch/x86_64/airootfs.sfs
+      - name: Copying the modified airootfs.sfs into the new ISO.
+        run: sudo mv ~/airootfs.sfs ~/archiso_new/arch/x86_64/
+      - name: Creating the new Arch Linux ISO.
+        run: sudo mkisofs -lJR -o archlinux_easy.iso ~/archiso_new/
