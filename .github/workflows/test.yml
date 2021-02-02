@@ -25,6 +25,11 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
+      - name: Downloading the latest Arch Linux ISO
         run: wget http://mirrors.mit.edu/archlinux/iso/latest/archlinux-2021.02.01-x86_64.iso
+      - name: Creating the ISO mountpoint
+        run: mkdir ~/archiso
+      - name: Mounting the ISO
+        run: mount archlinux-* ~/archiso
+      - name: Listing files
+        run: ls ~/archiso
