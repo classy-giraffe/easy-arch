@@ -27,4 +27,4 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
-        run: pwd
+        run: wget http://mirrors.mit.edu/archlinux/iso/latest/archlinux-2021.02.01-x86_64.iso
