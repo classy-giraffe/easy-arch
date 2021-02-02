@@ -34,6 +34,6 @@ jobs:
       - name: Mounting the ISO.
         run: sudo mount archlinux-* ~/archiso
       - name: Extracting squashfs.
-        run: sudo unsquashfs archiso/arch/x86_64/airootfs.sfs
+        run: sudo unsquashfs ~/archiso/arch/x86_64/airootfs.sfs
       - name: Listing squashfs content
         run: ls ~/squashfs-root
