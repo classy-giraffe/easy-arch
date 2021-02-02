@@ -1,0 +1,50 @@
+default:
+  image: "archlinux:latest"
+
+stages:
+  - lint
+  - build
+
+shellcheck:
+  stage: lint
+  before_script:
+    - pacman --noconfirm -Syu --needed make shellcheck
+  script:
+    - make lint
+
+.build:
+  stage: build
+  before_script:
+    - pacman -Syu --needed --noconfirm qemu-headless libisoburn
+  script:
+    - ./.gitlab/ci/build-host.sh
+  after_script:
+    - echo "image_size_megabytes{image=\"${PROFILE}\"} $(du --block-size=MiB -- output/${PROFILE}/*iso)" > metrics.txt
+  parallel:
+    matrix:
+      - PROFILE: [baseline, releng]
+  artifacts:
+    name: "output"
+    paths:
+      - "output/*/*"
+    expire_in: 2d
+    reports:
+      metrics: metrics.txt
+
+build:
+  extends: .build
+  tags:
+    - fast-single-thread
+  except:
+    - master
+    - schedules
+    - tags
+
+build:secure:
+  extends: .build
+  tags:
+    - secure
+  only:
+    - master
+    - schedules
+    - tags
