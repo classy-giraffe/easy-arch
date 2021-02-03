@@ -95,7 +95,7 @@ echo "LANG=\"$locale\".UTF-8" > /mnt/etc/locale.conf
 
 # Setting up keyboard layout.
 read -r -p "Please insert the keyboard layout you use: " kblayout
-echo "KEYMAP=\$kblayout\"" > /mnt/etc/vconsole.conf
+echo "KEYMAP=\"$kblayout\"" > /mnt/etc/vconsole.conf
 
 # Setting hosts file.
 echo "Setting hosts file."
