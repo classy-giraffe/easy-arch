@@ -58,6 +58,9 @@ jobs:
       - name: Creating the new Arch Linux ISO.
         run: sudo mkisofs -lJR -o archlinux_easy.iso ~/archiso_new/
       
+      - name: Debug
+        run: ls -la ~ ~/archiso_new/ ~/work/easy-arch/easy-arch
+      
       - uses: actions/upload-artifact@v2
         with:
           name: Download ISO.
