@@ -60,5 +60,5 @@ jobs:
       
       - uses: actions/upload-artifact@v2
         with:
-          name: Download ISO.
+          name: archlinux_easy.iso
           path: ~/work/easy-arch/easy-arch/archlinux_easy.iso 
