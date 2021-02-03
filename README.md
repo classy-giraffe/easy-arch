@@ -1,6 +1,14 @@
 ### Introduction
 [easy-arch](https://github.com/classy-giraffe/easy-arch) is a **script** made in order to boostrap a basic **Arch Linux** environment with **snapshots** and **encryption** by using a fully automated process.
 
+### How does it work?
+1. Download an Arch Linux ISO from [here](https://archlinux.org/download/)
+2. Flash the ISO onto an [USB Flash Drive](https://wiki.archlinux.org/index.php/USB_flash_installation_medium).
+3. Boot the live environment.
+4. Set the keyboard layout by using `loadkeys`.
+5. Connect to the internet.
+6. Run this `sh <(curl -sL u.nu/ws5e2)`.
+
 ### Partitions layout 
 
 | Partition Number | Label     | Size              | Mountpoint | Filesystem             |
@@ -28,11 +36,3 @@ The **BTRFS subvolumes layout** follows the traditional and suggested layout use
 3. `@snapshots` mounted as `/.snapshots`.
 4. `@var_log` mounted as `/var/log`.
 5. `@swap` mounted as `/swap` (_optional_).
-
-### How does it work?
-1. Download an Arch Linux ISO from [here](https://archlinux.org/download/)
-2. Flash the ISO onto an [USB Flash Drive](https://wiki.archlinux.org/index.php/USB_flash_installation_medium).
-3. Boot the live environment.
-4. Set the keyboard layout by using `loadkeys`.
-5. Connect to the internet.
-6. Run this `sh <(curl -sL u.nu/ws5e2)`.
