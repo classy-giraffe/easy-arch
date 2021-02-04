@@ -29,5 +29,5 @@ jobs:
         run: docker pull archlinux
 
       - name: List containers.
-        run: docker run archlinux bash -c "pacman -Syu"
+        run: docker run archlinux bash -c "pacman -Syu --noconfirm"
 
