@@ -28,6 +28,8 @@ jobs:
       - name: Pull Arch Linux Docker image.
         run: docker pull archlinux
 
-      - name: List containers.
+      - name: Updating the container.
         run: docker run archlinux bash -c "pacman -Syu --noconfirm"
-
+      
+      - name: Installing the Archiso package inside the container.
+        run: docker run archlinux bash -c "pacman -S --noconfirm archiso"
