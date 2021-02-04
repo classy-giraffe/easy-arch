@@ -29,6 +29,5 @@ jobs:
         run: docker pull archlinux
 
       - name: List containers.
-        run: docker ps
-        
+        run: docker run -it archlinux bash -c "pacman -Syu"
 
