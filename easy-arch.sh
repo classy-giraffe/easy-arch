@@ -50,7 +50,7 @@ echo "Creating LUKS Container for the root partition."
 cryptsetup --type luks1 luksFormat $Cryptroot
 echo "Opening the newly created LUKS Container."
 cryptsetup open $Cryptroot cryptroot
-BTRFS=/dev/mapper/cryptroot
+BTRFS="/dev/mapper/cryptroot"
 
 # Formatting the LUKS Container as BTRFS.
 echo "Formatting the LUKS container as BTRFS."
@@ -80,7 +80,7 @@ mount $ESP /mnt/boot
 echo "Installing the base system (it may take a while)."
 pacstrap /mnt base linux linux-firmware btrfs-progs grub grub-btrfs efibootmgr snapper sudo neovim networkmanager &>/dev/null
 
-# Fstab generation.
+# Generating /etc/fstab.
 echo "Generating a new fstab."
 genfstab -U /mnt >> /mnt/etc/fstab
 
@@ -141,7 +141,7 @@ else
 fi
 
 # Configuring the system.    
-arch-chroot /mnt /bin/bash -e <<"EOF"
+arch-chroot /mnt /bin/bash -e <<EOF
     
     # Setting up clock.
     hwclock --systohc
@@ -177,21 +177,18 @@ EOF
 echo "Setting root password."
 arch-chroot /mnt /bin/passwd
 
-# Enabling auto-trimming.
+# Enabling auto-trimming service.
 echo "Enabling auto-trimming."
 systemctl enable fstrim.timer --root=/mnt &>/dev/null
 
-# Enabling NetworkManager.
+# Enabling NetworkManager service.
 echo "Enabling NetworkManager."
 systemctl enable NetworkManager --root=/mnt &>/dev/null
 
-# Enabling Snapper.
+# Enabling Snapper automatic snapshots.
 echo "Enabling Snapper."
 systemctl enable snapper-timeline.timer --root=/mnt &>/dev/null
 systemctl enable snapper-cleanup.timer --root=/mnt &>/dev/null
 
-# Unmounting partitions.
-echo "Unmounting /mnt."
-umount -R /mnt
-echo "Done, you may now wish to reboot."
+echo "Done, you may now wish to reboot (further changes can be done by chrooting into /mnt)."
 exit
