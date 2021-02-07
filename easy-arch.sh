@@ -8,7 +8,7 @@ set -e
 
 # Selecting the target for the installation.
 echo "Select the disk where Arch Linux is going to be installed."
-select ENTRY in $(lsblk -dpn -oNAME);
+select ENTRY in $(lsblk -dpnoNAME);
 do
     DISK=$ENTRY
     echo "Installing Arch Linux on $DISK."
