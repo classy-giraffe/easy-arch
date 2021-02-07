@@ -10,7 +10,7 @@ set -e
 PS3="Select the disk where Arch Linux is going to be installed: "
 select ENTRY in $(lsblk -dpnoNAME|grep -P "/dev/sd|nvme");
 do
-    echo "Available disks":
+    echo "Available disks:"
     DISK=$ENTRY
     echo "Installing Arch Linux on $DISK."
     break
