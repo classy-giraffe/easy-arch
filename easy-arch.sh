@@ -7,7 +7,7 @@ clear
 set -e
 
 # Selecting the target for the installation.
-echo "Select the disk where Arch Linux is going to be installed."
+PS3="Select the disk where Arch Linux is going to be installed: "
 select ENTRY in $(lsblk -dpnoNAME);
 do
     DISK=$ENTRY
