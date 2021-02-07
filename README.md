@@ -18,7 +18,7 @@
 
 The **partitions layout** is pretty straightforward, it's inspired by [this section](https://wiki.archlinux.org/index.php/Dm-crypt/Encrypting_an_entire_system#Btrfs_subvolumes_with_swap) of the Arch Wiki. As you can see there's just a couple of partitions:
 1. A **FAT32**, 512MiB sized, mounted at `/boot` for the ESP.
-2. A **LUKS encrypted container**, which takes the rest of the disk mounted at `/` for the rootfs.
+2. A **LUKS encrypted container**, which takes the rest of the disk space, mounted at `/` for the rootfs.
 
 ### BTRFS subvolumes layout
 
