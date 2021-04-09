@@ -106,8 +106,7 @@ cat > /mnt/etc/hosts <<EOF
 EOF
 
 # Configuring /etc/mkinitcpio.conf
-echo "Configuring /etc/mkinitcpio for ZSTD compression, BTRFS and LUKS hook."
-sed -i -e 's,BINARIES=(),BINARIES=(/usr/bin/btrfs),g' /mnt/etc/mkinitcpio.conf
+echo "Configuring /etc/mkinitcpio for ZSTD compression and LUKS hook."
 sed -i -e 's,#COMPRESSION="zstd",COMPRESSION="zstd",g' /mnt/etc/mkinitcpio.conf
 sed -i -e 's,modconf block filesystems keyboard,keyboard keymap modconf block encrypt filesystems,g' /mnt/etc/mkinitcpio.conf
 
