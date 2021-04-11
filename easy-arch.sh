@@ -68,11 +68,11 @@ btrfs su cr /mnt/@swap &>/dev/null
 # Mounting the newly created subvolumes.
 umount /mnt
 echo "Mounting the newly created subvolumes."
-mount -o compress=zstd,subvol=@ $BTRFS /mnt
+mount -o ssd,noatime,space_cache,compress=zstd,subvol=@ $BTRFS /mnt
 mkdir -p /mnt/{home,.snapshots,/var/log,swap,boot}
-mount -o compress=zstd,subvol=@home $BTRFS /mnt/home
-mount -o compress=zstd,subvol=@snapshots $BTRFS /mnt/.snapshots
-mount -o nodatacow,subvol=@var_log $BTRFS /mnt/var/log
+mount -o ssd,noatime,space_cache.compress=zstd,subvol=@home $BTRFS /mnt/home
+mount -o ssd,noatime,space_cache,compress=zstd,subvol=@snapshots $BTRFS /mnt/.snapshots
+mount -o ssd,noatime,space_cache,nodatacow,subvol=@var_log $BTRFS /mnt/var/log
 mount -o nodatacow,subvol=@swap $BTRFS /mnt/swap
 mount $ESP /mnt/boot
 
