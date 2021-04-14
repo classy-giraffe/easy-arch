@@ -143,7 +143,7 @@ fi
 arch-chroot /mnt /bin/bash -e <<EOF
     
     # Setting up timezone.
-    timedatectl set-timezone "$(curl http://ip-api.com/line?fields=timezone)"
+    ln -sf /usr/share/zoneinfo/$(curl -s http://ip-api.com/line?fields=timezone) /etc/localtime &>/dev/null
     
     # Setting up clock.
     hwclock --systohc
