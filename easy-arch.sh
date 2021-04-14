@@ -3,6 +3,38 @@
 # Cleaning the TTY.
 clear
 
+# Selecting the kernel flavor to install. 
+kernel_selector () {
+    echo "List of kernels:"
+    echo "1) Stable — Vanilla Linux kernel and modules, with a few patches applied."
+    echo "2) Hardened — A security-focused Linux kernel."
+    echo "3) Longterm — Long-term support (LTS) Linux kernel and modules."
+    echo "4) Zen Kernel — Optimized for desktop usage."
+    read -r -p "Insert the number of the corresponding kernel: " choice
+    echo "$choice will be installed"
+    case $choice in
+        1 ) kernel=linux
+            ;;
+        2 ) kernel=linux-hardened
+            ;;
+        3 ) kernel=linux-lts
+            ;;
+        4 ) kernel=linux-zen
+            ;;
+        * ) echo "You did not enter a valid selection."
+            kernel_selector
+    esac
+}
+
+# Checking the microcode to install.
+CPU=$(grep vendor_id /proc/cpuinfo)
+if [[ $CPU == *"AuthenticAMD"* ]]
+then
+    microcode=amd-ucode
+else
+    microcode=intel-ucode
+fi
+
 # Selecting the target for the installation.
 PS3="Select the disk where Arch Linux is going to be installed: "
 select ENTRY in $(lsblk -dpnoNAME|grep -P "/dev/sd|nvme|vd");
@@ -17,8 +49,8 @@ read -r -p "This will delete the current partition table on $DISK. Do you agree 
 response=${response,,}
 if [[ "$response" =~ ^(yes|y)$ ]]
 then
-    wipefs -af $DISK &>/dev/null
-    sgdisk -Zo $DISK &>/dev/null
+    wipefs -af "$DISK" &>/dev/null
+    sgdisk -Zo "$DISK" &>/dev/null
 else
     echo "Quitting."
     exit
@@ -26,7 +58,7 @@ fi
 
 # Creating a new partition scheme.
 echo "Creating new partition scheme on $DISK."
-parted -s $DISK \
+parted -s "$DISK" \
     mklabel gpt \
     mkpart ESP fat32 1MiB 513MiB \
     mkpart Cryptroot 513MiB 100% \
@@ -36,7 +68,7 @@ Cryptroot="/dev/disk/by-partlabel/Cryptroot"
 
 # Informing the Kernel of the changes.
 echo "Informing the Kernel about the disk changes."
-partprobe $DISK
+partprobe "$DISK"
 
 # Formatting the ESP as FAT32.
 echo "Formatting the EFI Partition as FAT32."
@@ -61,27 +93,25 @@ btrfs su cr /mnt/@boot &>/dev/null
 btrfs su cr /mnt/@home &>/dev/null
 btrfs su cr /mnt/@snapshots &>/dev/null
 btrfs su cr /mnt/@var_log &>/dev/null
-btrfs su cr /mnt/@swap &>/dev/null
 
 # Mounting the newly created subvolumes.
 umount /mnt
 echo "Mounting the newly created subvolumes."
 mount -o ssd,noatime,space_cache,compress=zstd,subvol=@ $BTRFS /mnt
-mkdir -p /mnt/{home,.snapshots,/var/log,swap,boot}
+mkdir -p /mnt/{home,.snapshots,/var/log,boot}
 mount -o ssd,noatime,space_cache,compress=zstd,subvol=@boot $BTRFS /mnt/boot
 mount -o ssd,noatime,space_cache.compress=zstd,subvol=@home $BTRFS /mnt/home
 mount -o ssd,noatime,space_cache,compress=zstd,subvol=@snapshots $BTRFS /mnt/.snapshots
 mount -o ssd,noatime,space_cache,nodatacow,subvol=@var_log $BTRFS /mnt/var/log
-mount -o nodatacow,subvol=@swap $BTRFS /mnt/swap
+chattr +C /mnt/var/log
 mkdir /mnt/boot/efi
 mount $ESP /mnt/boot/efi
 
-chattr +C @/mnt/var/log
-chattr +C @/mnt/swap
+kernel_selector
 
 # Pacstrap (setting up a base sytem onto the new root).
 echo "Installing the base system (it may take a while)."
-pacstrap /mnt base linux linux-firmware btrfs-progs grub grub-btrfs efibootmgr snapper sudo networkmanager
+pacstrap /mnt base $kernel $microcode linux-firmware btrfs-progs grub grub-btrfs efibootmgr snapper sudo networkmanager
 
 # Generating /etc/fstab.
 echo "Generating a new fstab."
@@ -89,7 +119,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 # Setting hostname.
 read -r -p "Please enter the hostname: " hostname
-echo $hostname > /mnt/etc/hostname
+echo "$hostname" > /mnt/etc/hostname
 
 # Setting up locales.
 read -r -p "Please insert the locale you use (format: xx_XX): " locale
@@ -114,34 +144,14 @@ sed -i -e 's,modconf block filesystems keyboard,keyboard keymap modconf block en
 
 # Enabling LUKS in GRUB, setting up the UUID of the LUKS container and enabling boot on BTRFS.
 UUID=$(blkid $Cryptroot | cut -f2 -d'"')
-sed -i 's/#\(GRUB_ENABLE_CRYPTODISK=y\)/\1/' /mnt/etc/default/grub
-sed -i -e "s,quiet,quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS,g" /mnt/etc/default/grub
-echo "# Booting with BTRFS subvolume" >> /mnt/etc/default/grub
-echo "GRUB_BTRFS_OVERRIDE_BOOT_PARTITION_DETECTION=true" >> /mnt/etc/default/grub
+sed -i -e "s/#\(GRUB_ENABLE_CRYPTODISK=y\)/\1/" /mnt/etc/default/grub
+echo -e "# Booting with BTRFS subvolume\nGRUB_BTRFS_OVERRIDE_BOOT_PARTITION_DETECTION=true" >> /mnt/etc/default/grub
 
-# Creating a swapfile.
-read -r -p "Do you want a swapfile? [y/N]? " response
-response=${response,,}
-if [[ "$response" =~ ^(yes|y)$ ]]
-then
-    read -r -p "How much big should the swap file be? Type the size, just a number (eg: 1 = 1GB..): " swap
-    truncate -s 0 /mnt/swap/swapfile
-    chattr +C /mnt/swap/swapfile
-    btrfs property set /mnt/swap/swapfile compression none &>/dev/null
-    dd if=/dev/zero of=/mnt/swap/swapfile bs=1G count=$swap &>/dev/null
-    chmod 600 /mnt/swap/swapfile
-    mkswap /mnt/swap/swapfile &>/dev/null
-    swapon /mnt/swap/swapfile &>/dev/null
-    echo "/swap/swapfile    none    swap    defaults    0   0" >> /mnt/etc/fstab
-else
-    # Removing swap subvolumes and fstab entry in case it's not needed.
-    echo "Deleting BTRFS swap subvolume."
-    mount $BTRFS -o subvolid=5 /home
-    head -n -4 /home/@/etc/fstab > /home/@/etc/new_fstab && mv /home/@/etc/new_fstab /home/@/etc/fstab
-    btrfs su de /home/@swap &>/dev/null
-    umount -R /home
-    echo "No swapfile has been added."
-fi
+# Adding keyfile to the initramfs to avoid double password.
+dd bs=512 count=4 if=/dev/random of=/mnt/root/cryptroot.keyfile iflag=fullblock &>/dev/null
+chmod 000 /mnt/root/cryptroot.keyfile &>/dev/null
+cryptsetup -v luksAddKey /dev/disk/by-partlabel/Cryptroot /mnt/root/cryptroot.keyfile
+sed -i -e "s,quiet,quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS cryptkey=rootfs:/root/cryptroot.keyfile,g" /mnt/etc/default/grub
 
 # Configuring the system.    
 arch-chroot /mnt /bin/bash -e <<EOF
@@ -158,6 +168,7 @@ arch-chroot /mnt /bin/bash -e <<EOF
 
     # Generating a new initramfs.
     echo "Creating a new initramfs."
+    chmod 600 /boot/initramfs-linux* &>/dev/null
     mkinitcpio -P &>/dev/null
 
     # Snapper configuration
@@ -171,11 +182,11 @@ arch-chroot /mnt /bin/bash -e <<EOF
 
     # Installing GRUB.
     echo "Installing GRUB on /boot."
-    grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB 
+    grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB &>/dev/null
     
     # Creating grub config file.
     echo "Creating GRUB config file."
-    grub-mkconfig -o /boot/grub/grub.cfg 
+    grub-mkconfig -o /boot/grub/grub.cfg &>/dev/null
 
 EOF
 
