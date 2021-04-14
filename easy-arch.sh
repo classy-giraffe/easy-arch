@@ -176,10 +176,6 @@ EOF
 echo "Setting root password."
 arch-chroot /mnt /bin/passwd
 
-# Enabling auto-trimming service.
-echo "Enabling auto-trimming."
-systemctl enable fstrim.timer --root=/mnt &>/dev/null
-
 # Enabling NetworkManager service.
 echo "Enabling NetworkManager."
 systemctl enable NetworkManager --root=/mnt &>/dev/null
