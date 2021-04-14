@@ -3,57 +3,37 @@
 # Cleaning the TTY.
 clear
 
-# Selecting the kernel flavor to install 
-kernel_options() {
-    echo "Which kernel flavor would you want?"
-    echo "[1] Stable — Vanilla Linux kernel and modules, with a few patches applied."
-    echo "[2] Hardened — A security-focused Linux kernel applying a set of hardening patches to mitigate kernel and userspace exploits. It also enables more upstream kernel hardening features than Stable."
-    echo "[3] Longterm — Long-term support (LTS) Linux kernel and modules."
-    echo "[4] Zen Kernel — Result of a collaborative effort of kernel hackers to provide the best Linux kernel possible for everyday systems. Some more details can be found on https://liquorix.net (which provides kernel binaries based on Zen for Debian)."
-    echo ""
-    read choice
+# Selecting the kernel flavor to install. 
+kernel_selector () {
+    echo "List of kernels:"
+    echo "1) Stable — Vanilla Linux kernel and modules, with a few patches applied."
+    echo "2) Hardened — A security-focused Linux kernel."
+    echo "3) Longterm — Long-term support (LTS) Linux kernel and modules."
+    echo "4) Zen Kernel — Optimized for desktop usage."
+    read -r -p "Insert the number of the corresponding kernel: " choice
+    echo "$choice will be installed"
     case $choice in
-        1 ) KERNEL=linux
-            echo "You have selected to install the vanilla Linux kernel."
-            echo ""
+        1 ) kernel=linux
             ;;
-        2 ) KERNEL=linux-hardened
-            echo "You have selected to install the hardened kernel."
-            echo ""
+        2 ) kernel=linux-hardened
             ;;
-        3 ) KERNEL=linux-lts
-            echo "You have selected to install the long term kernel."
-            echo ""
+        3 ) kernel=linux-lts
             ;;
-        4 ) KERNEL=linux-zen
-            echo "You have selected to install the Zen kernel."
-            echo ""
+        4 ) kernel=linux-zen
             ;;
         * ) echo "You did not enter a valid selection."
             kernel_options
     esac
 }
 
-# Selecting the microcode to install
-cpu_options() {
-    echo "Which brand is your CPU?"
-    echo "[1] Intel"
-    echo "[2] AMD"
-    echo ""
-    read choice
-    case $choice in
-        1 ) CPU=intel-ucode
-            echo "Intel microcode will be installed."
-            echo ""
-            ;;
-        2 ) CPU=amd-ucode
-            echo "AMD microcode will be installed."
-            echo ""
-            ;;
-        * ) echo "You did not enter a valid selection."
-            cpu_options
-    esac
-}
+# Checking the microcode to install.
+CPU=$(grep vendor_id /proc/cpuinfo)
+if [[ $CPU == *"AuthenticAMD"* ]]
+then
+    microcode=amd-ucode
+else
+    microcode=intel-ucode
+fi
 
 # Selecting the target for the installation.
 PS3="Select the disk where Arch Linux is going to be installed: "
@@ -131,7 +111,7 @@ cpu_options
 
 # Pacstrap (setting up a base sytem onto the new root).
 echo "Installing the base system (it may take a while)."
-pacstrap /mnt base ${KERNEL} ${CPU} linux-firmware btrfs-progs grub grub-btrfs efibootmgr snapper sudo networkmanager
+pacstrap /mnt base $kernel $microcode linux-firmware btrfs-progs grub grub-btrfs efibootmgr snapper sudo networkmanager
 
 # Generating /etc/fstab.
 echo "Generating a new fstab."
