@@ -144,7 +144,6 @@ sed -i -e 's,modconf block filesystems keyboard,keyboard keymap modconf block en
 # Enabling LUKS in GRUB, setting up the UUID of the LUKS container and enabling boot on BTRFS.
 UUID=$(blkid $Cryptroot | cut -f2 -d'"')
 sed -i -e "s/#\(GRUB_ENABLE_CRYPTODISK=y\)/\1/" /mnt/etc/default/grub
-sed -i -e "s,quiet,quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS,g" /mnt/etc/default/grub
 echo -e "# Booting with BTRFS subvolume\nGRUB_BTRFS_OVERRIDE_BOOT_PARTITION_DETECTION=true" >> /mnt/etc/default/grub
 
 # Adding keyfile to the initramfs to avoid double password.
