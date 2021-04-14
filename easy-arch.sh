@@ -1,10 +1,7 @@
-#!/usr/bin/env bash
+#!/usr/bin/env -S bash -e
 
 # Cleaning the TTY.
 clear
-
-# Exit on STDERR.
-set -e
 
 # Selecting the target for the installation.
 PS3="Select the disk where Arch Linux is going to be installed: "
@@ -106,8 +103,7 @@ cat > /mnt/etc/hosts <<EOF
 EOF
 
 # Configuring /etc/mkinitcpio.conf
-echo "Configuring /etc/mkinitcpio for ZSTD compression and LUKS hook."
-sed -i -e 's,#COMPRESSION="zstd",COMPRESSION="zstd",g' /mnt/etc/mkinitcpio.conf
+echo "Configuring /etc/mkinitcpio.conf for LUKS hook."
 sed -i -e 's,modconf block filesystems keyboard,keyboard keymap modconf block encrypt filesystems,g' /mnt/etc/mkinitcpio.conf
 
 # Enabling LUKS in GRUB and setting the UUID of the LUKS container.
