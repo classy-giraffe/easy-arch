@@ -113,18 +113,16 @@ btrfs su cr /mnt/@boot &>/dev/null
 btrfs su cr /mnt/@home &>/dev/null
 btrfs su cr /mnt/@snapshots &>/dev/null
 btrfs su cr /mnt/@var_log &>/dev/null
-btrfs su cr /mnt/@swap &>/dev/null
 
 # Mounting the newly created subvolumes.
 umount /mnt
 echo "Mounting the newly created subvolumes."
 mount -o ssd,noatime,space_cache,compress=zstd,subvol=@ $BTRFS /mnt
-mkdir -p /mnt/{home,.snapshots,/var/log,swap,boot}
+mkdir -p /mnt/{home,.snapshots,/var/log,boot}
 mount -o ssd,noatime,space_cache,compress=zstd,subvol=@boot $BTRFS /mnt/boot
 mount -o ssd,noatime,space_cache.compress=zstd,subvol=@home $BTRFS /mnt/home
 mount -o ssd,noatime,space_cache,compress=zstd,subvol=@snapshots $BTRFS /mnt/.snapshots
 mount -o ssd,noatime,space_cache,nodatacow,subvol=@var_log $BTRFS /mnt/var/log
-mount -o nodatacow,subvol=@swap $BTRFS /mnt/swap
 mkdir /mnt/boot/efi
 mount $ESP /mnt/boot/efi
 
@@ -166,34 +164,15 @@ sed -i -e 's,modconf block filesystems keyboard,keyboard keymap modconf block en
 
 # Enabling LUKS in GRUB, setting up the UUID of the LUKS container and enabling boot on BTRFS.
 UUID=$(blkid $Cryptroot | cut -f2 -d'"')
-sed -i 's/#\(GRUB_ENABLE_CRYPTODISK=y\)/\1/' /mnt/etc/default/grub
+sed -i -e "s/#\(GRUB_ENABLE_CRYPTODISK=y\)/\1/" /mnt/etc/default/grub
 sed -i -e "s,quiet,quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS,g" /mnt/etc/default/grub
-echo "# Booting with BTRFS subvolume" >> /mnt/etc/default/grub
-echo "GRUB_BTRFS_OVERRIDE_BOOT_PARTITION_DETECTION=true" >> /mnt/etc/default/grub
+echo -e "# Booting with BTRFS subvolume\nGRUB_BTRFS_OVERRIDE_BOOT_PARTITION_DETECTION=true" >> /mnt/etc/default/grub
 
-# Creating a swapfile.
-read -r -p "Do you want a swapfile? [y/N]? " response
-response=${response,,}
-if [[ "$response" =~ ^(yes|y)$ ]]
-then
-    read -r -p "How much big should the swap file be? Type the size, just a number (eg: 1 = 1GB..): " swap
-    truncate -s 0 /mnt/swap/swapfile
-    chattr +C /mnt/swap/swapfile
-    btrfs property set /mnt/swap/swapfile compression none &>/dev/null
-    dd if=/dev/zero of=/mnt/swap/swapfile bs=1G count=$swap &>/dev/null
-    chmod 600 /mnt/swap/swapfile
-    mkswap /mnt/swap/swapfile &>/dev/null
-    swapon /mnt/swap/swapfile &>/dev/null
-    echo "/swap/swapfile    none    swap    defaults    0   0" >> /mnt/etc/fstab
-else
-    # Removing swap subvolumes and fstab entry in case it's not needed.
-    echo "Deleting BTRFS swap subvolume."
-    mount $BTRFS -o subvolid=5 /home
-    head -n -4 /home/@/etc/fstab > /home/@/etc/new_fstab && mv /home/@/etc/new_fstab /home/@/etc/fstab
-    btrfs su de /home/@swap &>/dev/null
-    umount -R /home
-    echo "No swapfile has been added."
-fi
+# Adding keyfile to the initramfs to avoid double password.
+dd bs=512 count=4 if=/dev/random of=/mnt/root/cryptroot.keyfile iflag=fullblock &>/dev/null
+chmod 000 /mnt/root/cryptroot.keyfile &>/dev/null
+cryptsetup -v luksAddKey /dev/disk/by-partlabel/Cryptroot /mnt/root/cryptroot.keyfile
+sed -i -e "s,GRUB_CMDLINE_LINUX="",GRUB_CMDLINE_LINUX="cryptdevice=UUID=$UUID:cryptroot root=$BTRFS cryptkey=rootfs:/root/cryptroot.keyfile,g"
 
 # Configuring the system.    
 arch-chroot /mnt /bin/bash -e <<EOF
@@ -210,6 +189,7 @@ arch-chroot /mnt /bin/bash -e <<EOF
 
     # Generating a new initramfs.
     echo "Creating a new initramfs."
+    chmod 600 /boot/initramfs-linux* &>/dev/null
     mkinitcpio -P &>/dev/null
 
     # Snapper configuration
