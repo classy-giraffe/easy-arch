@@ -151,7 +151,7 @@ echo -e "# Booting with BTRFS subvolume\nGRUB_BTRFS_OVERRIDE_BOOT_PARTITION_DETE
 dd bs=512 count=4 if=/dev/random of=/mnt/root/cryptroot.keyfile iflag=fullblock &>/dev/null
 chmod 000 /mnt/root/cryptroot.keyfile &>/dev/null
 cryptsetup -v luksAddKey /dev/disk/by-partlabel/Cryptroot /mnt/root/cryptroot.keyfile
-sed -i -e "s,GRUB_CMDLINE_LINUX="",GRUB_CMDLINE_LINUX="cryptdevice=UUID="$UUID":cryptroot root=$BTRFS cryptkey=rootfs:/root/cryptroot.keyfile,g"
+sed -i -e "s,quiet,quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS cryptkey=rootfs:/root/cryptroot.keyfile,g" /mnt/etc/default/grub
 
 # Configuring the system.    
 arch-chroot /mnt /bin/bash -e <<EOF
@@ -182,11 +182,11 @@ arch-chroot /mnt /bin/bash -e <<EOF
 
     # Installing GRUB.
     echo "Installing GRUB on /boot."
-    grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB 
+    grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB &>/dev/null
     
     # Creating grub config file.
     echo "Creating GRUB config file."
-    grub-mkconfig -o /boot/grub/grub.cfg 
+    grub-mkconfig -o /boot/grub/grub.cfg &>/dev/null
 
 EOF
 
