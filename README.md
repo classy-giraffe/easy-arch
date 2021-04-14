@@ -7,7 +7,7 @@
 3. Boot the live environment.
 4. Set the keyboard layout by using `loadkeys`.
 5. Connect to the internet.
-6. Run this `bash <(curl -sL u.nu/ws5e2)`.
+6. Run this `bash <(curl -sL https://git.io/JtRu2)`.
 
 ### Partitions layout 
 
