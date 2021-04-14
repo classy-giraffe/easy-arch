@@ -67,12 +67,13 @@ btrfs su cr /mnt/@swap &>/dev/null
 umount /mnt
 echo "Mounting the newly created subvolumes."
 mount -o ssd,noatime,space_cache,compress=zstd,subvol=@ $BTRFS /mnt
-mkdir -p /mnt/{home,.snapshots,/var/log,swap,/boot/efi}
+mkdir -p /mnt/{home,.snapshots,/var/log,swap,boot}
 mount -o ssd,noatime,space_cache,compress=zstd,subvol=@boot $BTRFS /mnt/boot
 mount -o ssd,noatime,space_cache.compress=zstd,subvol=@home $BTRFS /mnt/home
 mount -o ssd,noatime,space_cache,compress=zstd,subvol=@snapshots $BTRFS /mnt/.snapshots
 mount -o ssd,noatime,space_cache,nodatacow,subvol=@var_log $BTRFS /mnt/var/log
 mount -o nodatacow,subvol=@swap $BTRFS /mnt/swap
+mkdir /mnt/boot/efi
 mount $ESP /mnt/boot/efi
 
 # Pacstrap (setting up a base sytem onto the new root).
