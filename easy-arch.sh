@@ -57,6 +57,7 @@ mount $BTRFS /mnt
 # Creating BTRFS subvolumes.
 echo "Creating BTRFS subvolumes."
 btrfs su cr /mnt/@ &>/dev/null
+btrfs su cr /mnt/@boot &>/dev/null
 btrfs su cr /mnt/@home &>/dev/null
 btrfs su cr /mnt/@snapshots &>/dev/null
 btrfs su cr /mnt/@var_log &>/dev/null
@@ -66,12 +67,13 @@ btrfs su cr /mnt/@swap &>/dev/null
 umount /mnt
 echo "Mounting the newly created subvolumes."
 mount -o ssd,noatime,space_cache,compress=zstd,subvol=@ $BTRFS /mnt
-mkdir -p /mnt/{home,.snapshots,/var/log,swap,boot}
+mkdir -p /mnt/{home,.snapshots,/var/log,swap,boot,efi}
+mount -o ssd,noatime,space_cache,compress=zstd,subvol=@boot $BTRFS /mnt/boot
 mount -o ssd,noatime,space_cache.compress=zstd,subvol=@home $BTRFS /mnt/home
 mount -o ssd,noatime,space_cache,compress=zstd,subvol=@snapshots $BTRFS /mnt/.snapshots
 mount -o ssd,noatime,space_cache,nodatacow,subvol=@var_log $BTRFS /mnt/var/log
 mount -o nodatacow,subvol=@swap $BTRFS /mnt/swap
-mount $ESP /mnt/boot
+mount $ESP /mnt/efi
 
 # Pacstrap (setting up a base sytem onto the new root).
 echo "Installing the base system (it may take a while)."
