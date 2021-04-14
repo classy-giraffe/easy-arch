@@ -76,6 +76,9 @@ mount -o nodatacow,subvol=@swap $BTRFS /mnt/swap
 mkdir /mnt/boot/efi
 mount $ESP /mnt/boot/efi
 
+chattr +C @/mnt/var/log
+chattr +C @/mnt/swap
+
 # Pacstrap (setting up a base sytem onto the new root).
 echo "Installing the base system (it may take a while)."
 pacstrap /mnt base linux linux-firmware btrfs-progs grub grub-btrfs efibootmgr snapper sudo networkmanager
