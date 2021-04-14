@@ -107,7 +107,6 @@ mkdir /mnt/boot/efi
 mount $ESP /mnt/boot/efi
 
 kernel_options
-cpu_options
 
 # Pacstrap (setting up a base sytem onto the new root).
 echo "Installing the base system (it may take a while)."
