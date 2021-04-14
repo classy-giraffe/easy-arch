@@ -69,8 +69,8 @@ read -r -p "This will delete the current partition table on $DISK. Do you agree 
 response=${response,,}
 if [[ "$response" =~ ^(yes|y)$ ]]
 then
-    wipefs -af $DISK &>/dev/null
-    sgdisk -Zo $DISK &>/dev/null
+    wipefs -af "$DISK" &>/dev/null
+    sgdisk -Zo "$DISK" &>/dev/null
 else
     echo "Quitting."
     exit
@@ -78,7 +78,7 @@ fi
 
 # Creating a new partition scheme.
 echo "Creating new partition scheme on $DISK."
-parted -s $DISK \
+parted -s "$DISK" \
     mklabel gpt \
     mkpart ESP fat32 1MiB 513MiB \
     mkpart Cryptroot 513MiB 100% \
@@ -88,7 +88,7 @@ Cryptroot="/dev/disk/by-partlabel/Cryptroot"
 
 # Informing the Kernel of the changes.
 echo "Informing the Kernel about the disk changes."
-partprobe $DISK
+partprobe "$DISK"
 
 # Formatting the ESP as FAT32.
 echo "Formatting the EFI Partition as FAT32."
@@ -139,7 +139,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 # Setting hostname.
 read -r -p "Please enter the hostname: " hostname
-echo $hostname > /mnt/etc/hostname
+echo "$hostname" > /mnt/etc/hostname
 
 # Setting up locales.
 read -r -p "Please insert the locale you use (format: xx_XX): " locale
@@ -172,7 +172,7 @@ echo -e "# Booting with BTRFS subvolume\nGRUB_BTRFS_OVERRIDE_BOOT_PARTITION_DETE
 dd bs=512 count=4 if=/dev/random of=/mnt/root/cryptroot.keyfile iflag=fullblock &>/dev/null
 chmod 000 /mnt/root/cryptroot.keyfile &>/dev/null
 cryptsetup -v luksAddKey /dev/disk/by-partlabel/Cryptroot /mnt/root/cryptroot.keyfile
-sed -i -e "s,GRUB_CMDLINE_LINUX="",GRUB_CMDLINE_LINUX="cryptdevice=UUID=$UUID:cryptroot root=$BTRFS cryptkey=rootfs:/root/cryptroot.keyfile,g"
+sed -i -e "s,GRUB_CMDLINE_LINUX="",GRUB_CMDLINE_LINUX="cryptdevice=UUID="$UUID":cryptroot root=$BTRFS cryptkey=rootfs:/root/cryptroot.keyfile,g"
 
 # Configuring the system.    
 arch-chroot /mnt /bin/bash -e <<EOF
