@@ -22,7 +22,7 @@ kernel_selector () {
         4 ) kernel=linux-zen
             ;;
         * ) echo "You did not enter a valid selection."
-            kernel_options
+            kernel_selector
     esac
 }
 
@@ -106,7 +106,7 @@ mount -o ssd,noatime,space_cache,nodatacow,subvol=@var_log $BTRFS /mnt/var/log
 mkdir /mnt/boot/efi
 mount $ESP /mnt/boot/efi
 
-kernel_options
+kernel_selector
 
 # Pacstrap (setting up a base sytem onto the new root).
 echo "Installing the base system (it may take a while)."
