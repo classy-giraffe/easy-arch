@@ -109,10 +109,12 @@ EOF
 echo "Configuring /etc/mkinitcpio.conf for LUKS hook."
 sed -i -e 's,modconf block filesystems keyboard,keyboard keymap modconf block encrypt filesystems,g' /mnt/etc/mkinitcpio.conf
 
-# Enabling LUKS in GRUB and setting the UUID of the LUKS container.
+# Enabling LUKS in GRUB, setting up the UUID of the LUKS container and enabling boot on BTRFS.
 UUID=$(blkid $Cryptroot | cut -f2 -d'"')
 sed -i 's/#\(GRUB_ENABLE_CRYPTODISK=y\)/\1/' /mnt/etc/default/grub
 sed -i -e "s,quiet,quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS,g" /mnt/etc/default/grub
+echo "# Booting with BTRFS subvolume" >> /mnt/etc/default/grub
+echo "GRUB_BTRFS_OVERRIDE_BOOT_PARTITION_DETECTION=true" >> /mnt/etc/default/grub
 
 # Creating a swapfile.
 read -r -p "Do you want a swapfile? [y/N]? " response
