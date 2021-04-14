@@ -89,7 +89,7 @@ read -r -p "Please enter the hostname: " hostname
 echo $hostname > /mnt/etc/hostname
 
 # Setting up locales.
-read -r -p "Please insert the locale you use in this format (xx_XX): " locale
+read -r -p "Please insert the locale you use (format: xx_XX): " locale
 echo "$locale.UTF-8 UTF-8"  > /mnt/etc/locale.gen
 echo "LANG=$locale.UTF-8" > /mnt/etc/locale.conf
 
@@ -141,6 +141,9 @@ fi
 
 # Configuring the system.    
 arch-chroot /mnt /bin/bash -e <<EOF
+    
+    # Setting up timezone.
+    timedatectl set-timezone "$(curl http://ip-api.com/line?fields=timezone)
     
     # Setting up clock.
     hwclock --systohc
