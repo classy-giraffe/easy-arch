@@ -138,16 +138,14 @@ cat > /mnt/etc/hosts <<EOF
 127.0.1.1   $hostname.localdomain   $hostname
 EOF
 
-# Configuring /etc/mkinitcpio.conf
+# Configuring /etc/mkinitcpio.conf.
 echo "Configuring /etc/mkinitcpio.conf for LUKS hook."
 sed -i -e 's,modconf block filesystems keyboard,keyboard keymap modconf block encrypt filesystems,g' /mnt/etc/mkinitcpio.conf
 
-# Enabling LUKS in GRUB, setting up the UUID of the LUKS container and enabling boot on BTRFS.
+# Setting up LUKS Keyfile, BTRFS Booting and encryption in grub/initramfs.
 UUID=$(blkid $Cryptroot | cut -f2 -d'"')
 sed -i -e "s/#\(GRUB_ENABLE_CRYPTODISK=y\)/\1/" /mnt/etc/default/grub
-echo -e "# Booting with BTRFS subvolume\nGRUB_BTRFS_OVERRIDE_BOOT_PARTITION_DETECTION=true" >> /mnt/etc/default/grub
-
-# Adding keyfile to the initramfs to avoid double password.
+echo -e "\n# Booting with BTRFS subvolume\nGRUB_BTRFS_OVERRIDE_BOOT_PARTITION_DETECTION=true" >> /mnt/etc/default/grub
 dd bs=512 count=4 if=/dev/random of=/mnt/root/cryptroot.keyfile iflag=fullblock &>/dev/null
 chmod 000 /mnt/root/cryptroot.keyfile &>/dev/null
 cryptsetup -v luksAddKey /dev/disk/by-partlabel/Cryptroot /mnt/root/cryptroot.keyfile
