@@ -189,24 +189,14 @@ arch-chroot /mnt /bin/bash -e <<EOF
     grub-mkconfig -o /boot/grub/grub.cfg &>/dev/null
     
     #Security kernel settings
-    sudo bash -c 'cat > /mnt/etc/sysctl.d/51-dmesg-restrict.conf' <<-'EOF'
-    kernel.dmesg_restrict = 1
-    EOF
-
-    sudo bash -c 'cat > /mnt/etc/sysctl.d/51-kptr-restrict.conf' <<-'EOF'
-    kernel.kptr_restrict = 2
-    EOF
-
-    sudo bash -c 'cat > /mnt/etc/sysctl.d/51-kexec-restrict.conf' <<-'EOF'
-    kernel.kexec_load_disabled = 1
-    EOF
-
-    sudo bash -c 'cat > /mnt/etc/sysctl.d/10-security.conf' <<-'EOF'
+    echo "kernel.kptr_restrict = 2" > /etc/sysctl.d/51-kptr-restrict.conf
+    echo "kernel.kexec_load_disabled = 1" > /etc/sysctl.d/51-kexec-restrict.conf
+    echo << EOF >> /etc/sysctl.d/10-security.conf
     fs.protected_hardlinks = 1
     fs.protected_symlinks = 1
     net.core.bpf_jit_harden = 2
     kernel.yama.ptrace_scope = 3
-    EOF    
+    EOF
 
 EOF
 
