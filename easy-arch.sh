@@ -75,7 +75,7 @@ echo "Formatting the EFI Partition as FAT32."
 mkfs.fat -F 32 $ESP &>/dev/null
 
 # Creating a LUKS Container for the root partition.
-echo "Creating LUKS Container for the root partition."
+echo "Creating LUKS Container for the root partition"
 cryptsetup --type luks1 luksFormat $Cryptroot
 echo "Opening the newly created LUKS Container."
 cryptsetup open $Cryptroot cryptroot
@@ -142,7 +142,7 @@ EOF
 echo "Configuring /etc/mkinitcpio.conf for LUKS hook."
 sed -i -e 's,modconf block filesystems keyboard,keyboard keymap modconf block encrypt filesystems,g' /mnt/etc/mkinitcpio.conf
 
-# Setting up LUKS Keyfile, BTRFS Booting and encryption in grub/initramfs.
+# Setting up LUKS Keyfile, BTRFS Booting and encryption in GRUB and initramfs.
 UUID=$(blkid $Cryptroot | cut -f2 -d'"')
 sed -i -e "s/#\(GRUB_ENABLE_CRYPTODISK=y\)/\1/" /mnt/etc/default/grub
 echo -e "\n# Booting with BTRFS subvolume\nGRUB_BTRFS_OVERRIDE_BOOT_PARTITION_DETECTION=true" >> /mnt/etc/default/grub
@@ -150,9 +150,9 @@ dd bs=512 count=4 if=/dev/random of=/mnt/root/cryptroot.keyfile iflag=fullblock 
 chmod 000 /mnt/root/cryptroot.keyfile &>/dev/null
 cryptsetup -v luksAddKey /dev/disk/by-partlabel/Cryptroot /mnt/root/cryptroot.keyfile
 sed -i "s,quiet,quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS cryptkey=rootfs:/root/cryptroot.keyfile,g" /mnt/etc/default/grub
-sed -i "s#FILES=()#FILES=(/root/cryptroot.keyfile)#g" /mnt/etc/mkinitcpio.conf
+sed -i "s,FILES=(),FILES=(/root/cryptroot.keyfile)" /mnt/etc/mkinitcpio.conf
 
-#Security kernel settings
+# Security kernel settings.
 echo "kernel.kptr_restrict = 2" > /mnt/etc/sysctl.d/51-kptr-restrict.conf
 echo "kernel.kexec_load_disabled = 1" > /mnt/etc/sysctl.d/51-kexec-restrict.conf
 cat << EOF >> /mnt/etc/sysctl.d/10-security.conf
