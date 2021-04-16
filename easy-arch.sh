@@ -152,6 +152,16 @@ cryptsetup -v luksAddKey /dev/disk/by-partlabel/Cryptroot /mnt/root/cryptroot.ke
 sed -i "s,quiet,quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS cryptkey=rootfs:/root/cryptroot.keyfile,g" /mnt/etc/default/grub
 sed -i "s#FILES=()#FILES=(/root/cryptroot.keyfile)#g" /mnt/etc/mkinitcpio.conf
 
+#Security kernel settings
+echo "kernel.kptr_restrict = 2" > /mnt/etc/sysctl.d/51-kptr-restrict.conf
+echo "kernel.kexec_load_disabled = 1" > /mnt/etc/sysctl.d/51-kexec-restrict.conf
+cat << EOF >> /mnt/etc/sysctl.d/10-security.conf
+    fs.protected_hardlinks = 1
+    fs.protected_symlinks = 1
+    net.core.bpf_jit_harden = 2
+    kernel.yama.ptrace_scope = 3
+EOF
+
 # Configuring the system.    
 arch-chroot /mnt /bin/bash -e <<EOF
     
