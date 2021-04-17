@@ -150,7 +150,7 @@ dd bs=512 count=4 if=/dev/random of=/mnt/root/cryptroot.keyfile iflag=fullblock 
 chmod 000 /mnt/root/cryptroot.keyfile &>/dev/null
 cryptsetup -v luksAddKey /dev/disk/by-partlabel/Cryptroot /mnt/root/cryptroot.keyfile
 sed -i "s,quiet,quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS cryptkey=rootfs:/root/cryptroot.keyfile,g" /mnt/etc/default/grub
-sed -i "s,FILES=(),FILES=(/root/cryptroot.keyfile)" /mnt/etc/mkinitcpio.conf
+sed -i "s,FILES=(),FILES=(/root/cryptroot.keyfile)," /mnt/etc/mkinitcpio.conf
 
 # Security kernel settings.
 echo "kernel.kptr_restrict = 2" > /mnt/etc/sysctl.d/51-kptr-restrict.conf
