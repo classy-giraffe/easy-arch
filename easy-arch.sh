@@ -61,6 +61,7 @@ echo "Creating new partition scheme on $DISK."
 parted -s "$DISK" \
     mklabel gpt \
     mkpart ESP fat32 1MiB 101MiB \
+    set 1 esp on \
     mkpart Cryptroot 101MiB 100% \
 
 ESP="/dev/disk/by-partlabel/ESP"
