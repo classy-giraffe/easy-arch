@@ -1,7 +1,7 @@
 #!/usr/bin/env -S bash -e
 
 # Cleaning the TTY.
-# clear
+clear
 
 # Selecting the kernel flavor to install. 
 kernel_selector () {
