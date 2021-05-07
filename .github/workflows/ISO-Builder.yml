@@ -9,12 +9,10 @@ on:
       - main # In case we adopt this convention in the future
   pull_request:
     paths-ignore:
-    - 'docs/**'
-    - '**.editorconfig'
     - '**.gitignore'
     - '**.md'
+    - '**.yml'
     - 'LICENSE'
-    - 'PKGBUILD'
 
 jobs:
   build:
