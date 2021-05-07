@@ -1,4 +1,4 @@
-https://github.com/classy-giraffe/easy-arch/actions/workflows/ISO-Builder.yml/badge.svg
+![](https://github.com/classy-giraffe/easy-arch/actions/workflows/ISO-Builder.yml/badge.svg)
 
 ### Introduction
 [easy-arch](https://github.com/classy-giraffe/easy-arch) is a **script** made in order to boostrap a basic **Arch Linux** environment with **snapshots** and **encryption** by using a fully automated process (UEFI only).
