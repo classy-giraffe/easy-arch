@@ -17,11 +17,11 @@
 
 | Partition Number | Label     | Size              | Mountpoint     | Filesystem             |
 |------------------|-----------|-------------------|----------------|------------------------|
-| 1                | ESP       | 512 MiB           | /boot/efi      | FAT32                  |
+| 1                | ESP       | 100 MiB           | /boot/efi      | FAT32                  |
 | 2                | Cryptroot | Rest of the disk  | /              | BTRFS Encrypted (LUKS) |
 
 The **partitions layout** is pretty straightforward, it's inspired by [this section](https://wiki.archlinux.org/index.php/Dm-crypt/Encrypting_an_entire_system#Btrfs_subvolumes_with_swap) of the Arch Wiki. As you can see there's just a couple of partitions:
-1. A **FAT32**, 512MiB sized, mounted at `/boot/efi` for the ESP.
+1. A **FAT32**, 100MiB sized, mounted at `/boot/efi` for the ESP.
 2. A **LUKS encrypted container**, which takes the rest of the disk space, mounted at `/` for the rootfs.
 
 ### BTRFS subvolumes layout
