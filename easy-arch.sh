@@ -60,9 +60,9 @@ fi
 echo "Creating new partition scheme on $DISK."
 parted -s "$DISK" \
     mklabel gpt \
-    mkpart ESP fat32 1MiB 101MiB \
+    mkpart ESP fat32 1MiB 513MiB \
     set 1 esp on \
-    mkpart Cryptroot 101MiB 100% \
+    mkpart Cryptroot 513MiB 100% \
 
 ESP="/dev/disk/by-partlabel/ESP"
 Cryptroot="/dev/disk/by-partlabel/Cryptroot"
@@ -77,7 +77,7 @@ mkfs.fat -F 32 $ESP &>/dev/null
 
 # Creating a LUKS Container for the root partition.
 echo "Creating LUKS Container for the root partition"
-cryptsetup --type luks1 luksFormat $Cryptroot
+cryptsetup luksFormat $Cryptroot
 echo "Opening the newly created LUKS Container."
 cryptsetup open $Cryptroot cryptroot
 BTRFS="/dev/mapper/cryptroot"
@@ -90,7 +90,6 @@ mount $BTRFS /mnt
 # Creating BTRFS subvolumes.
 echo "Creating BTRFS subvolumes."
 btrfs su cr /mnt/@ &>/dev/null
-btrfs su cr /mnt/@boot &>/dev/null
 btrfs su cr /mnt/@home &>/dev/null
 btrfs su cr /mnt/@snapshots &>/dev/null
 btrfs su cr /mnt/@var_log &>/dev/null
@@ -100,13 +99,11 @@ umount /mnt
 echo "Mounting the newly created subvolumes."
 mount -o ssd,noatime,space_cache,compress=zstd,subvol=@ $BTRFS /mnt
 mkdir -p /mnt/{home,.snapshots,/var/log,boot}
-mount -o ssd,noatime,space_cache,compress=zstd,subvol=@boot $BTRFS /mnt/boot
 mount -o ssd,noatime,space_cache.compress=zstd,subvol=@home $BTRFS /mnt/home
 mount -o ssd,noatime,space_cache,compress=zstd,subvol=@snapshots $BTRFS /mnt/.snapshots
 mount -o ssd,noatime,space_cache,compress=zstd,subvol=@var_log $BTRFS /mnt/var/log
 chattr +C /mnt/var/log
-mkdir /mnt/boot/efi
-mount $ESP /mnt/boot/efi
+mount $ESP /mnt/boot/
 
 kernel_selector
 
@@ -145,13 +142,7 @@ sed -i -e 's,modconf block filesystems keyboard,keyboard keymap modconf block en
 
 # Setting up LUKS Keyfile, BTRFS Booting and encryption in GRUB and initramfs.
 UUID=$(blkid $Cryptroot | cut -f2 -d'"')
-sed -i -e "s/#\(GRUB_ENABLE_CRYPTODISK=y\)/\1/" /mnt/etc/default/grub
-echo -e "\n# Booting with BTRFS subvolume\nGRUB_BTRFS_OVERRIDE_BOOT_PARTITION_DETECTION=true" >> /mnt/etc/default/grub
-dd bs=512 count=4 if=/dev/random of=/mnt/root/cryptroot.keyfile iflag=fullblock &>/dev/null
-chmod 000 /mnt/root/cryptroot.keyfile &>/dev/null
-cryptsetup -v luksAddKey /dev/disk/by-partlabel/Cryptroot /mnt/root/cryptroot.keyfile
-sed -i "s,quiet,quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS cryptkey=rootfs:/root/cryptroot.keyfile,g" /mnt/etc/default/grub
-sed -i "s,FILES=(),FILES=(/root/cryptroot.keyfile)," /mnt/etc/mkinitcpio.conf
+sed -i "s,quiet,quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS,g" /mnt/etc/default/grub
 
 # Security kernel settings.
 echo "kernel.kptr_restrict = 2" > /mnt/etc/sysctl.d/51-kptr-restrict.conf
@@ -178,7 +169,6 @@ arch-chroot /mnt /bin/bash -e <<EOF
 
     # Generating a new initramfs.
     echo "Creating a new initramfs."
-    chmod 600 /boot/initramfs-linux* &>/dev/null
     mkinitcpio -P &>/dev/null
 
     # Snapper configuration
@@ -192,7 +182,7 @@ arch-chroot /mnt /bin/bash -e <<EOF
 
     # Installing GRUB.
     echo "Installing GRUB on /boot."
-    grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB &>/dev/null
+    grub-install --target=x86_64-efi --efi-directory=/boot/ --bootloader-id=GRUB &>/dev/null
     
     # Creating grub config file.
     echo "Creating GRUB config file."
