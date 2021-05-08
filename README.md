@@ -17,11 +17,11 @@
 
 | Partition Number | Label     | Size              | Mountpoint     | Filesystem              |
 |------------------|-----------|-------------------|----------------|-------------------------|
-| 1                | ESP       | 100 MiB           | /boot/         | FAT32                   |
+| 1                | ESP       | 512 MiB           | /boot/         | FAT32                   |
 | 2                | Cryptroot | Rest of the disk  | /              | BTRFS Encrypted (LUKS2) |
 
 The **partitions layout** is pretty straightforward, it's inspired by [this section](https://wiki.archlinux.org/index.php/Dm-crypt/Encrypting_an_entire_system#Btrfs_subvolumes_with_swap) of the Arch Wiki. As you can see there's just a couple of partitions:
-1. A **FAT32**, 100MiB sized, mounted at `/boot/efi` for the ESP.
+1. A **FAT32**, 512MiB sized, mounted at `/boot/efi` for the ESP.
 2. A **LUKS2 encrypted container**, which takes the rest of the disk space, mounted at `/` for the rootfs.
 
 ### BTRFS subvolumes layout
@@ -35,7 +35,6 @@ The **partitions layout** is pretty straightforward, it's inspired by [this sect
 
 The **BTRFS subvolumes layout** follows the traditional and suggested layout used by **Snapper**, you can find it [here](https://wiki.archlinux.org/index.php/Snapper#Suggested_filesystem_layout). Here's a brief explanation of the **BTRFS layout** I chose:
 1. `@` mounted at `/`.
-2. `@boot` mounted at `/boot`.
-3. `@home` mounted at `/home`.
-4. `@snapshots` mounted at `/.snapshots`.
-5. `@var_log` mounted at `/var/log`.
+2. `@home` mounted at `/home`.
+3. `@snapshots` mounted at `/.snapshots`.
+4. `@var_log` mounted at `/var/log`.
