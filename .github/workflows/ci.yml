@@ -37,5 +37,5 @@ jobs:
     - run: mkarchiso -v -w /tmp/archlive/work/ -o /tmp/archlive/out /tmp/archlive
     - uses: actions/upload-artifact@v2
       with:
-        name: Uploading the ISO.
+        name: Arch ISO.
         path: /tmp/archlive/out/*.iso
