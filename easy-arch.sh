@@ -3,7 +3,7 @@
 # Cleaning the TTY.
 clear
 
-# Selecting the kernel flavor to install. 
+# Selecting a kernel to install. 
 kernel_selector () {
     echo "List of kernels:"
     echo "1) Stable — Vanilla Linux kernel and modules, with a few patches applied."
@@ -23,6 +23,39 @@ kernel_selector () {
             ;;
         * ) echo "You did not enter a valid selection."
             kernel_selector
+    esac
+}
+
+# Selecting a way to handle internet connection. 
+network_selector () {
+    echo "Network utilities:"
+    echo "1) IWD — iNet wireless daemon is a wireless daemon for Linux written by Intel (WiFi-only)."
+    echo "2) NetworkManager — Program for providing detection and configuration for systems to automatically connect to networks (both WiFi and Ethernet)."
+    echo "3) wpa_supplicant — It's a cross-platform supplicant with support for WEP, WPA and WPA2 (WiFi-only, a DHCP client will be automatically installed too.)"
+    echo "4) I will do this on my own."
+    read -r -p "Insert the number of the corresponding kernel: " choice
+    echo "$choice will be installed"
+    case $choice in
+        1 ) echo "Installing IWD."    
+            pacstrap /mnt iwd
+            echo "Enabling IWD."
+            systemctl enable iwd --root=/mnt &>/dev/null
+            ;;
+        2 ) echo "Installing NetworkManager."
+            pacstrap /mnt networkmanager
+            echo "Enabling NetworkManager."
+            systemctl enable NetworkManager --root=/mnt &>/dev/null
+            ;;
+        3 ) echo "Installing wpa_supplicant and dhcpcd."
+            pacstrap /mnt wpa_supplicant dhcpcd
+            echo "Enabling wpa_supplicant and dhcpcd."
+            systemctl enable wpa_supplicant --root=/mnt &>/dev/null
+            systemctl enable dhcpcd --root=/mnt &>/dev/null
+            ;;
+        4 )
+            ;;
+        * ) echo "You did not enter a valid selection."
+            network_selector
     esac
 }
 
@@ -193,10 +226,6 @@ EOF
 # Setting root password.
 echo "Setting root password."
 arch-chroot /mnt /bin/passwd
-
-# Enabling NetworkManager service.
-echo "Enabling NetworkManager."
-systemctl enable NetworkManager --root=/mnt &>/dev/null
 
 # Enabling Snapper automatic snapshots.
 echo "Enabling Snapper."
