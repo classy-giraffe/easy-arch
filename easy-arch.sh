@@ -144,6 +144,8 @@ kernel_selector
 echo "Installing the base system (it may take a while)."
 pacstrap /mnt base $kernel $microcode linux-firmware btrfs-progs grub grub-btrfs efibootmgr snapper sudo
 
+network_selector
+
 # Generating /etc/fstab.
 echo "Generating a new fstab."
 genfstab -U /mnt >> /mnt/etc/fstab
