@@ -20,10 +20,18 @@ jobs:
       options: --privileged
     steps:
     - uses: actions/checkout@v2
-    - run: mkdir -p /tmp/archlive/airootfs/root/ && cp easy-arch.sh /tmp/archlive/airootfs/root/
-    - run: pacman -Sy; pacman --noconfirm -S git archiso
+    - name: Creating workspace.
+    - run: mkdir -p /tmp/archlive/airootfs/root/ 
+    - name: Copying easy-arch in the workspace.
+    - run: cp easy-arch.sh /tmp/archlive/airootfs/root/
+    - name: Updating container.
+    - run: pacman -Sy
+    - name: Installing needed tools.
+    - run: pacman --noconfirm -S git archiso
+    - name: Copying profile inside the workspace.
     - run: cp -r /usr/share/archiso/configs/releng/* /tmp/archlive
-    - run: cd /tmp/archlive;  mkarchiso -v -w work/ -o out/ ./
+    - name: Creating the ISO.
+    - run: mkarchiso -v -w /tmp/archlive/work/ -o /tmp/archlive/out /tmp/archlive
     - uses: actions/upload-artifact@v2
       with:
         name: Arch Live ISO
