@@ -33,7 +33,7 @@ network_selector () {
     echo "2) NetworkManager — Program for providing detection and configuration for systems to automatically connect to networks (both WiFi and Ethernet)."
     echo "3) wpa_supplicant — It's a cross-platform supplicant with support for WEP, WPA and WPA2 (WiFi-only, a DHCP client will be automatically installed too.)"
     echo "4) I will do this on my own."
-    read -r -p "Insert the number of the corresponding kernel: " choice
+    read -r -p "Insert the number of the corresponding networking utility: " choice
     echo "$choice will be installed"
     case $choice in
         1 ) echo "Installing IWD."    
