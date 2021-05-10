@@ -21,23 +21,24 @@ jobs:
     - name: Run ShellCheck
       uses: ludeeus/action-shellcheck@master
   build:
+    name: Build
     runs-on: ubuntu-latest
     container:
       image: archlinux:latest
       options: --privileged
     steps:
     - uses: actions/checkout@v2
-    - name: Creating workspace.
+    - name: Creating workspace
       run: mkdir -p /tmp/archlive/airootfs/root/ 
     - name: Copying easy-arch in the workspace.
       run: cp easy-arch.sh /tmp/archlive/airootfs/root/
-    - name: Updating container.
+    - name: Updating container
       run: pacman -Sy
-    - name: Installing needed tools.
+    - name: Installing needed tools
       run: pacman --noconfirm -S git archiso
-    - name: Copying profile inside the workspace.
+    - name: Copying profile inside the workspace
       run: cp -r /usr/share/archiso/configs/releng/* /tmp/archlive
-    - name: Creating the ISO.
+    - name: Creating the ISO
       run: mkarchiso -v -w /tmp/archlive/work/ -o /tmp/archlive/out /tmp/archlive
     - uses: actions/upload-artifact@v2
       with:
