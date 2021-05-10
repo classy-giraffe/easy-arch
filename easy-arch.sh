@@ -177,7 +177,7 @@ sed -i -e 's,modconf block filesystems keyboard,keyboard keymap modconf block en
 
 # Setting up LUKS2 encryption and apparmor.
 UUID=$(blkid $Cryptroot | cut -f2 -d'"')
-sed -i "s,quiet,quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS lsm=lockdown,yama,apparmor,bpf,g" /mnt/etc/default/grub
+sed -i "s/quiet/quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS lsm=lockdown,yama,apparmor,bpf/g" /mnt/etc/default/grub
 
 # Security kernel settings.
 echo "kernel.kptr_restrict = 2" > /mnt/etc/sysctl.d/51-kptr-restrict.conf
