@@ -142,7 +142,7 @@ kernel_selector
 
 # Pacstrap (setting up a base sytem onto the new root).
 echo "Installing the base system (it may take a while)."
-pacstrap /mnt base $kernel $microcode linux-firmware btrfs-progs grub grub-btrfs efibootmgr snapper sudo
+pacstrap /mnt base $kernel $microcode linux-firmware btrfs-progs grub grub-btrfs efibootmgr snapper sudo apparmor
 
 network_selector
 
@@ -178,6 +178,7 @@ sed -i -e 's,modconf block filesystems keyboard,keyboard keymap modconf block en
 # Setting up LUKS Keyfile, BTRFS Booting and encryption in GRUB and initramfs.
 UUID=$(blkid $Cryptroot | cut -f2 -d'"')
 sed -i "s,quiet,quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS,g" /mnt/etc/default/grub
+sed -i "s#root=/dev/mapper/cryptroot#root=/dev/mapper/cryptroot lsm=lockdown,yama,apparmor,bpf#g" /mnt/etc/default/grub
 
 # Security kernel settings.
 echo "kernel.kptr_restrict = 2" > /mnt/etc/sysctl.d/51-kptr-restrict.conf
@@ -222,6 +223,9 @@ arch-chroot /mnt /bin/bash -e <<EOF
     # Creating grub config file.
     echo "Creating GRUB config file."
     grub-mkconfig -o /boot/grub/grub.cfg &>/dev/null
+    
+    # Enabling AppArmor
+    systemctl enable apparmor --root=/mnt &>/dev/null
 
 EOF
 
