@@ -1,5 +1,5 @@
 ![](https://github.com/classy-giraffe/easy-arch/actions/workflows/ci.yml/badge.svg)
-[![Maintainability](https://api.codeclimate.com/v1/badges/1dec301411ef3dcfbcfe/maintainability)](https://codeclimate.com/github/classy-giraffe/easy-arch/maintainability)
+![](https://api.codeclimate.com/v1/badges/a99a88d28ad37a79dbf6/test_coverage)
 ![](https://img.shields.io/github/license/classy-giraffe/easy-arch)
 
 ### Introduction
