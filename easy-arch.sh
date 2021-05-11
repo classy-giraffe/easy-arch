@@ -222,15 +222,16 @@ arch-chroot /mnt /bin/bash -e <<EOF
     # Creating grub config file.
     echo "Creating GRUB config file."
     grub-mkconfig -o /boot/grub/grub.cfg &>/dev/null
-    
-    # Enabling AppArmor
-    systemctl enable apparmor --root=/mnt &>/dev/null
 
 EOF
 
 # Setting root password.
 echo "Setting root password."
 arch-chroot /mnt /bin/passwd
+
+# Enabling AppArmor.
+echo "Enabling AppArmor."
+systemctl enable apparmor --root=/mnt &>/dev/null
 
 # Enabling Snapper automatic snapshots.
 echo "Enabling Snapper and automatic snapshots entries."
