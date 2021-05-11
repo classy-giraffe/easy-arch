@@ -214,6 +214,7 @@ arch-chroot /mnt /bin/bash -e <<EOF
     mkdir /.snapshots
     mount -a
     chmod 750 /.snapshots
+    systemctl enable grub-btrfs.path
 
     # Installing GRUB.
     echo "Installing GRUB on /boot."
