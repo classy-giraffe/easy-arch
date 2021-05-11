@@ -214,7 +214,6 @@ arch-chroot /mnt /bin/bash -e <<EOF
     mkdir /.snapshots
     mount -a
     chmod 750 /.snapshots
-    systemctl enable grub-btrfs.path
 
     # Installing GRUB.
     echo "Installing GRUB on /boot."
@@ -234,9 +233,10 @@ echo "Setting root password."
 arch-chroot /mnt /bin/passwd
 
 # Enabling Snapper automatic snapshots.
-echo "Enabling Snapper."
+echo "Enabling Snapper and automatic snapshots entries."
 systemctl enable snapper-timeline.timer --root=/mnt &>/dev/null
 systemctl enable snapper-cleanup.timer --root=/mnt &>/dev/null
+systemctl enable grub-btrfs.path --root=/mnt &>/dev/null
 
 echo "Done, you may now wish to reboot (further changes can be done by chrooting into /mnt)."
 exit
