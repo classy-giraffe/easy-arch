@@ -146,6 +146,19 @@ pacstrap /mnt base $kernel $microcode linux-firmware btrfs-progs grub grub-btrfs
 
 network_selector
 
+# Choice to install base-devel package
+echo "base-devel contains helpful tools like gcc, automake, autoconf, sudo and many others."
+read -r -p "This will install the base-devel package. Do you agree [y/N]? " bd_response
+bd_response=${bd_response,,}
+if [[ "$bd_response" =~ ^(yes|y)$ ]]
+then
+    echo "Installing the package.."
+    pacstrap /mnt base-devel
+else
+    echo "Quitting."
+    exit
+fi
+
 # Generating /etc/fstab.
 echo "Generating a new fstab."
 genfstab -U /mnt >> /mnt/etc/fstab
