@@ -142,7 +142,7 @@ kernel_selector
 
 # Pacstrap (setting up a base sytem onto the new root).
 echo "Installing the base system (it may take a while)."
-pacstrap /mnt base $kernel $microcode linux-firmware btrfs-progs grub grub-btrfs efibootmgr snapper sudo apparmor
+pacstrap /mnt base $kernel $microcode linux-firmware btrfs-progs grub grub-btrfs efibootmgr snapper sudo apparmor reflector
 
 network_selector
 
@@ -245,6 +245,9 @@ arch-chroot /mnt /bin/passwd
 # Enabling AppArmor.
 echo "Enabling AppArmor."
 systemctl enable apparmor --root=/mnt &>/dev/null
+
+# Enabling Reflector timer.
+systemctl enable reflector.timer --root=/mnt &>/dev/null
 
 # Enabling Snapper automatic snapshots.
 echo "Enabling Snapper and automatic snapshots entries."
