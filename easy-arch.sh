@@ -179,16 +179,6 @@ sed -i -e 's,modconf block filesystems keyboard,keyboard keymap modconf block en
 UUID=$(blkid $Cryptroot | cut -f2 -d'"')
 sed -i "s/quiet/quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS lsm=lockdown,yama,apparmor,bpf/g" /mnt/etc/default/grub
 
-# Security kernel settings.
-echo "kernel.kptr_restrict = 2" > /mnt/etc/sysctl.d/51-kptr-restrict.conf
-echo "kernel.kexec_load_disabled = 1" > /mnt/etc/sysctl.d/51-kexec-restrict.conf
-cat << EOF >> /mnt/etc/sysctl.d/10-security.conf
-    fs.protected_hardlinks = 1
-    fs.protected_symlinks = 1
-    net.core.bpf_jit_harden = 2
-    kernel.yama.ptrace_scope = 3
-EOF
-
 # Configuring the system.    
 arch-chroot /mnt /bin/bash -e <<EOF
     
@@ -234,6 +224,7 @@ echo "Enabling AppArmor."
 systemctl enable apparmor --root=/mnt &>/dev/null
 
 # Enabling Reflector timer.
+echo "Enabling Reflector."
 systemctl enable reflector.timer --root=/mnt &>/dev/null
 
 # Enabling Snapper automatic snapshots.
