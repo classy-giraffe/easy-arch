@@ -229,5 +229,9 @@ systemctl enable snapper-timeline.timer --root=/mnt &>/dev/null
 systemctl enable snapper-cleanup.timer --root=/mnt &>/dev/null
 systemctl enable grub-btrfs.path --root=/mnt &>/dev/null
 
+# Enabling systemd-oom.
+echo "Enabling systemd-oomd."
+systemctl enable systemd-oomd --root=/mnt &>/dev/null
+
 echo "Done, you may now wish to reboot (further changes can be done by chrooting into /mnt)."
 exit
