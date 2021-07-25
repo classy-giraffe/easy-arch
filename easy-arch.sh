@@ -229,7 +229,7 @@ systemctl enable snapper-timeline.timer --root=/mnt &>/dev/null
 systemctl enable snapper-cleanup.timer --root=/mnt &>/dev/null
 systemctl enable grub-btrfs.path --root=/mnt &>/dev/null
 
-# Enabling systemd-oom.
+# Enabling systemd-oomd.
 echo "Enabling systemd-oomd."
 systemctl enable systemd-oomd --root=/mnt &>/dev/null
 
