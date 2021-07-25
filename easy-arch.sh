@@ -142,7 +142,7 @@ kernel_selector
 
 # Pacstrap (setting up a base sytem onto the new root).
 echo "Installing the base system (it may take a while)."
-pacstrap /mnt base $kernel $microcode linux-firmware btrfs-progs grub grub-btrfs efibootmgr snapper sudo apparmor reflector base-devel
+pacstrap /mnt base $kernel $microcode linux-firmware btrfs-progs grub grub-btrfs efibootmgr snapper reflector base-devel
 
 network_selector
 
@@ -177,7 +177,7 @@ sed -i -e 's,modconf block filesystems keyboard,keyboard keymap modconf block en
 
 # Setting up LUKS2 encryption and apparmor.
 UUID=$(blkid $Cryptroot | cut -f2 -d'"')
-sed -i "s/quiet/quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS lsm=lockdown,yama,apparmor,bpf/g" /mnt/etc/default/grub
+sed -i "s/quiet/quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS/g" /mnt/etc/default/grub
 
 # Configuring the system.    
 arch-chroot /mnt /bin/bash -e <<EOF
@@ -218,10 +218,6 @@ EOF
 # Setting root password.
 echo "Setting root password."
 arch-chroot /mnt /bin/passwd
-
-# Enabling AppArmor.
-echo "Enabling AppArmor."
-systemctl enable apparmor --root=/mnt &>/dev/null
 
 # Enabling Reflector timer.
 echo "Enabling Reflector."
