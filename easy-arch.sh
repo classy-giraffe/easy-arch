@@ -180,7 +180,7 @@ sed -i -e 's,modconf block filesystems keyboard,keyboard keymap modconf block en
 
 # Setting up LUKS2 encryption and apparmor.
 UUID=$(blkid $Cryptroot | cut -f2 -d'"')
-sed -i "s/quiet/quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS/g" /mnt/etc/default/grub
+sed -i "s,quiet,quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS,g" /mnt/etc/default/grub
 
 # Configuring the system.    
 arch-chroot /mnt /bin/bash -e <<EOF
