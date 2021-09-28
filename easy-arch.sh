@@ -190,15 +190,12 @@ arch-chroot /mnt /bin/bash -e <<EOF
     
     # Setting up clock.
     hwclock --systohc
-
     # Generating locales.
     echo "Generating locales."
     locale-gen &>/dev/null
-
     # Generating a new initramfs.
     echo "Creating a new initramfs."
     mkinitcpio -P &>/dev/null
-
     # Snapper configuration
     umount /.snapshots
     rm -r /.snapshots
@@ -207,7 +204,6 @@ arch-chroot /mnt /bin/bash -e <<EOF
     mkdir /.snapshots
     mount -a
     chmod 750 /.snapshots
-
     # Installing GRUB.
     echo "Installing GRUB on /boot."
     grub-install --target=x86_64-efi --efi-directory=/boot/ --bootloader-id=GRUB &>/dev/null
@@ -215,7 +211,6 @@ arch-chroot /mnt /bin/bash -e <<EOF
     # Creating grub config file.
     echo "Creating GRUB config file."
     grub-mkconfig -o /boot/grub/grub.cfg &>/dev/null
-
     # Adding user with sudo privilege
     if [ -n "$username" ]; then
         echo "Adding $username with root privilege."
@@ -228,7 +223,7 @@ EOF
 # Setting root password.
 echo "Setting root password."
 arch-chroot /mnt /bin/passwd
-[ -n "$username" ] && echo "Setting user password for ${username}." && arch-chroot /mnt /bin/passwd $username
+[ -n "$username" ] && echo "Setting user password for ${username}." && arch-chroot /mnt /bin/passwd "$username"
 
 # Enabling Reflector timer.
 echo "Enabling Reflector."
