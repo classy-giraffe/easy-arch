@@ -154,6 +154,9 @@ genfstab -U /mnt >> /mnt/etc/fstab
 read -r -p "Please enter the hostname: " hostname
 echo "$hostname" > /mnt/etc/hostname
 
+# Setting username.
+read -r -p "Please enter name for a user account (enter empty to not create one): " username
+
 # Setting up locales.
 read -r -p "Please insert the locale you use (format: xx_XX): " locale
 echo "$locale.UTF-8 UTF-8"  > /mnt/etc/locale.gen
@@ -177,7 +180,7 @@ sed -i -e 's,modconf block filesystems keyboard,keyboard keymap modconf block en
 
 # Setting up LUKS2 encryption and apparmor.
 UUID=$(blkid $Cryptroot | cut -f2 -d'"')
-sed -i "s/quiet/quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS/g" /mnt/etc/default/grub
+sed -i "s,quiet,quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS,g" /mnt/etc/default/grub
 
 # Configuring the system.    
 arch-chroot /mnt /bin/bash -e <<EOF
@@ -213,11 +216,19 @@ arch-chroot /mnt /bin/bash -e <<EOF
     echo "Creating GRUB config file."
     grub-mkconfig -o /boot/grub/grub.cfg &>/dev/null
 
+    # Adding user with sudo privilege
+    if [ -n "$username" ]; then
+        echo "Adding $username with root privilege."
+        useradd -m $username
+        usermod -aG wheel $username
+        echo "$username ALL=(ALL) ALL" >> /etc/sudoers.d/$username
+    fi
 EOF
 
 # Setting root password.
 echo "Setting root password."
 arch-chroot /mnt /bin/passwd
+[ -n "$username" ] && echo "Setting user password for ${username}." && arch-chroot /mnt /bin/passwd $username
 
 # Enabling Reflector timer.
 echo "Enabling Reflector."
