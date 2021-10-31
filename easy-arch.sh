@@ -10,13 +10,13 @@ print () {
 
 # Selecting a kernel to install (function). 
 kernel_selector () {
-    echo "List of kernels:"
-    echo "1) Stable — Vanilla Linux kernel and modules, with a few patches applied."
-    echo "2) Hardened — A security-focused Linux kernel."
-    echo "3) Longterm — Long-term support (LTS) Linux kernel and modules."
-    echo "4) Zen Kernel — Optimized for desktop usage."
+    print "List of kernels:"
+    print "1) Stable: Vanilla Linux kernel and modules, with a few specific Arch Linux patches applied."
+    print "2) Hardened: A security-focused Linux kernel."
+    print "3) LTS: Long-term support (LTS) Linux kernel and modules."
+    print "4) Zen: A Linux kernel optimized for desktop usage."
     read -r -p "Insert the number of the corresponding kernel: " choice
-    echo "$choice will be installed"
+    print "$choice will be installed"
     case $choice in
         1 ) kernel=linux
             ;;
@@ -26,47 +26,47 @@ kernel_selector () {
             ;;
         4 ) kernel=linux-zen
             ;;
-        * ) echo "You did not enter a valid selection."
+        * ) print "You did not enter a valid selection."
             kernel_selector
     esac
 }
 
 # Selecting a way to handle internet connection (function). 
 network_selector () {
-    echo "Network utilities:"
-    echo "1) IWD — iNet wireless daemon is a wireless daemon for Linux written by Intel (WiFi-only)."
-    echo "2) NetworkManager — Program for providing detection and configuration for systems to automatically connect to networks (both WiFi and Ethernet)."
-    echo "3) wpa_supplicant — It's a cross-platform supplicant with support for WEP, WPA and WPA2 (WiFi-only, a DHCP client will be automatically installed too.)"
-    echo "4) I will do this on my own."
+    print "Network utilities:"
+    print "1) IWD — iNet wireless daemon is a wireless daemon for Linux written by Intel (WiFi-only)."
+    print "2) NetworkManager — Program for providing detection and configuration for systems to automatically connect to networks (both WiFi and Ethernet)."
+    print "3) wpa_supplicant — It's a cross-platform supplicant with support for WEP, WPA and WPA2 (WiFi-only, a DHCP client will be automatically installed too.)"
+    print "4) I will do this on my own."
     read -r -p "Insert the number of the corresponding networking utility: " choice
-    echo "$choice will be installed"
+    print "$choice will be installed"
     case $choice in
-        1 ) echo "Installing IWD."    
+        1 ) print "Installing IWD."    
             pacstrap /mnt iwd
-            echo "Enabling IWD."
+            print "Enabling IWD."
             systemctl enable iwd --root=/mnt &>/dev/null
             ;;
-        2 ) echo "Installing NetworkManager."
+        2 ) print "Installing NetworkManager."
             pacstrap /mnt networkmanager
-            echo "Enabling NetworkManager."
+            print "Enabling NetworkManager."
             systemctl enable NetworkManager --root=/mnt &>/dev/null
             ;;
-        3 ) echo "Installing wpa_supplicant and dhcpcd."
+        3 ) print "Installing wpa_supplicant and dhcpcd."
             pacstrap /mnt wpa_supplicant dhcpcd
-            echo "Enabling wpa_supplicant and dhcpcd."
+            print "Enabling wpa_supplicant and dhcpcd."
             systemctl enable wpa_supplicant --root=/mnt &>/dev/null
             systemctl enable dhcpcd --root=/mnt &>/dev/null
             ;;
         4 )
             ;;
-        * ) echo "You did not enter a valid selection."
+        * ) print "You did not enter a valid selection."
             network_selector
     esac
 }
 
 # Setting up system clock.
 print "Setting up the system clock."
-timedatectl set-ntp true
+timedatectl set-ntp true &>/dev/null
 
 # Checking the microcode to install.
 CPU=$(grep vendor_id /proc/cpuinfo)
