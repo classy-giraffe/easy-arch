@@ -9,7 +9,7 @@
 3. Boot the live environment.
 4. Set the keyboard layout by using `loadkeys`.
 5. Connect to the internet.
-6. Run this `bash <(curl -sL git.io/JtRu2)`.
+6. Run this `bash <(curl -sL bit.ly/easy-arch)`.
 
 ### Partitions layout 
 
