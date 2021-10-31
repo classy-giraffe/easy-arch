@@ -118,7 +118,7 @@ print "Formatting the EFI Partition as FAT32."
 mkfs.fat -F 32 $ESP &>/dev/null
 
 # Creating a LUKS Container for the root partition.
-print "Creating LUKS Container for the root partition"
+print "Creating LUKS Container for the root partition."
 cryptsetup luksFormat $Cryptroot
 print "Opening the newly created LUKS Container."
 cryptsetup open $Cryptroot cryptroot
@@ -131,10 +131,10 @@ mount $BTRFS /mnt
 
 # Creating BTRFS subvolumes.
 print "Creating BTRFS subvolumes."
-btrfs su cr /mnt/@ &>/dev/null
-btrfs su cr /mnt/@home &>/dev/null
-btrfs su cr /mnt/@snapshots &>/dev/null
-btrfs su cr /mnt/@var_log &>/dev/null
+for volume in @ @home @snapshots @var_log
+do
+    btrfs su cr /mnt/$volume &>/dev/null
+done
 
 # Mounting the newly created subvolumes.
 umount /mnt
@@ -241,26 +241,20 @@ print "Setting root password."
 arch-chroot /mnt /bin/passwd
 [ -n "$username" ] && echo "Setting user password for ${username}." && arch-chroot /mnt /bin/passwd "$username"
 
-# Enabling Reflector timer.
-print "Enabling Reflector."
-systemctl enable reflector.timer --root=/mnt &>/dev/null
-
-# Enabling Snapper automatic snapshots.
-print "Enabling Snapper and automatic snapshots entries."
-systemctl enable snapper-timeline.timer --root=/mnt &>/dev/null
-systemctl enable snapper-cleanup.timer --root=/mnt &>/dev/null
-systemctl enable grub-btrfs.path --root=/mnt &>/dev/null
-
-# Enabling systemd-oomd.
-print "Enabling systemd-oomd."
-systemctl enable systemd-oomd --root=/mnt &>/dev/null
-
 # ZRAM configuration.
+print "Configuring ZRAM."
 cat > /mnt/etc/systemd/zram-generator.conf <<EOF
 [zram0]
 zram-fraction = 1
 max-zram-size = 8192
 EOF
+
+# Enabling various services.
+print "Enabling Reflector, Snapper, automatic snapshots and systemd-oomd"
+for service in reflector.timer snapper-timeline.timer snapper-cleanup.timer grub-btrfs.path systemd-oomd
+do
+    systemctl enable $service --root=/mnt &>/dev/null
+done
 
 # Finishing up.
 print "Done, you may now wish to reboot (further changes can be done by chrooting into /mnt)."
