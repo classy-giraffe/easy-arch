@@ -64,6 +64,10 @@ network_selector () {
     esac
 }
 
+# Setting up system clock.
+print "Setting up the system clock."
+timedatectl set-ntp true
+
 # Checking the microcode to install.
 CPU=$(grep vendor_id /proc/cpuinfo)
 if [[ $CPU == *"AuthenticAMD"* ]]

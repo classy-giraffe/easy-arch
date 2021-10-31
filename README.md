@@ -6,10 +6,10 @@
 ### How does it work?
 1. Download an Arch Linux ISO from [here](https://archlinux.org/download/)
 2. Flash the ISO onto an [USB Flash Drive](https://wiki.archlinux.org/index.php/USB_flash_installation_medium).
-3. Boot the live environment.
-4. Set the keyboard layout by using `loadkeys`.
-5. Connect to the internet.
-6. Run this `bash <(curl -sL bit.ly/easy-arch)`.
+3. Boot the live environment
+4. Set the keyboard layout by using `loadkeys <kblayout>`
+5. Connect to the internet
+6. Run this `bash <(curl -sL bit.ly/easy-arch)`
 
 ### Partitions layout 
 
@@ -18,7 +18,7 @@
 | 1                | ESP       | 512 MiB           | /boot/         | FAT32                   |
 | 2                | Cryptroot | Rest of the disk  | /              | BTRFS Encrypted (LUKS2) |
 
-The **partitions layout** is pretty straightforward, it's inspired by [this section](https://wiki.archlinux.org/index.php/Dm-crypt/Encrypting_an_entire_system#Btrfs_subvolumes_with_swap) of the Arch Wiki. As you can see there's just a couple of partitions:
+The **partitions layout** is simple and it's inspired by [this section](https://wiki.archlinux.org/index.php/Dm-crypt/Encrypting_an_entire_system#Btrfs_subvolumes_with_swap) of the Arch Linux Wiki. As you can see there're only two partitions:
 1. A **FAT32**, 512MiB sized, mounted at `/boot/efi` for the ESP.
 2. A **LUKS2 encrypted container**, which takes the rest of the disk space, mounted at `/` for the rootfs.
 
