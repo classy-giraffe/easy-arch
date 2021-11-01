@@ -16,7 +16,6 @@ kernel_selector () {
     print "3) LTS: Long-term support (LTS) Linux kernel and modules."
     print "4) Zen: A Linux kernel optimized for desktop usage."
     read -r -p "Insert the number of the corresponding kernel: " choice
-    print "$choice will be installed"
     case $choice in
         1 ) kernel=linux
             ;;
@@ -39,7 +38,6 @@ network_selector () {
     print "3) wpa_supplicant: It's a cross-platform supplicant with support for WEP, WPA and WPA2 (WiFi-only, a DHCP client will be automatically installed too.)"
     print "4) I will do this on my own."
     read -r -p "Insert the number of the corresponding networking utility: " choice
-    print "$choice will be installed"
     case $choice in
         1 ) print "Installing IWD."    
             pacstrap /mnt iwd
@@ -64,7 +62,7 @@ network_selector () {
     esac
 }
 
-# Setting hostname.
+# Setting up the hostname (function).
 hostname_selector () {
     read -r -p "Please enter the hostname: " hostname
     if [ -z "$hostname" ]; then
@@ -74,6 +72,38 @@ hostname_selector () {
     echo "$hostname" > /mnt/etc/hostname
 }
 
+# Setting up a password for the LUKS Container (function).
+password_selector () {
+    read -r -s -p "Insert password for the LUKS container (you're not going to see the password): " password
+    if [ -z "$password" ]; then
+        print "You need to enter a password for the LUKS Container in order to continue."
+        password_selector
+    fi
+    echo -n "$password" | cryptsetup luksFormat "$Cryptroot" -d -
+    echo -n "$password" | cryptsetup open "$Cryptroot" cryptroot -d -
+    BTRFS="/dev/mapper/cryptroot"
+}
+
+# Setting up the locale (function).
+locale_selector () {
+    read -r -p "Please insert the locale you use (format: xx_XX): " locale
+    if [ -z "$locale" ]; then
+        print "You need to enter a valid locale to continue."
+        locale_selector
+    fi
+    echo "$locale.UTF-8 UTF-8"  > /mnt/etc/locale.gen
+    echo "LANG=$locale.UTF-8" > /mnt/etc/locale.conf
+}
+
+# Setting up the keyboard layout (function).
+keyboard_selector () {
+    read -r -p "Please insert the keyboard layout you use: " kblayout
+    if [ -z "$kblayout" ]; then
+        print "You need to enter a valid keyboard layout in order to continue."
+        keyboard_selector
+    fi
+    echo "KEYMAP=$kblayout" > /mnt/etc/vconsole.conf
+}
 
 # Setting up system clock.
 print "Setting up the system clock."
@@ -81,10 +111,11 @@ timedatectl set-ntp true &>/dev/null
 
 # Checking the microcode to install.
 CPU=$(grep vendor_id /proc/cpuinfo)
-if [[ $CPU == *"AuthenticAMD"* ]]
-then
+if [[ $CPU == *"AuthenticAMD"* ]]; then
+    print "An AMD CPU has been detected, the AMD microcode will be installed."
     microcode=amd-ucode
 else
+    print "An Intel CPU has been detected, the Intel microcode will be installed."
     microcode=intel-ucode
 fi
 
@@ -130,10 +161,7 @@ mkfs.fat -F 32 $ESP &>/dev/null
 
 # Creating a LUKS Container for the root partition.
 print "Creating LUKS Container for the root partition."
-read -r -p "Insert password for the LUKS container: " password
-echo -n "$password" | cryptsetup luksFormat $Cryptroot -d -
-echo -n "$password" | cryptsetup open $Cryptroot cryptroot -d -
-BTRFS="/dev/mapper/cryptroot"
+password_selector
 
 # Formatting the LUKS Container as BTRFS.
 print "Formatting the LUKS container as BTRFS."
@@ -158,13 +186,17 @@ mount -o ssd,noatime,space_cache=v2,compress=zstd,discard=async,subvol=@var_log 
 chattr +C /mnt/var/log
 mount $ESP /mnt/boot/
 
+# Setting up the kernel.
 kernel_selector
 
 # Pacstrap (setting up a base sytem onto the new root).
 print "Installing the base system (it may take a while)."
 pacstrap /mnt base $kernel $microcode linux-firmware btrfs-progs grub grub-btrfs efibootmgr snapper reflector base-devel snap-pac zram-generator
 
+# Setting up the network.
 network_selector
+
+# Setting up the hostname.
 hostname_selector
 
 # Generating /etc/fstab.
@@ -174,14 +206,11 @@ genfstab -U /mnt >> /mnt/etc/fstab
 # Setting username.
 read -r -p "Please enter name for a user account (enter empty to not create one): " username
 
-# Setting up locales.
-read -r -p "Please insert the locale you use (format: xx_XX): " locale
-echo "$locale.UTF-8 UTF-8"  > /mnt/etc/locale.gen
-echo "LANG=$locale.UTF-8" > /mnt/etc/locale.conf
+# Setting up the locale.
+locale_selector
 
 # Setting up keyboard layout.
-read -r -p "Please insert the keyboard layout you use: " kblayout
-echo "KEYMAP=$kblayout" > /mnt/etc/vconsole.conf
+keyboard_selector
 
 # Setting hosts file.
 print "Setting hosts file."
