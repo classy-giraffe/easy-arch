@@ -34,9 +34,9 @@ kernel_selector () {
 # Selecting a way to handle internet connection (function). 
 network_selector () {
     print "Network utilities:"
-    print "1) IWD — iNet wireless daemon is a wireless daemon for Linux written by Intel (WiFi-only)."
-    print "2) NetworkManager — Program for providing detection and configuration for systems to automatically connect to networks (both WiFi and Ethernet)."
-    print "3) wpa_supplicant — It's a cross-platform supplicant with support for WEP, WPA and WPA2 (WiFi-only, a DHCP client will be automatically installed too.)"
+    print "1) IWD: iNet wireless daemon is a wireless daemon for Linux written by Intel (WiFi-only)."
+    print "2) NetworkManager: Program for providing detection and configuration for systems to automatically connect to networks (both WiFi and Ethernet)."
+    print "3) wpa_supplicant: It's a cross-platform supplicant with support for WEP, WPA and WPA2 (WiFi-only, a DHCP client will be automatically installed too.)"
     print "4) I will do this on my own."
     read -r -p "Insert the number of the corresponding networking utility: " choice
     print "$choice will be installed"
@@ -63,6 +63,17 @@ network_selector () {
             network_selector
     esac
 }
+
+# Setting hostname.
+hostname_selector () {
+    read -r -p "Please enter the hostname: " hostname
+    if [ -z "$hostname" ]; then
+        print "You need to enter a hostname in order to continue."
+        hostname_selector
+    fi
+    echo "$hostname" > /mnt/etc/hostname
+}
+
 
 # Setting up system clock.
 print "Setting up the system clock."
@@ -154,14 +165,11 @@ print "Installing the base system (it may take a while)."
 pacstrap /mnt base $kernel $microcode linux-firmware btrfs-progs grub grub-btrfs efibootmgr snapper reflector base-devel snap-pac zram-generator
 
 network_selector
+hostname_selector
 
 # Generating /etc/fstab.
 print "Generating a new fstab."
 genfstab -U /mnt >> /mnt/etc/fstab
-
-# Setting hostname.
-read -r -p "Please enter the hostname: " hostname
-echo "$hostname" > /mnt/etc/hostname
 
 # Setting username.
 read -r -p "Please enter name for a user account (enter empty to not create one): " username
@@ -196,9 +204,11 @@ sed -i "s,quiet,quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS,g" /mnt/etc/d
 arch-chroot /mnt /bin/bash -e <<EOF
     
     # Setting up timezone.
+    echo "Setting up the timezone."
     ln -sf /usr/share/zoneinfo/$(curl -s http://ip-api.com/line?fields=timezone) /etc/localtime &>/dev/null
     
     # Setting up clock.
+    echo "Setting up the system clock."
     hwclock --systohc
     
     # Generating locales.
@@ -226,12 +236,12 @@ arch-chroot /mnt /bin/bash -e <<EOF
     echo "Creating GRUB config file."
     grub-mkconfig -o /boot/grub/grub.cfg &>/dev/null
     
-    # Adding user with sudo privilege
+    # Adding user with sudo privileges.
     if [ -n "$username" ]; then
         echo "Adding $username with root privilege."
-        useradd -m $username
-        usermod -aG wheel $username
-        echo "$username ALL=(ALL) ALL" >> /etc/sudoers.d/$username
+        useradd -m "$username"
+        usermod -aG wheel "$username"
+        echo "$username ALL=(ALL) ALL" >> /etc/sudoers.d/"$username"
     fi
 
 EOF
@@ -239,7 +249,7 @@ EOF
 # Setting root password.
 print "Setting root password."
 arch-chroot /mnt /bin/passwd
-[ -n "$username" ] && echo "Setting user password for ${username}." && arch-chroot /mnt /bin/passwd "$username"
+[ -n "$username" ] && print "Setting user password for ${username}." && arch-chroot /mnt /bin/passwd "$username"
 
 # ZRAM configuration.
 print "Configuring ZRAM."
