@@ -201,20 +201,20 @@ case $hypervisor in
             pacstrap /mnt qemu-guest-agent
             print "Enabling specific services for the guest tools."
             systemctl enable qemu-guest-agent --root=/mnt &>/dev/null
-    ;;
-    vmware )    print "VMWare Workstation/ESXi has been detected."
+            ;;
+    vmware  )    print "VMWare Workstation/ESXi has been detected."
                 print "Installing guest tools."
                 pacstrap /mnt open-vm-tools
                 print "Enabling specific services for the guest tools."
                 systemctl enable vmtoolsd --root=/mnt &>/dev/null
                 systemctl enable vmware-vmblock-fuse --root=/mnt &>/dev/null
-    ;;
+                ;;
     oracle )    print "VirtualBox has been detected."
                 print "Installing guest tools."
                 pacstrap /mnt virtualbox-guest-utils
                 print "Enabling specific services for the guest tools."
                 systemctl enable vboxservice --root=/mnt &>/dev/null
-    ;;
+                ;;
     microsoft ) print "Hyper-V has been detected."
                 print "Installing guest tools."
                 pacstrap /mnt hyperv
@@ -222,7 +222,7 @@ case $hypervisor in
                 systemctl enable hv_fcopy_daemon --root=/mnt &>/dev/null
                 systemctl enable hv_kvp_daemon --root=/mnt &>/dev/null
                 systemctl enable hv_vss_daemon --root=/mnt &>/dev/null
-    ;;
+                ;;
 esac
 
 # Setting up the network.
