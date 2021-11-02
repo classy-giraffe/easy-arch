@@ -109,16 +109,6 @@ keyboard_selector () {
 print "Setting up the system clock."
 timedatectl set-ntp true &>/dev/null
 
-# Checking the microcode to install.
-CPU=$(grep vendor_id /proc/cpuinfo)
-if [[ $CPU == *"AuthenticAMD"* ]]; then
-    print "An AMD CPU has been detected, the AMD microcode will be installed."
-    microcode=amd-ucode
-else
-    print "An Intel CPU has been detected, the Intel microcode will be installed."
-    microcode=intel-ucode
-fi
-
 # Selecting the target for the installation.
 PS3="Select the disk where Arch Linux is going to be installed: "
 select ENTRY in $(lsblk -dpnoNAME|grep -P "/dev/sd|nvme|vd");
@@ -131,8 +121,8 @@ done
 # Deleting old partition scheme.
 read -r -p "This will delete the current partition table on $DISK. Do you agree [y/N]? " response
 response=${response,,}
-if [[ "$response" =~ ^(yes|y)$ ]]
-then
+if [[ "$response" =~ ^(yes|y)$ ]]; then
+    print "Wiping $DISK"
     wipefs -af "$DISK" &>/dev/null
     sgdisk -Zo "$DISK" &>/dev/null
 else
@@ -141,7 +131,7 @@ else
 fi
 
 # Creating a new partition scheme.
-print "Creating new partition scheme on $DISK."
+print "Creating the partitions on $DISK."
 parted -s "$DISK" \
     mklabel gpt \
     mkpart ESP fat32 1MiB 513MiB \
@@ -189,9 +179,34 @@ mount $ESP /mnt/boot/
 # Setting up the kernel.
 kernel_selector
 
+# Checking the microcode to install.
+CPU=$(grep vendor_id /proc/cpuinfo)
+if [[ $CPU == *"AuthenticAMD"* ]]; then
+    print "An AMD CPU has been detected, the AMD microcode will be installed."
+    microcode=amd-ucode
+else
+    print "An Intel CPU has been detected, the Intel microcode will be installed."
+    microcode=intel-ucode
+fi
+
 # Pacstrap (setting up a base sytem onto the new root).
 print "Installing the base system (it may take a while)."
 pacstrap /mnt base $kernel $microcode linux-firmware btrfs-progs grub grub-btrfs efibootmgr snapper reflector base-devel snap-pac zram-generator
+
+# Virtualization check
+hypervisor=$(systemd-detect-virt)
+case $hypervisor in
+    kvm ) print "KVM has been detected."
+    ;;
+    vmware ) print "VMWare Workstation/ESXi has been detected."
+    ;;
+    microsoft ) print "Hyper-V has been detected."
+    ;;
+    xen ) print "Xen/Citrix Hypervisor has been detected."
+    ;;
+    parallels ) print "Parallels has been detected."
+    ;;
+esac
 
 # Setting up the network.
 network_selector
