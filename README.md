@@ -1,7 +1,7 @@
 ![](https://img.shields.io/github/license/classy-giraffe/easy-arch)
 
 ### Introduction
-[easy-arch](https://github.com/classy-giraffe/easy-arch) is a **script** made in order to boostrap a basic **Arch Linux** environment with **snapshots** and **encryption** by using a fully automated process (UEFI only).
+[easy-arch](https://github.com/classy-giraffe/easy-arch) is a **script** made in order to boostrap a basic **Arch Linux** environment with **BTRFS snapshots** and **encryption** by using a fully automated process (UEFI only).
 
 ### How does it work?
 1. Download an Arch Linux ISO from [here](https://archlinux.org/download/)
