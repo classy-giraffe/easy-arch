@@ -170,9 +170,9 @@ umount /mnt
 print "Mounting the newly created subvolumes."
 mount -o ssd,noatime,space_cache,compress=zstd,subvol=@ $BTRFS /mnt
 mkdir -p /mnt/{home,.snapshots,/var/log,boot}
-mount -o ssd,noatime,space_cache=v2,compress=zstd,discard=async,subvol=@home $BTRFS /mnt/home
-mount -o ssd,noatime,space_cache=v2,compress=zstd,discard=async,subvol=@snapshots $BTRFS /mnt/.snapshots
-mount -o ssd,noatime,space_cache=v2,compress=zstd,discard=async,subvol=@var_log $BTRFS /mnt/var/log
+mount -o ssd,noatime,space_cache=v2,compress-force=zstd,discard=async,subvol=@home $BTRFS /mnt/home
+mount -o ssd,noatime,space_cache=v2,compress-force=zstd,discard=async,subvol=@snapshots $BTRFS /mnt/.snapshots
+mount -o ssd,noatime,space_cache=v2,compress-force=zstd,discard=async,subvol=@var_log $BTRFS /mnt/var/log
 chattr +C /mnt/var/log
 mount $ESP /mnt/boot/
 
@@ -321,8 +321,8 @@ max-zram-size = 8192
 EOF
 
 # Enabling various services.
-print "Enabling Reflector, Snapper, automatic snapshots and systemd-oomd"
-for service in reflector.timer snapper-timeline.timer snapper-cleanup.timer grub-btrfs.path systemd-oomd
+print "Enabling Reflector, automatic snapshots, BTRFS scrubbing and systemd-oomd"
+for service in reflector.timer snapper-timeline.timer snapper-cleanup.timer btrfs-scrub@-.timer btrfs-scrub@home.timer btrfs-scrub@var-log.timer btrfs-scrub@\\x2esnapshots.timer grub-btrfs.path systemd-oomd
 do
     systemctl enable $service --root=/mnt &>/dev/null
 done
