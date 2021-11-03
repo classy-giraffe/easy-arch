@@ -1,6 +1,6 @@
-![](https://img.shields.io/github/license/classy-giraffe/easy-arch)
-![](https://img.shields.io/github/stars/classy-giraffe/easy-arch)
-![](https://img.shields.io/github/forks/classy-giraffe/easy-arch)
+![](https://img.shields.io/github/license/classy-giraffe/easy-arch?label=License)
+![](https://img.shields.io/github/stars/classy-giraffe/easy-arch?label=Stars)
+![](https://img.shields.io/github/forks/classy-giraffe/easy-arch?label=Forks)
 
 ### Introduction
 [easy-arch](https://github.com/classy-giraffe/easy-arch) is a **script** made in order to boostrap a basic **Arch Linux** environment with **BTRFS snapshots** and **encryption** by using a fully automated process (UEFI only).
