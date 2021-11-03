@@ -264,6 +264,8 @@ sed -i "s,quiet,quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS,g" /mnt/etc/d
 # Configuring the system.    
 arch-chroot /mnt /bin/bash -e <<EOF
     
+    print "test"
+
     # Setting up timezone.
     echo "Setting up the timezone."
     ln -sf /usr/share/zoneinfo/$(curl -s http://ip-api.com/line?fields=timezone) /etc/localtime &>/dev/null
@@ -281,6 +283,7 @@ arch-chroot /mnt /bin/bash -e <<EOF
     mkinitcpio -P &>/dev/null
     
     # Snapper configuration
+    echo "Configuring Snapper."
     umount /.snapshots
     rm -r /.snapshots
     snapper --no-dbus -c root create-config /
