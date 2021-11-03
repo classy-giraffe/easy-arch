@@ -110,7 +110,8 @@ print "Setting up the system clock."
 timedatectl set-ntp true &>/dev/null
 
 # Selecting the target for the installation.
-PS3="Select the disk where Arch Linux is going to be installed: "
+print "Welcome to easy-arch, a script made in order to simplify the process of installing Arch Linux."
+PS3="Please select the disk where Arch Linux is going to be installed: "
 select ENTRY in $(lsblk -dpnoNAME|grep -P "/dev/sd|nvme|vd");
 do
     DISK=$ENTRY
@@ -308,15 +309,22 @@ arch-chroot /mnt /bin/bash -e <<EOF
         echo "Adding $username with root privilege."
         useradd -m "$username"
         usermod -aG wheel "$username"
-        echo "Setting user password for $username."
-        passwd $username
         echo "$username ALL=(ALL) ALL" >> /etc/sudoers.d/"$username"
     fi
 
 EOF
 
+# Setting root password.
+print "Setting root password."
+arch-chroot /mnt /bin/passwd
+if [ -n "$username" ]; then
+    print "Setting user password for $username." 
+    arch-chroot /mnt /bin/passwd "$username"
+fi
+
 # Boot backup hook.
 print "Configuring /boot backup when pacman transactions are made."
+mkdir /mnt/etc/pacman.d/hooks
 cat > /mnt/etc/pacman.d/hooks/50-bootbackup.hook <<EOF
 [Trigger]
 Operation = Upgrade
