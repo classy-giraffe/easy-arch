@@ -3,7 +3,11 @@
 ![](https://img.shields.io/github/forks/classy-giraffe/easy-arch?label=Forks)
 
 ### Introduction
-[easy-arch](https://github.com/classy-giraffe/easy-arch) is a **script** made in order to boostrap a basic **Arch Linux** environment with **BTRFS snapshots** and **encryption** by using a fully automated process (UEFI only).
+[easy-arch](https://github.com/classy-giraffe/easy-arch) is a **script** made in order to boostrap a basic **Arch Linux** environment with the following features:
+1. BTRFS snapshots
+2. LUKS2 encryption
+3. [ZRAM](https://fedoraproject.org/wiki/Changes/SwapOnZRAM) as swap
+4. [systemd-oomd](https://fedoraproject.org/wiki/Changes/EnableSystemdOomd)
 
 ### How does it work?
 1. Download an Arch Linux ISO from [here](https://archlinux.org/download/)
