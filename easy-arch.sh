@@ -191,7 +191,7 @@ fi
 
 # Pacstrap (setting up a base sytem onto the new root).
 print "Installing the base system (it may take a while)."
-pacstrap /mnt base $kernel $microcode linux-firmware btrfs-progs grub grub-btrfs efibootmgr snapper reflector base-devel snap-pac zram-generator
+pacstrap /mnt base $kernel $microcode linux-firmware btrfs-progs grub grub-btrfs rsync efibootmgr snapper reflector base-devel snap-pac zram-generator
 
 # Virtualization check
 hypervisor=$(systemd-detect-virt)
@@ -202,7 +202,7 @@ case $hypervisor in
             print "Enabling specific services for the guest tools."
             systemctl enable qemu-guest-agent --root=/mnt &>/dev/null
             ;;
-    vmware  )    print "VMWare Workstation/ESXi has been detected."
+    vmware  )   print "VMWare Workstation/ESXi has been detected."
                 print "Installing guest tools."
                 pacstrap /mnt open-vm-tools
                 print "Enabling specific services for the guest tools."
@@ -223,6 +223,7 @@ case $hypervisor in
                 systemctl enable hv_kvp_daemon --root=/mnt &>/dev/null
                 systemctl enable hv_vss_daemon --root=/mnt &>/dev/null
                 ;;
+    * ) ;;
 esac
 
 # Setting up the network.
@@ -263,8 +264,6 @@ sed -i "s,quiet,quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS,g" /mnt/etc/d
 
 # Configuring the system.    
 arch-chroot /mnt /bin/bash -e <<EOF
-    
-    print "test"
 
     # Setting up timezone.
     echo "Setting up the timezone."
@@ -299,21 +298,39 @@ arch-chroot /mnt /bin/bash -e <<EOF
     # Creating grub config file.
     echo "Creating GRUB config file."
     grub-mkconfig -o /boot/grub/grub.cfg &>/dev/null
+
+    # Setting root password.
+    echo "Setting root password."
+    passwd
     
     # Adding user with sudo privileges.
     if [ -n "$username" ]; then
         echo "Adding $username with root privilege."
         useradd -m "$username"
         usermod -aG wheel "$username"
+        echo "Setting user password for $username."
+        passwd $username
         echo "$username ALL=(ALL) ALL" >> /etc/sudoers.d/"$username"
     fi
 
 EOF
 
-# Setting root password.
-print "Setting root password."
-arch-chroot /mnt /bin/passwd
-[ -n "$username" ] && print "Setting user password for ${username}." && arch-chroot /mnt /bin/passwd "$username"
+# Boot backup hook.
+print "Configuring /boot backup when pacman transactions are made."
+cat > /mnt/etc/pacman.d/hooks/50-bootbackup.hook <<EOF
+[Trigger]
+Operation = Upgrade
+Operation = Install
+Operation = Remove
+Type = Path
+Target = usr/lib/modules/*/vmlinuz
+
+[Action]
+Depends = rsync
+Description = Backing up /boot...
+When = PostTransaction
+Exec = /usr/bin/rsync -a --delete /boot /.bootbackup
+EOF
 
 # ZRAM configuration.
 print "Configuring ZRAM."
