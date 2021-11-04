@@ -3,7 +3,7 @@
 ![](https://img.shields.io/github/forks/classy-giraffe/easy-arch?label=Forks)
 
 ### Introduction
-[easy-arch](https://github.com/classy-giraffe/easy-arch) is a **script** made in order to boostrap a basic **Arch Linux** environment with the following features:
+[easy-arch](https://github.com/classy-giraffe/easy-arch) is a **bash script** made in order to boostrap a basic **Arch Linux** environment with the following features:
 1. BTRFS bootable snapshots from GRUB
 2. LUKS2 encryption
 3. [ZRAM](https://fedoraproject.org/wiki/Changes/SwapOnZRAM) as swap
