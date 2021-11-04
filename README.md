@@ -4,14 +4,15 @@
 
 ### Introduction
 [easy-arch](https://github.com/classy-giraffe/easy-arch) is a **script** made in order to boostrap a basic **Arch Linux** environment with the following features:
-1. BTRFS snapshots
+1. BTRFS bootable snapshots from GRUB
 2. LUKS2 encryption
 3. [ZRAM](https://fedoraproject.org/wiki/Changes/SwapOnZRAM) as swap
 4. [systemd-oomd](https://fedoraproject.org/wiki/Changes/EnableSystemdOomd)
+5. Autodetect VMs and provide guest tools (if available)
 
 ### How does it work?
 1. Download an Arch Linux ISO from [here](https://archlinux.org/download/)
-2. Flash the ISO onto an [USB Flash Drive](https://wiki.archlinux.org/index.php/USB_flash_installation_medium).
+2. Flash the ISO onto an [USB Flash Drive](https://wiki.archlinux.org/index.php/USB_flash_installation_medium)
 3. Boot the live environment
 4. Set the keyboard layout by using `loadkeys <kblayout>`
 5. Connect to the internet
@@ -25,7 +26,7 @@
 | 2                | Cryptroot | Rest of the disk  | /              | BTRFS Encrypted (LUKS2) |
 
 The **partitions layout** is simple and it's inspired by [this section](https://wiki.archlinux.org/index.php/Dm-crypt/Encrypting_an_entire_system#Btrfs_subvolumes_with_swap) of the Arch Linux Wiki. As you can see there're only two partitions:
-1. A **FAT32**, 512MiB sized, mounted at `/boot/efi` for the ESP.
+1. A **FAT32**, 512MiB sized, mounted at `/boot/` for the ESP.
 2. A **LUKS2 encrypted container**, which takes the rest of the disk space, mounted at `/` for the rootfs.
 
 ### BTRFS subvolumes layout
