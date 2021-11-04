@@ -300,24 +300,17 @@ arch-chroot /mnt /bin/bash -e <<EOF
     echo "Creating GRUB config file."
     grub-mkconfig -o /boot/grub/grub.cfg &>/dev/null
 
-    # Setting root password.
-    echo "Setting root password."
-    passwd
-    
-    # Adding user with sudo privileges.
-    if [ -n "$username" ]; then
-        echo "Adding $username with root privilege."
-        useradd -m "$username"
-        usermod -aG wheel "$username"
-        echo "$username ALL=(ALL) ALL" >> /etc/sudoers.d/"$username"
-    fi
-
 EOF
 
 # Setting root password.
 print "Setting root password."
 arch-chroot /mnt /bin/passwd
+
+# Setting user password.
 if [ -n "$username" ]; then
+    print "Adding $username with root privilege."
+    useradd -m -G wheel "$username"
+    print "$username ALL=(ALL) ALL" >> /etc/sudoers.d/"$username"
     print "Setting user password for $username." 
     arch-chroot /mnt /bin/passwd "$username"
 fi
@@ -349,7 +342,7 @@ max-zram-size = 8192
 EOF
 
 # Enabling various services.
-print "Enabling Reflector, automatic snapshots, BTRFS scrubbing and systemd-oomd"
+print "Enabling Reflector, automatic snapshots, BTRFS scrubbing and systemd-oomd."
 for service in reflector.timer snapper-timeline.timer snapper-cleanup.timer btrfs-scrub@-.timer btrfs-scrub@home.timer btrfs-scrub@var-log.timer btrfs-scrub@\\x2esnapshots.timer grub-btrfs.path systemd-oomd
 do
     systemctl enable $service --root=/mnt &>/dev/null
