@@ -8,6 +8,41 @@ print () {
     echo -e "\e[1m\e[93m[ \e[92m•\e[93m ] \e[4m$1\e[0m"
 }
 
+# Virtualization check (function).
+virt_check () {
+    hypervisor=$(systemd-detect-virt)
+    case $hypervisor in
+        kvm )   print "KVM has been detected."
+                print "Installing guest tools."
+                pacstrap /mnt qemu-guest-agent
+                print "Enabling specific services for the guest tools."
+                systemctl enable qemu-guest-agent --root=/mnt &>/dev/null
+                ;;
+        vmware  )   print "VMWare Workstation/ESXi has been detected."
+                    print "Installing guest tools."
+                    pacstrap /mnt open-vm-tools
+                    print "Enabling specific services for the guest tools."
+                    systemctl enable vmtoolsd --root=/mnt &>/dev/null
+                    systemctl enable vmware-vmblock-fuse --root=/mnt &>/dev/null
+                    ;;
+        oracle )    print "VirtualBox has been detected."
+                    print "Installing guest tools."
+                    pacstrap /mnt virtualbox-guest-utils
+                    print "Enabling specific services for the guest tools."
+                    systemctl enable vboxservice --root=/mnt &>/dev/null
+                    ;;
+        microsoft ) print "Hyper-V has been detected."
+                    print "Installing guest tools."
+                    pacstrap /mnt hyperv
+                    print "Enabling specific services for the guest tools."
+                    systemctl enable hv_fcopy_daemon --root=/mnt &>/dev/null
+                    systemctl enable hv_kvp_daemon --root=/mnt &>/dev/null
+                    systemctl enable hv_vss_daemon --root=/mnt &>/dev/null
+                    ;;
+        * ) ;;
+    esac
+}
+
 # Selecting a kernel to install (function). 
 kernel_selector () {
     print "List of kernels:"
@@ -17,13 +52,13 @@ kernel_selector () {
     print "4) Zen: A Linux kernel optimized for desktop usage."
     read -r -p "Insert the number of the corresponding kernel: " choice
     case $choice in
-        1 ) kernel=linux
+        1 ) kernel="linux"
             ;;
-        2 ) kernel=linux-hardened
+        2 ) kernel="linux-hardened"
             ;;
-        3 ) kernel=linux-lts
+        3 ) kernel="linux-lts"
             ;;
-        4 ) kernel=linux-zen
+        4 ) kernel="linux-zen"
             ;;
         * ) print "You did not enter a valid selection."
             kernel_selector
@@ -33,10 +68,11 @@ kernel_selector () {
 # Selecting a way to handle internet connection (function). 
 network_selector () {
     print "Network utilities:"
-    print "1) IWD: iNet wireless daemon is a wireless daemon for Linux written by Intel (WiFi-only)."
-    print "2) NetworkManager: Program for providing detection and configuration for systems to automatically connect to networks (both WiFi and Ethernet)."
-    print "3) wpa_supplicant: It's a cross-platform supplicant with support for WEP, WPA and WPA2 (WiFi-only, a DHCP client will be automatically installed too.)"
-    print "4) I will do this on my own."
+    print "1) IWD: iNet wireless daemon is a wireless daemon for Linux written by Intel (WiFi-only)"
+    print "2) NetworkManager: Universal network utility to automatically connect to networks (both WiFi and Ethernet)"
+    print "3) wpa_supplicant: Cross-platform supplicant with support for WEP, WPA and WPA2 (WiFi-only, a DHCP client will be automatically installed as well)"
+    print "4) dhcpcd: Basic DHCP client (Ethernet only or VMs)"
+    print "5) I will do this on my own (only advanced users)"
     read -r -p "Insert the number of the corresponding networking utility: " choice
     case $choice in
         1 ) print "Installing IWD."    
@@ -55,21 +91,16 @@ network_selector () {
             systemctl enable wpa_supplicant --root=/mnt &>/dev/null
             systemctl enable dhcpcd --root=/mnt &>/dev/null
             ;;
-        4 )
+        4 ) print "Installing dhcpcd."
+            pacstrap /mnt dhcpcd
+            print "Enabling dhcpcd."
+            systemctl enable dhcpcd --root=/mnt &>/dev/null
+            ;; 
+        5 )
             ;;
         * ) print "You did not enter a valid selection."
             network_selector
     esac
-}
-
-# Setting up the hostname (function).
-hostname_selector () {
-    read -r -p "Please enter the hostname: " hostname
-    if [ -z "$hostname" ]; then
-        print "You need to enter a hostname in order to continue."
-        hostname_selector
-    fi
-    echo "$hostname" > /mnt/etc/hostname
 }
 
 # Setting up a password for the LUKS Container (function).
@@ -84,12 +115,34 @@ password_selector () {
     BTRFS="/dev/mapper/cryptroot"
 }
 
+# Microcode detector (function).
+microcode_detector () {
+    CPU=$(grep vendor_id /proc/cpuinfo)
+    if [[ $CPU == *"AuthenticAMD"* ]]; then
+        print "An AMD CPU has been detected, the AMD microcode will be installed."
+        microcode="amd-ucode"
+    else
+        print "An Intel CPU has been detected, the Intel microcode will be installed."
+        microcode="intel-ucode"
+    fi
+}
+
+# Setting up the hostname (function).
+hostname_selector () {
+    read -r -p "Please enter the hostname: " hostname
+    if [ -z "$hostname" ]; then
+        print "You need to enter a hostname in order to continue."
+        hostname_selector
+    fi
+    echo "$hostname" > /mnt/etc/hostname
+}
+
 # Setting up the locale (function).
 locale_selector () {
-    read -r -p "Please insert the locale you use (format: xx_XX): " locale
+    read -r -p "Please insert the locale you use (format: xx_XX or enter empty to use en_US): " locale
     if [ -z "$locale" ]; then
-        print "You need to enter a valid locale to continue."
-        locale_selector
+        print "en_US will be used as default locale."
+        locale="en_US"
     fi
     echo "$locale.UTF-8 UTF-8"  > /mnt/etc/locale.gen
     echo "LANG=$locale.UTF-8" > /mnt/etc/locale.conf
@@ -97,17 +150,13 @@ locale_selector () {
 
 # Setting up the keyboard layout (function).
 keyboard_selector () {
-    read -r -p "Please insert the keyboard layout you use: " kblayout
+    read -r -p "Please insert the keyboard layout you use (enter empty to use US keyboard layout): " kblayout
     if [ -z "$kblayout" ]; then
-        print "You need to enter a valid keyboard layout in order to continue."
-        keyboard_selector
+        print "US keyboard layout will be used by default."
+        kblayout="us"
     fi
     echo "KEYMAP=$kblayout" > /mnt/etc/vconsole.conf
 }
-
-# Setting up system clock.
-print "Setting up the system clock."
-timedatectl set-ntp true &>/dev/null
 
 # Selecting the target for the installation.
 print "Welcome to easy-arch, a script made in order to simplify the process of installing Arch Linux."
@@ -181,51 +230,14 @@ mount $ESP /mnt/boot/
 kernel_selector
 
 # Checking the microcode to install.
-CPU=$(grep vendor_id /proc/cpuinfo)
-if [[ $CPU == *"AuthenticAMD"* ]]; then
-    print "An AMD CPU has been detected, the AMD microcode will be installed."
-    microcode=amd-ucode
-else
-    print "An Intel CPU has been detected, the Intel microcode will be installed."
-    microcode=intel-ucode
-fi
+microcode_detector
+
+# Virtualization check.
+virt_check
 
 # Pacstrap (setting up a base sytem onto the new root).
 print "Installing the base system (it may take a while)."
 pacstrap /mnt base $kernel $microcode linux-firmware btrfs-progs grub grub-btrfs rsync efibootmgr snapper reflector base-devel snap-pac zram-generator
-
-# Virtualization check
-hypervisor=$(systemd-detect-virt)
-case $hypervisor in
-    kvm )   print "KVM has been detected."
-            print "Installing guest tools."
-            pacstrap /mnt qemu-guest-agent
-            print "Enabling specific services for the guest tools."
-            systemctl enable qemu-guest-agent --root=/mnt &>/dev/null
-            ;;
-    vmware  )   print "VMWare Workstation/ESXi has been detected."
-                print "Installing guest tools."
-                pacstrap /mnt open-vm-tools
-                print "Enabling specific services for the guest tools."
-                systemctl enable vmtoolsd --root=/mnt &>/dev/null
-                systemctl enable vmware-vmblock-fuse --root=/mnt &>/dev/null
-                ;;
-    oracle )    print "VirtualBox has been detected."
-                print "Installing guest tools."
-                pacstrap /mnt virtualbox-guest-utils
-                print "Enabling specific services for the guest tools."
-                systemctl enable vboxservice --root=/mnt &>/dev/null
-                ;;
-    microsoft ) print "Hyper-V has been detected."
-                print "Installing guest tools."
-                pacstrap /mnt hyperv
-                print "Enabling specific services for the guest tools."
-                systemctl enable hv_fcopy_daemon --root=/mnt &>/dev/null
-                systemctl enable hv_kvp_daemon --root=/mnt &>/dev/null
-                systemctl enable hv_vss_daemon --root=/mnt &>/dev/null
-                ;;
-    * ) ;;
-esac
 
 # Setting up the network.
 network_selector
