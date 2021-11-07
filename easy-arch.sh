@@ -324,7 +324,7 @@ if [ -n "$username" ]; then
     useradd -m "$username"
     usermod -aG wheel "$username"
     echo "Setting user password for $username."
-    passwd $username
+    passwd "$username"
     echo "$username ALL=(ALL) ALL" >> /etc/sudoers.d/"$username"
     print "Setting user password for $username." 
     arch-chroot /mnt /bin/passwd "$username"
