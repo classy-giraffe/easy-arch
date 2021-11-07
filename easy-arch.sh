@@ -46,10 +46,10 @@ virt_check () {
 # Selecting a kernel to install (function). 
 kernel_selector () {
     print "List of kernels:"
-    print "1) Stable: Vanilla Linux kernel and modules, with a few specific Arch Linux patches applied."
-    print "2) Hardened: A security-focused Linux kernel."
-    print "3) LTS: Long-term support (LTS) Linux kernel and modules."
-    print "4) Zen: A Linux kernel optimized for desktop usage."
+    print "1) Stable: Vanilla Linux kernel with a few specific Arch Linux patches applied4"
+    print "2) Hardened: A security-focused Linux kernel"
+    print "3) LTS: Long-term support (LTS) Linux kernel"
+    print "4) Zen: A Linux kernel optimized for desktop usage"
     read -r -p "Insert the number of the corresponding kernel: " choice
     case $choice in
         1 ) kernel="linux"
@@ -235,12 +235,12 @@ microcode_detector
 # Virtualization check.
 virt_check
 
+# Setting up the network.
+network_selector
+
 # Pacstrap (setting up a base sytem onto the new root).
 print "Installing the base system (it may take a while)."
 pacstrap /mnt base $kernel $microcode linux-firmware btrfs-progs grub grub-btrfs rsync efibootmgr snapper reflector base-devel snap-pac zram-generator
-
-# Setting up the network.
-network_selector
 
 # Setting up the hostname.
 hostname_selector
