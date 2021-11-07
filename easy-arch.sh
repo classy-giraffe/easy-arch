@@ -46,7 +46,7 @@ virt_check () {
 # Selecting a kernel to install (function). 
 kernel_selector () {
     print "List of kernels:"
-    print "1) Stable: Vanilla Linux kernel with a few specific Arch Linux patches applied4"
+    print "1) Stable: Vanilla Linux kernel with a few specific Arch Linux patches applied"
     print "2) Hardened: A security-focused Linux kernel"
     print "3) LTS: Long-term support (LTS) Linux kernel"
     print "4) Zen: A Linux kernel optimized for desktop usage"
@@ -322,7 +322,7 @@ arch-chroot /mnt /bin/passwd
 if [ -n "$username" ]; then
     print "Adding $username with root privilege."
     useradd -m -G wheel "$username"
-    print "$username ALL=(ALL) ALL" >> /etc/sudoers.d/"$username"
+    echo "$username ALL=(ALL) ALL" >> /etc/sudoers.d/"$username"
     print "Setting user password for $username." 
     arch-chroot /mnt /bin/passwd "$username"
 fi
