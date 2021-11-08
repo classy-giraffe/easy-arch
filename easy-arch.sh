@@ -96,8 +96,7 @@ network_selector () {
             print "Enabling dhcpcd."
             systemctl enable dhcpcd --root=/mnt &>/dev/null
             ;; 
-        5 )
-            ;;
+        5 ) ;;
         * ) print "You did not enter a valid selection."
             network_selector
     esac
