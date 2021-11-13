@@ -266,13 +266,16 @@ cat > /mnt/etc/hosts <<EOF
 EOF
 
 # Configuring /etc/mkinitcpio.conf.
-print "Configuring /etc/mkinitcpio.conf for LUKS hook."
-sed -i -e 's,modconf block filesystems keyboard,keyboard keymap modconf block encrypt filesystems,g' /mnt/etc/mkinitcpio.conf
+print "Configuring /etc/mkinitcpio.conf."
+cat > /mnt/etc/mkinitcpio.conf <<EOF
+HOOKS=(base systemd autodetect keyboard sd-vconsole modconf block sd-encrypt filesystems)
+COMPRESSION=(zstd)
+EOF
 
 # Setting up LUKS2 encryption in grub.
 print "Setting up grub config."
-UUID=$(blkid $Cryptroot | cut -f2 -d'"')
-sed -i "s,quiet,quiet cryptdevice=UUID=$UUID:cryptroot root=$BTRFS,g" /mnt/etc/default/grub
+UUID=$(blkid -s UUID -o value $Cryptroot)
+sed -i "s,quiet,quiet rd.luks.name=$UUID=cryptroot root=$BTRFS,g" /mnt/etc/default/grub
 
 # Configuring the system.    
 arch-chroot /mnt /bin/bash -e <<EOF
