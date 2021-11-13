@@ -109,8 +109,8 @@ password_selector () {
         print "You need to enter a password for the LUKS Container in order to continue."
         password_selector
     fi
-    echo -n "$password" | cryptsetup luksFormat "$Cryptroot" -d -
-    echo -n "$password" | cryptsetup open "$Cryptroot" cryptroot -d -
+    echo -n "$password" | cryptsetup luksFormat "$CRYPTROOT" -d -
+    echo -n "$password" | cryptsetup open "$CRYPTROOT" cryptroot -d -
     BTRFS="/dev/mapper/cryptroot"
 }
 
@@ -185,10 +185,10 @@ parted -s "$DISK" \
     mklabel gpt \
     mkpart ESP fat32 1MiB 513MiB \
     set 1 esp on \
-    mkpart Cryptroot 513MiB 100% \
+    mkpart CRYPTROOT 513MiB 100% \
 
 ESP="/dev/disk/by-partlabel/ESP"
-Cryptroot="/dev/disk/by-partlabel/Cryptroot"
+CRYPTROOT="/dev/disk/by-partlabel/CRYPTROOT"
 
 # Informing the Kernel of the changes.
 print "Informing the Kernel about the disk changes."
@@ -274,7 +274,7 @@ EOF
 
 # Setting up LUKS2 encryption in grub.
 print "Setting up grub config."
-UUID=$(blkid -s UUID -o value $Cryptroot)
+UUID=$(blkid -s UUID -o value $CRYPTROOT)
 sed -i "s,quiet,quiet rd.luks.name=$UUID=cryptroot root=$BTRFS,g" /mnt/etc/default/grub
 
 # Configuring the system.    
