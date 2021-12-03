@@ -360,7 +360,7 @@ EOF
 print "Enabling Reflector, automatic snapshots, BTRFS scrubbing and systemd-oomd."
 for service in reflector.timer snapper-timeline.timer snapper-cleanup.timer btrfs-scrub@-.timer btrfs-scrub@home.timer btrfs-scrub@var-log.timer btrfs-scrub@\\x2esnapshots.timer grub-btrfs.path systemd-oomd
 do
-    systemctl enable $service --root=/mnt &>/dev/null
+    systemctl enable "$service" --root=/mnt &>/dev/null
 done
 
 # Finishing up.
