@@ -356,6 +356,10 @@ zram-fraction = 1
 max-zram-size = 8192
 EOF
 
+# Pacman eye-candy features.
+print "Enabling colours and animations in pacman."
+sed -i 's/#Colors/Colors\nILoveCandy/' /mnt/etc/pacman.conf
+
 # Enabling various services.
 print "Enabling Reflector, automatic snapshots, BTRFS scrubbing and systemd-oomd."
 for service in reflector.timer snapper-timeline.timer snapper-cleanup.timer btrfs-scrub@-.timer btrfs-scrub@home.timer btrfs-scrub@var-log.timer btrfs-scrub@\\x2esnapshots.timer grub-btrfs.path systemd-oomd
