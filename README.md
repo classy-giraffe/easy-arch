@@ -31,12 +31,13 @@ The **partitions layout** is simple and it's inspired by [this section](https://
 
 ### BTRFS subvolumes layout
 
-| Subvolume Number | Subvolume Name | Mountpoint       |
-|------------------|----------------|------------------|
-| 1                | @              | /                |
-| 2                | @home          | /home            |
-| 3                | @snapshots     | /.snapshots      |
-| 4                | @var_log       | /var/log         |
+| Subvolume Number | Subvolume Name | Mountpoint                    |
+|------------------|----------------|-------------------------------|
+| 1                | @              | /                             |
+| 2                | @home          | /home                         |
+| 3                | @snapshots     | /.snapshots                   |
+| 4                | @var_log       | /var/log                      |
+| 5                | @var_pkgs      | /var/cache/pacman/pkg         |
 
 The **BTRFS subvolumes layout** follows the traditional and suggested layout used by **Snapper**, you can find it [here](https://wiki.archlinux.org/index.php/Snapper#Suggested_filesystem_layout). Here's a brief explanation of the **BTRFS layout** I chose:
 1. `@` mounted at `/`.
