@@ -44,3 +44,4 @@ The **BTRFS subvolumes layout** follows the traditional and suggested layout use
 2. `@home` mounted at `/home`.
 3. `@snapshots` mounted at `/.snapshots`.
 4. `@var_log` mounted at `/var/log`.
+4. `@var_pkgs` mounted at `/var/cache/pacman/pkg`.
