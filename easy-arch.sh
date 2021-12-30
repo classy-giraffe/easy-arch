@@ -209,7 +209,7 @@ mount $BTRFS /mnt
 
 # Creating BTRFS subvolumes.
 print "Creating BTRFS subvolumes."
-for volume in @ @home @snapshots @var_log @var_pkgs
+for volume in @ @home @root @srv @snapshots @var_log @var_pkgs
 do
     btrfs su cr /mnt/$volume
 done
@@ -218,8 +218,10 @@ done
 umount /mnt
 print "Mounting the newly created subvolumes."
 mount -o ssd,noatime,compress-force=zstd:3,discard=async,subvol=@ $BTRFS /mnt
-mkdir -p /mnt/{home,.snapshots,/var/log,/var/cache/pacman/pkg,boot}
+mkdir -p /mnt/{home,root,srv,.snapshots,/var/log,/var/cache/pacman/pkg,boot}
 mount -o ssd,noatime,compress-force=zstd:3,discard=async,subvol=@home $BTRFS /mnt/home
+mount -o ssd,noatime,compress-force=zstd:3,discard=async,subvol=@root $BTRFS /mnt/root
+mount -o ssd,noatime,compress-force=zstd:3,discard=async,subvol=@srv $BTRFS /mnt/srv
 mount -o ssd,noatime,compress-force=zstd:3,discard=async,subvol=@snapshots $BTRFS /mnt/.snapshots
 mount -o ssd,noatime,compress-force=zstd:3,discard=async,subvol=@var_log $BTRFS /mnt/var/log
 mount -o ssd,noatime,compress-force=zstd:3,discard=async,subvol=@var_pkgs $BTRFS /mnt/var/cache/pacman/pkg
@@ -358,7 +360,7 @@ EOF
 
 # Pacman eye-candy features.
 print "Enabling colours and animations in pacman."
-sed -i 's/#Colors/Colors\nILoveCandy/' /mnt/etc/pacman.conf
+sed -i 's/#Color/Color\nILoveCandy/' /mnt/etc/pacman.conf
 
 # Enabling various services.
 print "Enabling Reflector, automatic snapshots, BTRFS scrubbing and systemd-oomd."
