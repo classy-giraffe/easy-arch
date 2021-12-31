@@ -278,7 +278,7 @@ EOF
 # Setting up LUKS2 encryption in grub.
 print "Setting up grub config."
 UUID=$(blkid -s UUID -o value $CRYPTROOT)
-sed -i "s,quiet,quiet rd.luks.name=$UUID=cryptroot root=$BTRFS,g" /mnt/etc/default/grub
+sed -i "s,^GRUB_CMDLINE_LINUX=\"\",GRUB_CMDLINE_LINUX=\"rd.luks.name=$UUID=cryptroot root=$BTRFS\",g" /mnt/etc/default/grub
 
 # Configuring the system.    
 arch-chroot /mnt /bin/bash -e <<EOF
