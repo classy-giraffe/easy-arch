@@ -42,10 +42,10 @@ The **partitions layout** is simple and it's inspired by [this section](https://
 | 7                | @var_pkgs      | /var/cache/pacman/pkg         |
 
 The **BTRFS subvolumes layout** follows the traditional and suggested layout used by **Snapper**, you can find it [here](https://wiki.archlinux.org/index.php/Snapper#Suggested_filesystem_layout). Here's a brief explanation of the **BTRFS layout** I chose:
-1. `@` mounted at `/`.
-2. `@home` mounted at `/home`.
-3. `@root` mounted at `/root`.
-4. `@srv` mounted at `/srv`.
-5. `@snapshots` mounted at `/.snapshots`.
-6. `@var_log` mounted at `/var/log`.
-7. `@var_pkgs` mounted at `/var/cache/pacman/pkg`.
+1. `@` mounted at `/`
+2. `@home` mounted at `/home`
+3. `@root` mounted at `/root`
+4. `@srv` mounted at `/srv`
+5. `@snapshots` mounted at `/.snapshots`
+6. `@var_log` mounted at `/var/log`
+7. `@var_pkgs` mounted at `/var/cache/pacman/pkg`
