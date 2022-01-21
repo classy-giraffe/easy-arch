@@ -14,26 +14,26 @@ virt_check () {
     case $hypervisor in
         kvm )   print "KVM has been detected."
                 print "Installing guest tools."
-                pacstrap /mnt qemu-guest-agent
+                pacstrap /mnt qemu-guest-agent >/dev/null
                 print "Enabling specific services for the guest tools."
                 systemctl enable qemu-guest-agent --root=/mnt &>/dev/null
                 ;;
         vmware  )   print "VMWare Workstation/ESXi has been detected."
                     print "Installing guest tools."
-                    pacstrap /mnt open-vm-tools
+                    pacstrap /mnt open-vm-tools >/dev/null
                     print "Enabling specific services for the guest tools."
                     systemctl enable vmtoolsd --root=/mnt &>/dev/null
                     systemctl enable vmware-vmblock-fuse --root=/mnt &>/dev/null
                     ;;
         oracle )    print "VirtualBox has been detected."
                     print "Installing guest tools."
-                    pacstrap /mnt virtualbox-guest-utils
+                    pacstrap /mnt virtualbox-guest-utils >/dev/null
                     print "Enabling specific services for the guest tools."
                     systemctl enable vboxservice --root=/mnt &>/dev/null
                     ;;
         microsoft ) print "Hyper-V has been detected."
                     print "Installing guest tools."
-                    pacstrap /mnt hyperv
+                    pacstrap /mnt hyperv >/dev/null
                     print "Enabling specific services for the guest tools."
                     systemctl enable hv_fcopy_daemon --root=/mnt &>/dev/null
                     systemctl enable hv_kvp_daemon --root=/mnt &>/dev/null
@@ -75,24 +75,24 @@ network_selector () {
     print "5) I will do this on my own (only advanced users)"
     read -r -p "Insert the number of the corresponding networking utility: " choice
     case $choice in
-        1 ) print "Installing IWD."    
-            pacstrap /mnt iwd
+        1 ) print "Installing IWD."
+            pacstrap /mnt iwd >/dev/null
             print "Enabling IWD."
             systemctl enable iwd --root=/mnt &>/dev/null
             ;;
         2 ) print "Installing NetworkManager."
-            pacstrap /mnt networkmanager
+            pacstrap /mnt networkmanager >/dev/null
             print "Enabling NetworkManager."
             systemctl enable NetworkManager --root=/mnt &>/dev/null
             ;;
         3 ) print "Installing wpa_supplicant and dhcpcd."
-            pacstrap /mnt wpa_supplicant dhcpcd
+            pacstrap /mnt wpa_supplicant dhcpcd >/dev/null
             print "Enabling wpa_supplicant and dhcpcd."
             systemctl enable wpa_supplicant --root=/mnt &>/dev/null
             systemctl enable dhcpcd --root=/mnt &>/dev/null
             ;;
         4 ) print "Installing dhcpcd."
-            pacstrap /mnt dhcpcd
+            pacstrap /mnt dhcpcd >/dev/null
             print "Enabling dhcpcd."
             systemctl enable dhcpcd --root=/mnt &>/dev/null
             ;; 
@@ -103,15 +103,60 @@ network_selector () {
 }
 
 # Setting up a password for the LUKS Container (function).
-password_selector () {
-    read -r -s -p "Insert password for the LUKS container (you're not going to see the password): " password
-    if [ -z "$password" ]; then
-        print "You need to enter a password for the LUKS Container in order to continue."
-        password_selector
-    fi
+lukspass_selector () {
+	while true; do
+	read -r -s -p "Insert password for the LUKS container (you're not going to see the password): " password
+		while [ -z "$password" ]; do
+		echo
+		print "You need to enter a password for the LUKS Container in order to continue."
+		read -r -s -p "Insert password for the LUKS container (you're not going to see the password): " password
+		[ -n "$password" ] && break
+		done
+	echo
+	read -r -s -p "Password (again): " password2
+	echo
+	[ "$password" = "$password2" ] && break
+	echo "Passwords don't match, try again."
+	done
     echo -n "$password" | cryptsetup luksFormat "$CRYPTROOT" -d -
     echo -n "$password" | cryptsetup open "$CRYPTROOT" cryptroot -d -
     BTRFS="/dev/mapper/cryptroot"
+}
+
+# Setting up a password for the user account (function).
+userpass_selector () {
+while true; do
+  read -r -s -p "Set a user password for $username: " userpass
+	while [ -z "$userpass" ]; do
+	echo
+	print "You need to enter a password for $username."
+	read -r -s -p "Set a user password for $username: " userpass
+	[ -n "$userpass" ] && break
+	done
+  echo
+  read -r -s -p "Insert password again: " userpass2
+  echo
+  [ "$userpass" = "$userpass2" ] && break
+  echo "Passwords don't match, try again."
+done
+}
+
+# Setting up a password for the root account (function).
+rootpass_selector () {
+while true; do
+  read -r -s -p "Set a root password: " rootpass
+	while [ -z "$rootpass" ]; do
+	echo
+	print "You need to enter a root password."
+	read -r -s -p "Set a root password: " rootpass
+	[ -n "$rootpass" ] && break
+	done
+  echo
+  read -r -s -p "Password (again): " rootpass2
+  echo
+  [ "$rootpass" = "$rootpass2" ] && break
+  echo "Passwords don't match, try again."
+done
 }
 
 # Microcode detector (function).
@@ -200,7 +245,7 @@ mkfs.fat -F 32 $ESP &>/dev/null
 
 # Creating a LUKS Container for the root partition.
 print "Creating LUKS Container for the root partition."
-password_selector
+lukspass_selector
 
 # Formatting the LUKS Container as BTRFS.
 print "Formatting the LUKS container as BTRFS."
@@ -228,6 +273,9 @@ mount -o ssd,noatime,compress-force=zstd:3,discard=async,subvol=@var_pkgs $BTRFS
 chattr +C /mnt/var/log
 mount $ESP /mnt/boot/
 
+# Enable parallel downloading in pacman
+sed -i "s/^#ParallelDownloads.*$/ParallelDownloads = 10/" /etc/pacman.conf
+
 # Setting up the kernel.
 kernel_selector
 
@@ -242,7 +290,7 @@ network_selector
 
 # Pacstrap (setting up a base sytem onto the new root).
 print "Installing the base system (it may take a while)."
-pacstrap /mnt base $kernel $microcode linux-firmware $kernel-headers btrfs-progs grub grub-btrfs rsync efibootmgr snapper reflector base-devel snap-pac zram-generator
+pacstrap /mnt --needed base $kernel $microcode linux-firmware $kernel-headers btrfs-progs grub grub-btrfs rsync efibootmgr snapper reflector base-devel snap-pac zram-generator >/dev/null
 
 # Setting up the hostname.
 hostname_selector
@@ -253,6 +301,8 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 # Setting username.
 read -r -p "Please enter name for a user account (enter empty to not create one): " username
+userpass_selector
+rootpass_selector
 
 # Setting up the locale.
 locale_selector
@@ -321,7 +371,7 @@ EOF
 
 # Setting root password.
 print "Setting root password."
-arch-chroot /mnt /bin/passwd
+echo "root:$rootpass" | arch-chroot /mnt chpasswd
 
 # Setting user password.
 if [ -n "$username" ]; then
@@ -329,7 +379,7 @@ if [ -n "$username" ]; then
     arch-chroot /mnt useradd -m -G wheel -s /bin/bash "$username"
     sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /mnt/etc/sudoers
     print "Setting user password for $username." 
-    arch-chroot /mnt /bin/passwd "$username"
+    echo "$username:$userpass" | arch-chroot /mnt chpasswd
 fi
 
 # Boot backup hook.
@@ -359,8 +409,8 @@ max-zram-size = 8192
 EOF
 
 # Pacman eye-candy features.
-print "Enabling colours and animations in pacman."
-sed -i 's/#Color/Color\nILoveCandy/' /mnt/etc/pacman.conf
+print "Enabling colours, animations, and parallel in pacman."
+sed -i 's/#Color/Color\nILoveCandy/;s/^#ParallelDownloads.*$/ParallelDownloads = 10/' /mnt/etc/pacman.conf
 
 # Enabling various services.
 print "Enabling Reflector, automatic snapshots, BTRFS scrubbing and systemd-oomd."
