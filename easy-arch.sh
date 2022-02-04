@@ -404,8 +404,7 @@ EOF
 print "Configuring ZRAM."
 cat > /mnt/etc/systemd/zram-generator.conf <<EOF
 [zram0]
-zram-fraction = 1
-max-zram-size = 8192
+zram-size = min(ram, 8192)
 EOF
 
 # Pacman eye-candy features.
