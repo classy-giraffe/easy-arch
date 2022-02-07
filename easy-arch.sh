@@ -273,9 +273,6 @@ mount -o ssd,noatime,compress-force=zstd:3,discard=async,subvol=@var_pkgs $BTRFS
 chattr +C /mnt/var/log
 mount $ESP /mnt/boot/
 
-# Enable parallel downloading in pacman
-sed -i "s/^#ParallelDownloads.*$/ParallelDownloads = 10/" /etc/pacman.conf
-
 # Setting up the kernel.
 kernel_selector
 
