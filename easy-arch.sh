@@ -204,7 +204,7 @@ keyboard_selector () {
 
 # Selecting the target for the installation.
 print "Welcome to easy-arch, a script made in order to simplify the process of installing Arch Linux."
-PS3="Please select the disk where Arch Linux is going to be installed: "
+PS3="Please select the disk NUMBER e.g. 1 where Arch Linux is going to be installed: "
 select ENTRY in $(lsblk -dpnoNAME|grep -P "/dev/sd|nvme|vd");
 do
     DISK=$ENTRY
