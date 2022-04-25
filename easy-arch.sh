@@ -324,7 +324,7 @@ EOF
 # Setting up LUKS2 encryption in grub.
 print "Setting up grub config."
 UUID=$(blkid -s UUID -o value $CRYPTROOT)
-sed -i "s,^GRUB_CMDLINE_LINUX=\"\",GRUB_CMDLINE_LINUX=\"rd.luks.name=$UUID=cryptroot root=$BTRFS\",g" /mnt/etc/default/grub
+sed -i "s,^GRUB_CMDLINE_LINUX=\",&rd.luks.name=$UUID=cryptroot root=$BTRFS\",g" /mnt/etc/default/grub
 
 # Configuring the system.    
 arch-chroot /mnt /bin/bash -e <<EOF
@@ -373,7 +373,7 @@ echo "root:$rootpass" | arch-chroot /mnt chpasswd
 if [ -n "$username" ]; then
     print "Adding the user $username to the system with root privilege."
     arch-chroot /mnt useradd -m -G wheel -s /bin/bash "$username"
-    sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /mnt/etc/sudoers
+    sed -i '%wheel ALL=(ALL) ALL/s/^# //' /mnt/etc/sudoers
     print "Setting user password for $username." 
     echo "$username:$userpass" | arch-chroot /mnt chpasswd
 fi
