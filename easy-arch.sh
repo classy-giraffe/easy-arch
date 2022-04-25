@@ -263,7 +263,7 @@ done
 umount /mnt
 print "Mounting the newly created subvolumes."
 mount -o ssd,noatime,compress-force=zstd:3,discard=async,subvol=@ $BTRFS /mnt
-mkdir -p /mnt/{home,root,srv,.snapshots,/var/log,/var/cache/pacman/pkg,boot}
+mkdir -p /mnt/{home,root,srv,.snapshots,var/{log,cache/pacman/pkg},boot}
 for subvol in ${subvols[@]:2}; do # ":2" excludes first two subvols (@var_pkgs and @snapshots) from loop
 mount -o ssd,noatime,compress-force=zstd:3,discard=async,subvol=@$subvol $BTRFS /mnt/$(sed 's,_,/,g' <<< $subvol)
 done
