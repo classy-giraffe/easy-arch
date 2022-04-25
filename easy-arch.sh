@@ -254,9 +254,9 @@ mount $BTRFS /mnt
 
 # Creating BTRFS subvolumes.
 print "Creating BTRFS subvolumes."
-for volume in @ @home @root @srv @snapshots @var_log @var_pkgs
-do
-    btrfs su cr /mnt/$volume
+subvols=(snapshots var_pkgs var_log home root srv)
+for subvol in '' ${subvols[@]}; do
+    btrfs su cr /mnt/@$volume
 done
 
 # Mounting the newly created subvolumes.
@@ -264,11 +264,10 @@ umount /mnt
 print "Mounting the newly created subvolumes."
 mount -o ssd,noatime,compress-force=zstd:3,discard=async,subvol=@ $BTRFS /mnt
 mkdir -p /mnt/{home,root,srv,.snapshots,/var/log,/var/cache/pacman/pkg,boot}
-mount -o ssd,noatime,compress-force=zstd:3,discard=async,subvol=@home $BTRFS /mnt/home
-mount -o ssd,noatime,compress-force=zstd:3,discard=async,subvol=@root $BTRFS /mnt/root
-mount -o ssd,noatime,compress-force=zstd:3,discard=async,subvol=@srv $BTRFS /mnt/srv
+for subvol in ${subvols[@]:2}; do # ":2" excludes first two subvols (@var_pkgs and @snapshots) from loop
+mount -o ssd,noatime,compress-force=zstd:3,discard=async,subvol=@$subvol $BTRFS /mnt/$(sed 's,_,/,g' <<< $subvol)
+done
 mount -o ssd,noatime,compress-force=zstd:3,discard=async,subvol=@snapshots $BTRFS /mnt/.snapshots
-mount -o ssd,noatime,compress-force=zstd:3,discard=async,subvol=@var_log $BTRFS /mnt/var/log
 mount -o ssd,noatime,compress-force=zstd:3,discard=async,subvol=@var_pkgs $BTRFS /mnt/var/cache/pacman/pkg
 chattr +C /mnt/var/log
 mount $ESP /mnt/boot/
