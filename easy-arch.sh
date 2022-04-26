@@ -104,20 +104,20 @@ network_selector () {
 
 # Setting up a password for the LUKS Container (function).
 lukspass_selector () {
-	while true; do
-	read -r -s -p "Insert password for the LUKS container (you're not going to see the password): " password
-		while [ -z "$password" ]; do
-		echo
-		print "You need to enter a password for the LUKS Container in order to continue."
-		read -r -s -p "Insert password for the LUKS container (you're not going to see the password): " password
-		[ -n "$password" ] && break
-		done
-	echo
-	read -r -s -p "Password (again): " password2
-	echo
-	[ "$password" = "$password2" ] && break
-	echo "Passwords don't match, try again."
-	done
+    while true; do
+        read -r -s -p "Insert password for the LUKS container (you're not going to see the password): " password
+        while [ -z "$password" ]; do
+            echo
+            print "You need to enter a password for the LUKS Container in order to continue."
+            read -r -s -p "Insert password for the LUKS container (you're not going to see the password): " password
+            [ -n "$password" ] && break
+        done
+        echo
+        read -r -s -p "Password (again): " password2
+        echo
+        [ "$password" = "$password2" ] && break
+        echo "Passwords don't match, try again."
+    done
     echo -n "$password" | cryptsetup luksFormat "$CRYPTROOT" -d -
     echo -n "$password" | cryptsetup open "$CRYPTROOT" cryptroot -d -
     BTRFS="/dev/mapper/cryptroot"
@@ -125,38 +125,38 @@ lukspass_selector () {
 
 # Setting up a password for the user account (function).
 userpass_selector () {
-while true; do
-  read -r -s -p "Set a user password for $username: " userpass
-	while [ -z "$userpass" ]; do
-	echo
-	print "You need to enter a password for $username."
-	read -r -s -p "Set a user password for $username: " userpass
-	[ -n "$userpass" ] && break
-	done
-  echo
-  read -r -s -p "Insert password again: " userpass2
-  echo
-  [ "$userpass" = "$userpass2" ] && break
-  echo "Passwords don't match, try again."
-done
+    while true; do
+        read -r -s -p "Set a user password for $username: " userpass
+        while [ -z "$userpass" ]; do
+            echo
+            print "You need to enter a password for $username."
+            read -r -s -p "Set a user password for $username: " userpass
+            [ -n "$userpass" ] && break
+        done
+        echo
+        read -r -s -p "Insert password again: " userpass2
+        echo
+        [ "$userpass" = "$userpass2" ] && break
+        echo "Passwords don't match, try again."
+    done
 }
 
 # Setting up a password for the root account (function).
 rootpass_selector () {
-while true; do
-  read -r -s -p "Set a root password: " rootpass
-	while [ -z "$rootpass" ]; do
-	echo
-	print "You need to enter a root password."
-	read -r -s -p "Set a root password: " rootpass
-	[ -n "$rootpass" ] && break
-	done
-  echo
-  read -r -s -p "Password (again): " rootpass2
-  echo
-  [ "$rootpass" = "$rootpass2" ] && break
-  echo "Passwords don't match, try again."
-done
+    while true; do
+        read -r -s -p "Set a root password: " rootpass
+        while [ -z "$rootpass" ]; do
+            echo
+            print "You need to enter a root password."
+            read -r -s -p "Set a root password: " rootpass
+            [ -n "$rootpass" ] && break
+        done
+        echo
+        read -r -s -p "Password (again): " rootpass2
+        echo
+        [ "$rootpass" = "$rootpass2" ] && break
+        echo "Passwords don't match, try again."
+    done
 }
 
 # Microcode detector (function).
