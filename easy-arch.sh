@@ -50,8 +50,8 @@ kernel_selector () {
     print "2) Hardened: A security-focused Linux kernel"
     print "3) LTS: Long-term support (LTS) Linux kernel"
     print "4) Zen: A Linux kernel optimized for desktop usage"
-    read -r -p "Insert the number of the corresponding kernel: " choice
-    case $choice in
+    read -r -p "Insert the number of the corresponding kernel: " kernel_choice
+    case $kernel_choice in
         1 ) kernel="linux"
             ;;
         2 ) kernel="linux-hardened"
@@ -73,8 +73,16 @@ network_selector () {
     print "3) wpa_supplicant: Cross-platform supplicant with support for WEP, WPA and WPA2 (WiFi-only, a DHCP client will be automatically installed as well)"
     print "4) dhcpcd: Basic DHCP client (Ethernet only or VMs)"
     print "5) I will do this on my own (only advanced users)"
-    read -r -p "Insert the number of the corresponding networking utility: " choice
-    case $choice in
+    read -r -p "Insert the number of the corresponding networking utility: " network_choice
+    if ! ((1 <= network_choice <= 5)); then
+        print "You did not enter a valid selection."
+        network_selector
+    fi
+}
+
+# Installing the chosen networking method to the system.
+network_installer () {
+    case $network_choice in
         1 ) print "Installing IWD."
             pacstrap /mnt iwd >/dev/null
             print "Enabling IWD."
@@ -95,10 +103,6 @@ network_selector () {
             pacstrap /mnt dhcpcd >/dev/null
             print "Enabling dhcpcd."
             systemctl enable dhcpcd --root=/mnt &>/dev/null
-            ;; 
-        5 ) ;;
-        * ) print "You did not enter a valid selection."
-            network_selector
     esac
 }
 
@@ -118,9 +122,6 @@ lukspass_selector () {
         [ "$password" = "$password2" ] && break
         echo "Passwords don't match, try again."
     done
-    echo -n "$password" | cryptsetup luksFormat "$CRYPTROOT" -d -
-    echo -n "$password" | cryptsetup open "$CRYPTROOT" cryptroot -d -
-    BTRFS="/dev/mapper/cryptroot"
 }
 
 # Setting up a password for the user account (function).
@@ -183,27 +184,44 @@ hostname_selector () {
 
 # Setting up the locale (function).
 locale_selector () {
-    read -r -p "Please insert the locale you use (format: xx_XX or enter empty to use en_US): " locale
-    if [ -z "$locale" ]; then
-        print "en_US will be used as default locale."
-        locale="en_US"
-    fi
-    echo "$locale.UTF-8 UTF-8"  > /mnt/etc/locale.gen
-    echo "LANG=$locale.UTF-8" > /mnt/etc/locale.conf
+    read -r -p "Please insert the locale you use (format: xx_XX. Enter empty to use en_US, or type a "/" to search avaliable locales): " locale
+    case $kblayout in
+        '') print "en_US will be used as default locale."
+            locale="en_US.UTF-8";;
+        '/') sed -E '/^# +|^#$/d;s/^#| *$//g;s/ .*/      (Charset:&)/' /etc/locale.gen | less -M;;
+        *) if ! grep -Fxq $locale /etc/locale.gen; then
+               print "The specified locale doesn't exist or isn't supported."
+               locale_selector
+           fi
+           sed -i "$locale/s/^#//" /etc/locale.gen
+           echo "LANG=$locale" > /mnt/etc/locale.conf
+    esac
 }
 
 # Setting up the keyboard layout (function).
 keyboard_selector () {
-    read -r -p "Please insert the keyboard layout you use (enter empty to use US keyboard layout): " kblayout
-    if [ -z "$kblayout" ]; then
-        print "US keyboard layout will be used by default."
-        kblayout="us"
-    fi
-    echo "KEYMAP=$kblayout" > /mnt/etc/vconsole.conf
+    read -r -p "Please insert the keyboard layout you use (enter empty to use US keyboard layout, or enter "/" to search avaliable layouts): " kblayout
+    case $kblayout in
+        '') print "US keyboard layout will be used by default."
+            kblayout="us";;
+        '/') localectl list-keymaps;;
+        *) if ! $(localectl list-keymaps | grep -Fxq $locale); then
+               print "The specified keymap doesn't exist."
+               keyboard_selector
+           fi
+           print "Changing layout to $kblayout."
+           loadkeys $kblayout
+           echo "KEYMAP=$kblayout" > /mnt/etc/vconsole.conf;;
+    esac
+    
 }
 
 # Selecting the target for the installation.
 print "Welcome to easy-arch, a script made in order to simplify the process of installing Arch Linux."
+
+# Setting up keyboard layout.
+keyboard_selector
+
 PS3="Please select the disk NUMBER e.g. 1 where Arch Linux is going to be installed: "
 select ENTRY in $(lsblk -dpnoNAME|grep -P "/dev/sd|nvme|vd");
 do
@@ -212,17 +230,38 @@ do
     break
 done
 
-# Deleting old partition scheme.
-read -r -p "This will delete the current partition table on $DISK. Do you agree [y/N]? " response
-response=${response,,}
-if [[ "$response" =~ ^(yes|y)$ ]]; then
-    print "Wiping $DISK."
-    wipefs -af "$DISK" &>/dev/null
-    sgdisk -Zo "$DISK" &>/dev/null
-else
+# Warn user about deletion of old partition scheme.
+read -r -p "This will delete the current partition table on $DISK once installation starts. Do you agree [y/N]? " disk_response
+disk_response=${disk_response,,}
+if ! [[ "$disk_response" =~ ^(yes|y)$ ]]; then
     print "Quitting."
     exit
 fi
+
+# Setting up LUKS password.
+lukspass_selector
+
+# Setting up the kernel.
+kernel_selector
+
+# User choses the network.
+network_selector
+
+# Setting up the locale.
+locale_selector
+
+# Setting up the hostname.
+hostname_selector
+
+# Setting username.
+read -r -p "Please enter name for a user account (enter empty to not create one): " username
+userpass_selector
+rootpass_selector
+
+# Deleting old partition scheme.
+print "Wiping $DISK."
+wipefs -af "$DISK" &>/dev/null
+sgdisk -Zo "$DISK" &>/dev/null
 
 # Creating a new partition scheme.
 print "Creating the partitions on $DISK."
@@ -245,7 +284,9 @@ mkfs.fat -F 32 $ESP &>/dev/null
 
 # Creating a LUKS Container for the root partition.
 print "Creating LUKS Container for the root partition."
-lukspass_selector
+echo -n "$password" | cryptsetup luksFormat "$CRYPTROOT" -d -
+echo -n "$password" | cryptsetup open "$CRYPTROOT" cryptroot -d -
+BTRFS="/dev/mapper/cryptroot"
 
 # Formatting the LUKS Container as BTRFS.
 print "Formatting the LUKS container as BTRFS."
@@ -273,39 +314,13 @@ mount -o $mountopts,subvol=@var_pkgs $BTRFS /mnt/var/cache/pacman/pkg
 chattr +C /mnt/var/log
 mount $ESP /mnt/boot/
 
-# Setting up the kernel.
-kernel_selector
-
-# Checking the microcode to install.
-microcode_detector
-
-# Virtualization check.
-virt_check
-
-# Setting up the network.
-network_selector
-
 # Pacstrap (setting up a base sytem onto the new root).
 print "Installing the base system (it may take a while)."
 pacstrap /mnt --needed base $kernel $microcode linux-firmware $kernel-headers btrfs-progs grub grub-btrfs rsync efibootmgr snapper reflector base-devel snap-pac zram-generator >/dev/null
 
-# Setting up the hostname.
-hostname_selector
-
 # Generating /etc/fstab.
 print "Generating a new fstab."
 genfstab -U /mnt >> /mnt/etc/fstab
-
-# Setting username.
-read -r -p "Please enter name for a user account (enter empty to not create one): " username
-userpass_selector
-rootpass_selector
-
-# Setting up the locale.
-locale_selector
-
-# Setting up keyboard layout.
-keyboard_selector
 
 # Setting hosts file.
 print "Setting hosts file."
@@ -314,6 +329,15 @@ cat > /mnt/etc/hosts <<EOF
 ::1         localhost
 127.0.1.1   $hostname.localdomain   $hostname
 EOF
+
+# Checking the microcode to install.
+microcode_detector
+
+# Virtualization check.
+virt_check
+
+# Set up the network.
+network_installer
 
 # Configuring /etc/mkinitcpio.conf.
 print "Configuring /etc/mkinitcpio.conf."
