@@ -3,9 +3,23 @@
 # Cleaning the TTY.
 clear
 
+# Colors/formatting for echo
+  BOLD='\e[1m'
+  UNDERLINE='\e[4m'
+  RESET='\e[0m' # Reset text to default appearance
+#   High intensity colors:
+	BRED='\e[91m'
+    BGREEN='\e[92m'
+    BYELLOW='\e[93m'
+    BPURPLE='\e[95m'
+
 # Pretty print (function).
 print () {
-    echo -e "\e[1m\e[93m[ \e[92m•\e[93m ] \e[4m$1\e[0m"
+    echo -e "${BOLD}${BYELLOW}[ ${BGREEN}•${BYELLOW} ] ${UNDERLINE}$1${RESET}"
+}
+# Alert user of bad input (function).
+incEcho () {
+    echo -e "${BPURPLE}$1${RESET}"
 }
 
 # Virtualization check (function).
@@ -53,15 +67,15 @@ kernel_selector () {
     read -r -p "Insert the number of the corresponding kernel: " kernel_choice
     case $kernel_choice in
         1 ) kernel="linux"
-            ;;
+            return 0;;
         2 ) kernel="linux-hardened"
-            ;;
+            return 0;;
         3 ) kernel="linux-lts"
-            ;;
+            return 0;;
         4 ) kernel="linux-zen"
-            ;;
-        * ) print "You did not enter a valid selection."
-            kernel_selector
+            return 0;;
+        * ) incecho "You did not enter a valid selection."
+            return 1
     esac
 }
 
@@ -75,12 +89,12 @@ network_selector () {
     print "5) I will do this on my own (only advanced users)"
     read -r -p "Insert the number of the corresponding networking utility: " network_choice
     if ! ((1 <= network_choice <= 5)); then
-        print "You did not enter a valid selection."
-        network_selector
+        incEcho "You did not enter a valid selection."
+        return 1
     fi
 }
 
-# Installing the chosen networking method to the system.
+# Installing the chosen networking method to the system (function).
 network_installer () {
     case $network_choice in
         1 ) print "Installing IWD."
@@ -112,7 +126,7 @@ lukspass_selector () {
         read -r -s -p "Insert password for the LUKS container (you're not going to see the password): " password
         while [ -z "$password" ]; do
             echo
-            print "You need to enter a password for the LUKS Container in order to continue."
+            incEcho "You need to enter a password for the LUKS Container in order to continue."
             read -r -s -p "Insert password for the LUKS container (you're not going to see the password): " password
             [ -n "$password" ] && break
         done
@@ -120,7 +134,7 @@ lukspass_selector () {
         read -r -s -p "Password (again): " password2
         echo
         [ "$password" = "$password2" ] && break
-        echo "Passwords don't match, try again."
+        incEcho "Passwords don't match, try again."
     done
 }
 
@@ -130,7 +144,7 @@ userpass_selector () {
         read -r -s -p "Set a user password for $username: " userpass
         while [ -z "$userpass" ]; do
             echo
-            print "You need to enter a password for $username."
+            incEcho "You need to enter a password for $username."
             read -r -s -p "Set a user password for $username: " userpass
             [ -n "$userpass" ] && break
         done
@@ -138,7 +152,7 @@ userpass_selector () {
         read -r -s -p "Insert password again: " userpass2
         echo
         [ "$userpass" = "$userpass2" ] && break
-        echo "Passwords don't match, try again."
+        incEcho "Passwords don't match, try again."
     done
 }
 
@@ -148,7 +162,7 @@ rootpass_selector () {
         read -r -s -p "Set a root password: " rootpass
         while [ -z "$rootpass" ]; do
             echo
-            print "You need to enter a root password."
+            incEcho "You need to enter a root password."
             read -r -s -p "Set a root password: " rootpass
             [ -n "$rootpass" ] && break
         done
@@ -156,7 +170,7 @@ rootpass_selector () {
         read -r -s -p "Password (again): " rootpass2
         echo
         [ "$rootpass" = "$rootpass2" ] && break
-        echo "Passwords don't match, try again."
+        incEcho "Passwords don't match, try again."
     done
 }
 
@@ -172,14 +186,14 @@ microcode_detector () {
     fi
 }
 
-# Setting up the hostname (function).
+# User chooses the hostname (function).
 hostname_selector () {
     read -r -p "Please enter the hostname: " hostname
     if [ -z "$hostname" ]; then
-        print "You need to enter a hostname in order to continue."
-        hostname_selector
+        incEcho "You need to enter a hostname in order to continue."
+        return 1
     fi
-    echo "$hostname" > /mnt/etc/hostname
+    return 0
 }
 
 # Setting up the locale (function).
@@ -190,12 +204,13 @@ locale_selector () {
             locale="en_US.UTF-8";;
         '/') sed -E '/^# +|^#$/d;s/^#| *$//g;s/ .*/      (Charset:&)/' /etc/locale.gen | less -M
              clear
-             locale_selector;;
+             return 1;;
         *) if ! grep -Fxq $locale /etc/locale.gen; then
-               print "The specified locale doesn't exist or isn't supported."
-               locale_selector
+               incEcho "The specified locale doesn't exist or isn't supported."
+               return 1
            fi
            sed -i "$locale/s/^#//" /etc/locale.gen
+           return 0
     esac
 }
 
@@ -204,16 +219,18 @@ keyboard_selector () {
     read -r -p "Please insert the keyboard layout you use (enter empty to use US keyboard layout, or enter "/" to search avaliable layouts): " kblayout
     case $kblayout in
         '') print "US keyboard layout will be used by default."
-            kblayout="us";;
+            kblayout="us"
+            return 0;;
         '/') localectl list-keymaps
              clear
-             keyboard_selector;;
+             return 1;;
         *) if ! $(localectl list-keymaps | grep -Fxq $kblayout); then
-               print "The specified keymap doesn't exist."
-               keyboard_selector
+               incEcho "The specified keymap doesn't exist."
+               return 1
            fi
            print "Changing layout to $kblayout."
            loadkeys $kblayout
+           return 0
     esac
     
 }
@@ -222,7 +239,7 @@ keyboard_selector () {
 print "Welcome to easy-arch, a script made in order to simplify the process of installing Arch Linux."
 
 # Setting up keyboard layout.
-keyboard_selector
+until keyboard_selector; do : ; done
 
 PS3="Please select the disk NUMBER e.g. 1 where Arch Linux is going to be installed: "
 select ENTRY in $(lsblk -dpnoNAME|grep -P "/dev/sd|nvme|vd");
@@ -233,7 +250,8 @@ do
 done
 
 # Warn user about deletion of old partition scheme.
-read -r -p "This will delete the current partition table on $DISK once installation starts. Do you agree [y/N]? " disk_response
+echo -en "${BOLD}${UNDERLINE}${BRED}This will delete the current partition table on $DISK once installation starts. Do you agree [y/N]?${RESET} "
+read -r disk_response
 disk_response=${disk_response,,}
 if ! [[ "$disk_response" =~ ^(yes|y)$ ]]; then
     print "Quitting."
@@ -244,18 +262,18 @@ fi
 lukspass_selector
 
 # Setting up the kernel.
-kernel_selector
+until kernel_selector; do : ; done
 
 # User choses the network.
-network_selector
+until network_selector; do : ; done
 
-# Setting up the locale.
-locale_selector
+# User choses the locale.
+until locale_selector; do : ; done
 
-# Setting up the hostname.
-hostname_selector
+# User choses the hostname.
+until hostname_selector; do : ; done
 
-# Setting username.
+# User chooses username.
 read -r -p "Please enter name for a user account (enter empty to not create one): " username
 userpass_selector
 rootpass_selector
@@ -324,6 +342,9 @@ echo "LANG=$locale" > /mnt/etc/locale.conf
 print "Installing the base system (it may take a while)."
 pacstrap /mnt --needed base $kernel $microcode linux-firmware $kernel-headers btrfs-progs grub grub-btrfs rsync efibootmgr snapper reflector base-devel snap-pac zram-generator >/dev/null
 
+# Setting up the hostname.
+echo "$hostname" > /mnt/etc/hostname
+
 # Generating /etc/fstab.
 print "Generating a new fstab."
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -342,7 +363,7 @@ microcode_detector
 # Virtualization check.
 virt_check
 
-# Set up the network.
+# Setting up the network.
 network_installer
 
 # Configuring /etc/mkinitcpio.conf.
