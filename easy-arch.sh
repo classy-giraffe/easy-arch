@@ -194,7 +194,6 @@ locale_selector () {
                locale_selector
            fi
            sed -i "$locale/s/^#//" /etc/locale.gen
-           echo "LANG=$locale" > /mnt/etc/locale.conf
     esac
 }
 
@@ -204,14 +203,14 @@ keyboard_selector () {
     case $kblayout in
         '') print "US keyboard layout will be used by default."
             kblayout="us";;
-        '/') localectl list-keymaps;;
-        *) if ! $(localectl list-keymaps | grep -Fxq $locale); then
+        '/') localectl list-keymaps
+             keyboard_selector;;
+        *) if ! $(localectl list-keymaps | grep -Fxq $kblayout); then
                print "The specified keymap doesn't exist."
                keyboard_selector
            fi
            print "Changing layout to $kblayout."
            loadkeys $kblayout
-           echo "KEYMAP=$kblayout" > /mnt/etc/vconsole.conf;;
     esac
     
 }
@@ -313,6 +312,10 @@ mount -o $mountopts,subvol=@snapshots $BTRFS /mnt/.snapshots
 mount -o $mountopts,subvol=@var_pkgs $BTRFS /mnt/var/cache/pacman/pkg
 chattr +C /mnt/var/log
 mount $ESP /mnt/boot/
+
+# Configure selected keyboard layout and locale
+echo "KEYMAP=$kblayout" > /mnt/etc/vconsole.conf
+echo "LANG=$locale" > /mnt/etc/locale.conf
 
 # Pacstrap (setting up a base sytem onto the new root).
 print "Installing the base system (it may take a while)."
