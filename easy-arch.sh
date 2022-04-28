@@ -326,6 +326,7 @@ mkdir -p /mnt/{home,root,srv,.snapshots,var/{log,cache/pacman/pkg},boot}
 for subvol in ${subvols[@]:2}; do # ":2" excludes first two subvols (@snapshots and @var_pkgs) from loop
 mount -o $mountopts,subvol=@$subvol $BTRFS /mnt/$(sed 's,_,/,g' <<< $subvol)
 done
+chmod -R 750 /mnt/root
 mount -o $mountopts,subvol=@snapshots $BTRFS /mnt/.snapshots
 mount -o $mountopts,subvol=@var_pkgs $BTRFS /mnt/var/cache/pacman/pkg
 chattr +C /mnt/var/log
