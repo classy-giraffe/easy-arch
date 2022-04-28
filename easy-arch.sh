@@ -317,7 +317,7 @@ mount $BTRFS /mnt
 print "Creating BTRFS subvolumes."
 subvols=(snapshots var_pkgs var_log home root srv)
 for subvol in '' ${subvols[@]}; do
-    btrfs su cr /mnt/@$volume
+    btrfs su cr /mnt/@$subvol
 done
 
 # Mounting the newly created subvolumes.
