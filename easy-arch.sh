@@ -430,7 +430,7 @@ EOF
 
 # Pacman eye-candy features.
 print "Enabling colours, animations, and parallel in pacman."
-sed -i '/#Color/a ILoveCandy;s/^#ParallelDownloads.*/ParallelDownloads = 10/' /mnt/etc/pacman.conf
+sed -i '/^#ParallelDownloads/s/=.*/= 10/;/#Color/a ILoveCandy' /mnt/etc/pacman.conf
 
 # Enabling various services.
 print "Enabling Reflector, automatic snapshots, BTRFS scrubbing and systemd-oomd."
