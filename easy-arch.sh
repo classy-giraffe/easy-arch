@@ -120,7 +120,7 @@ network_installer () {
     esac
 }
 
-# Setting up a password for the LUKS Container (function).
+# User enters a password for the LUKS Container (function).
 lukspass_selector () {
     while true; do
         read -r -s -p "Insert password for the LUKS container (you're not going to see the password): " password
@@ -138,7 +138,7 @@ lukspass_selector () {
     done
 }
 
-# Setting up a password for the user account (function).
+# User enters a password for the user account (function).
 userpass_selector () {
     while true; do
         read -r -s -p "Set a user password for $username: " userpass
@@ -156,7 +156,7 @@ userpass_selector () {
     done
 }
 
-# Setting up a password for the root account (function).
+# User enters a password for the root account (function).
 rootpass_selector () {
     while true; do
         read -r -s -p "Set a root password: " rootpass
@@ -186,7 +186,7 @@ microcode_detector () {
     fi
 }
 
-# User chooses the hostname (function).
+# User enters a hostname (function).
 hostname_selector () {
     read -r -p "Please enter the hostname: " hostname
     if [ -z "$hostname" ]; then
@@ -196,9 +196,9 @@ hostname_selector () {
     return 0
 }
 
-# Setting up the locale (function).
+# User chooses the locale (function).
 locale_selector () {
-    read -r -p "Please insert the locale you use (format: xx_XX. Enter empty to use en_US, or type a "/" to search avaliable locales): " locale
+    read -r -p "Please insert the locale you use (format: xx_XX. Enter empty to use en_US, or "/" to search locales): " locale
     case $locale in
         '') print "en_US will be used as default locale."
             locale="en_US.UTF-8";;
@@ -214,11 +214,11 @@ locale_selector () {
     esac
 }
 
-# Setting up the keyboard layout (function).
+# User chooses the console keyboard layout (function).
 keyboard_selector () {
-    read -r -p "Please insert the keyboard layout you use (enter empty to use US keyboard layout, or enter "/" to search avaliable layouts): " kblayout
+    read -r -p "Please insert the keyboard keymap/layout to use in console (enter empty to use us, or "/" to search keymaps): " kblayout
     case $kblayout in
-        '') print "US keyboard layout will be used by default."
+        '') print "The us keymap will be used in console by default."
             kblayout="us"
             return 0;;
         '/') localectl list-keymaps
@@ -228,7 +228,7 @@ keyboard_selector () {
                incEcho "The specified keymap doesn't exist."
                return 1
            fi
-           print "Changing layout to $kblayout."
+           print "Changing console layout to $kblayout."
            loadkeys $kblayout
            return 0
     esac
