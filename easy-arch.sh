@@ -8,7 +8,7 @@ clear
   UNDERLINE='\e[4m'
   RESET='\e[0m' # Reset text to default appearance
 #   High intensity colors:
-	BRED='\e[91m'
+    BRED='\e[91m'
     BGREEN='\e[92m'
     BYELLOW='\e[93m'
     BPURPLE='\e[95m'
@@ -57,7 +57,7 @@ virt_check () {
     esac
 }
 
-# Selecting a kernel to install (function). 
+# Selecting a kernel to install (function).
 kernel_selector () {
     print "List of kernels:"
     print "1) Stable: Vanilla Linux kernel with a few specific Arch Linux patches applied"
@@ -79,7 +79,7 @@ kernel_selector () {
     esac
 }
 
-# Selecting a way to handle internet connection (function). 
+# Selecting a way to handle internet connection (function).
 network_selector () {
     print "Network utilities:"
     print "1) IWD: iNet wireless daemon is a wireless daemon for Linux written by Intel (WiFi-only)"
@@ -232,7 +232,7 @@ keyboard_selector () {
            loadkeys $kblayout
            return 0
     esac
-    
+
 }
 
 # Selecting the target for the installation.
@@ -378,25 +378,25 @@ print "Setting up grub config."
 UUID=$(blkid -s UUID -o value $CRYPTROOT)
 sed -i "s,^GRUB_CMDLINE_LINUX=\",&rd.luks.name=$UUID=cryptroot root=$BTRFS\",g" /mnt/etc/default/grub
 
-# Configuring the system.    
+# Configuring the system.
 arch-chroot /mnt /bin/bash -e <<EOF
 
     # Setting up timezone.
     echo "Setting up the timezone."
     ln -sf /usr/share/zoneinfo/$(curl -s http://ip-api.com/line?fields=timezone) /etc/localtime &>/dev/null
-    
+
     # Setting up clock.
     echo "Setting up the system clock."
     hwclock --systohc
-    
+
     # Generating locales.
     echo "Generating locales."
     locale-gen &>/dev/null
-    
+
     # Generating a new initramfs.
     echo "Creating a new initramfs."
     mkinitcpio -P &>/dev/null
-    
+
     # Snapper configuration
     echo "Configuring Snapper."
     umount /.snapshots
@@ -406,7 +406,7 @@ arch-chroot /mnt /bin/bash -e <<EOF
     mkdir /.snapshots
     mount -a
     chmod 750 /.snapshots
-    
+
     # Installing GRUB.
     echo "Installing GRUB on /boot."
     grub-install --target=x86_64-efi --efi-directory=/boot/ --bootloader-id=GRUB &>/dev/null
@@ -426,7 +426,7 @@ if [ -n "$username" ]; then
     print "Adding the user $username to the system with root privilege."
     arch-chroot /mnt useradd -m -G wheel -s /bin/bash "$username"
     sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /mnt/etc/sudoers
-    print "Setting user password for $username." 
+    print "Setting user password for $username."
     echo "$username:$userpass" | arch-chroot /mnt chpasswd
 fi
 
