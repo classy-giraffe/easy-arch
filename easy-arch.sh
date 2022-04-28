@@ -424,7 +424,7 @@ echo "root:$rootpass" | arch-chroot /mnt chpasswd
 if [ -n "$username" ]; then
     print "Adding the user $username to the system with root privilege."
     arch-chroot /mnt useradd -m -G wheel -s /bin/bash "$username"
-    sed -i '/%wheel ALL=(ALL) ALL/s/^# //' /mnt/etc/sudoers
+    sed -i '/^ #%wheel ALL=(ALL) ALL/s/^ #//' /mnt/etc/sudoers
     print "Setting user password for $username."
     echo "$username:$userpass" | arch-chroot /mnt chpasswd
 fi
@@ -456,7 +456,7 @@ EOF
 
 # Pacman eye-candy features.
 print "Enabling colours, animations, and parallel in pacman."
-sed -i '/^#ParallelDownloads/s/=.*/= 10/;/#Color/a ILoveCandy' /mnt/etc/pacman.conf
+sed -i 's/#Color/Color\nILoveCandy/;s/^#ParallelDownloads.*/ParallelDownloads = 10/' /mnt/etc/pacman.conf
 
 # Enabling various services.
 print "Enabling Reflector, automatic snapshots, BTRFS scrubbing and systemd-oomd."
