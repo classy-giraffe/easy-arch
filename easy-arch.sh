@@ -52,8 +52,6 @@ virt_check () {
                     systemctl enable hv_fcopy_daemon --root=/mnt &>/dev/null
                     systemctl enable hv_kvp_daemon --root=/mnt &>/dev/null
                     systemctl enable hv_vss_daemon --root=/mnt &>/dev/null
-                    ;;
-        * ) ;;
     esac
 }
 
@@ -74,7 +72,7 @@ kernel_selector () {
             return 0;;
         4 ) kernel="linux-zen"
             return 0;;
-        * ) incecho "You did not enter a valid selection."
+        * ) incEcho "You did not enter a valid selection."
             return 1
     esac
 }
@@ -209,7 +207,6 @@ locale_selector () {
                incEcho "The specified locale doesn't exist or isn't supported."
                return 1
            fi
-           sed -i "$locale/s/^#//" /etc/locale.gen
            return 0
     esac
 }
@@ -241,16 +238,16 @@ print "Welcome to easy-arch, a script made in order to simplify the process of i
 # Setting up keyboard layout.
 until keyboard_selector; do : ; done
 
-PS3="Please select the disk NUMBER e.g. 1 where Arch Linux is going to be installed: "
+PS3="Please select the disk NUMBER (e.g. 1) where Arch Linux is going to be installed: "
 select ENTRY in $(lsblk -dpnoNAME|grep -P "/dev/sd|nvme|vd");
 do
     DISK=$ENTRY
-    print "Installing Arch Linux on $DISK."
+    print "Arch Linux will be installed to $DISK."
     break
 done
 
 # Warn user about deletion of old partition scheme.
-echo -en "${BOLD}${UNDERLINE}${BRED}This will delete the current partition table on $DISK once installation starts. Do you agree [y/N]?${RESET} "
+echo -en "${BOLD}${UNDERLINE}${BRED}This will delete the current partition table on $DISK once installation starts. Do you agree [y/N]?:${RESET} "
 read -r disk_response
 disk_response=${disk_response,,}
 if ! [[ "$disk_response" =~ ^(yes|y)$ ]]; then
@@ -334,10 +331,6 @@ mount -o $mountopts,subvol=@var_pkgs $BTRFS /mnt/var/cache/pacman/pkg
 chattr +C /mnt/var/log
 mount $ESP /mnt/boot/
 
-# Configure selected keyboard layout and locale
-echo "KEYMAP=$kblayout" > /mnt/etc/vconsole.conf
-echo "LANG=$locale" > /mnt/etc/locale.conf
-
 # Pacstrap (setting up a base sytem onto the new root).
 print "Installing the base system (it may take a while)."
 pacstrap /mnt --needed base $kernel $microcode linux-firmware $kernel-headers btrfs-progs grub grub-btrfs rsync efibootmgr snapper reflector base-devel snap-pac zram-generator >/dev/null
@@ -348,6 +341,11 @@ echo "$hostname" > /mnt/etc/hostname
 # Generating /etc/fstab.
 print "Generating a new fstab."
 genfstab -U /mnt >> /mnt/etc/fstab
+
+# Configure selected locale and console keymap
+sed -i "s/^#$locale/$locale/" /mnt/etc/locale.gen
+echo "LANG=$locale" > /mnt/etc/locale.conf
+echo "KEYMAP=$kblayout" > /mnt/etc/vconsole.conf
 
 # Setting hosts file.
 print "Setting hosts file."
