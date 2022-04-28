@@ -185,10 +185,12 @@ hostname_selector () {
 # Setting up the locale (function).
 locale_selector () {
     read -r -p "Please insert the locale you use (format: xx_XX. Enter empty to use en_US, or type a "/" to search avaliable locales): " locale
-    case $kblayout in
+    case $locale in
         '') print "en_US will be used as default locale."
             locale="en_US.UTF-8";;
-        '/') sed -E '/^# +|^#$/d;s/^#| *$//g;s/ .*/      (Charset:&)/' /etc/locale.gen | less -M;;
+        '/') sed -E '/^# +|^#$/d;s/^#| *$//g;s/ .*/      (Charset:&)/' /etc/locale.gen | less -M
+             clear
+             locale_selector;;
         *) if ! grep -Fxq $locale /etc/locale.gen; then
                print "The specified locale doesn't exist or isn't supported."
                locale_selector
@@ -204,6 +206,7 @@ keyboard_selector () {
         '') print "US keyboard layout will be used by default."
             kblayout="us";;
         '/') localectl list-keymaps
+             clear
              keyboard_selector;;
         *) if ! $(localectl list-keymaps | grep -Fxq $kblayout); then
                print "The specified keymap doesn't exist."
