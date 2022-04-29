@@ -89,6 +89,7 @@ network_selector () {
         incEcho "You did not enter a valid selection."
         return 1
     fi
+    return 0
 }
 
 # Installing the chosen networking method to the system (function).
@@ -131,7 +132,7 @@ lukspass_selector () {
         incEcho "Passwords don't match, try again."
         return 1
     fi
-	return 0
+    return 0
 }
 
 # User enters a password for the user account (function).
@@ -148,7 +149,7 @@ userpass_selector () {
         incEcho "Passwords don't match, try again."
         return 1
     fi
-	return 0
+    return 0
 }
 
 # User enters a password for the root account (function).
@@ -165,7 +166,7 @@ rootpass_selector () {
         incEcho "Passwords don't match, try again."
         return 1
     fi
-	return 0
+    return 0
 }
 
 # Microcode detector (function).
@@ -194,8 +195,9 @@ hostname_selector () {
 locale_selector () {
     read -r -p "Please insert the locale you use (format: xx_XX. Enter empty to use en_US, or \"/\" to search locales): " locale
     case $locale in
-        '') print "en_US.UTF-8 will be the default locale."
-            locale="en_US.UTF-8";;
+        '') locale="en_US.UTF-8"
+            print "$locale will be the default locale."
+            return 0;;
         '/') sed -E '/^# +|^#$/d;s/^#| *$//g;s/ .*/      (Charset:&)/' /etc/locale.gen | less -M
              clear
              return 1;;
@@ -211,8 +213,8 @@ locale_selector () {
 keyboard_selector () {
     read -r -p "Please insert the keyboard keymap/layout to use in console (enter empty to use us, or \"/\" to search keymaps): " kblayout
     case $kblayout in
-        '') print "The us keymap will be used in console by default."
-            kblayout="us"
+        '') kblayout="us"
+            print "$kblayout will be the default console keymap."
             return 0;;
         '/') localectl list-keymaps
              clear
@@ -245,8 +247,7 @@ done
 # Warn user about deletion of old partition scheme.
 echo -en "${BOLD}${BRED}This will delete the current partition table on $DISK once installation starts. Do you agree [y/N]?:${RESET} "
 read -r disk_response
-disk_response=${disk_response,,}
-if ! [[ "$disk_response" =~ ^(yes|y)$ ]]; then
+if ! [[ "${disk_response,,}" =~ ^(yes|y)$ ]]; then
     print "Quitting."
     exit
 fi
