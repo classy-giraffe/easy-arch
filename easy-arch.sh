@@ -119,56 +119,53 @@ network_installer () {
 
 # User enters a password for the LUKS Container (function).
 lukspass_selector () {
-    while true; do
-        read -r -s -p "Insert password for the LUKS container (you're not going to see the password): " password
-        while [ -z "$password" ]; do
-            echo
-            incEcho "You need to enter a password for the LUKS Container in order to continue."
-            read -r -s -p "Insert password for the LUKS container (you're not going to see the password): " password
-            [ -n "$password" ] && break
-        done
-        echo
-        read -r -s -p "Password (again): " password2
-        echo
-        [ "$password" = "$password2" ] && break
+    read -r -s -p "Insert password for the LUKS container (you're not going to see the password): " password
+    if [ -z "$password" ]; then
+        incEcho "\nYou need to enter a password for the LUKS Container in order to continue."
+        return 1
+    fi
+    echo
+    read -r -s -p "Password (again): " password2
+    echo
+    if [ "$password" != "$password2" ]; then
         incEcho "Passwords don't match, try again."
-    done
+        return 1
+    fi
+	return 0
 }
 
 # User enters a password for the user account (function).
 userpass_selector () {
-    while true; do
-        read -r -s -p "Set a user password for $username: " userpass
-        while [ -z "$userpass" ]; do
-            echo
-            incEcho "You need to enter a password for $username."
-            read -r -s -p "Set a user password for $username: " userpass
-            [ -n "$userpass" ] && break
-        done
-        echo
-        read -r -s -p "Insert password again: " userpass2
-        echo
-        [ "$userpass" = "$userpass2" ] && break
+    read -r -s -p "Set a user password for $username: " userpass
+    if [ -z "$userpass" ]; then
+        incEcho "\nYou need to enter a password for $username."
+        return 1
+    fi
+    echo
+    read -r -s -p "Insert password again: " userpass2
+    echo
+    if [ "$userpass" != "$userpass2" ]; then
         incEcho "Passwords don't match, try again."
-    done
+        return 1
+    fi
+	return 0
 }
 
 # User enters a password for the root account (function).
 rootpass_selector () {
-    while true; do
-        read -r -s -p "Set a root password: " rootpass
-        while [ -z "$rootpass" ]; do
-            echo
-            incEcho "You need to enter a root password."
-            read -r -s -p "Set a root password: " rootpass
-            [ -n "$rootpass" ] && break
-        done
-        echo
-        read -r -s -p "Password (again): " rootpass2
-        echo
-        [ "$rootpass" = "$rootpass2" ] && break
+    read -r -s -p "Set a root password: " rootpass
+    if [ -z "$rootpass" ]; then
+        incEcho "\nYou need to enter a root password."
+        return 1
+    fi
+    echo
+    read -r -s -p "Password (again): " rootpass2
+    echo
+    if [ "$rootpass" != "$rootpass2" ]; then
         incEcho "Passwords don't match, try again."
-    done
+        return 1
+    fi
+	return 0
 }
 
 # Microcode detector (function).
@@ -197,7 +194,7 @@ hostname_selector () {
 locale_selector () {
     read -r -p "Please insert the locale you use (format: xx_XX. Enter empty to use en_US, or \"/\" to search locales): " locale
     case $locale in
-        '') print "en_US will be used as default locale."
+        '') print "en_US.UTF-8 will be the default locale."
             locale="en_US.UTF-8";;
         '/') sed -E '/^# +|^#$/d;s/^#| *$//g;s/ .*/      (Charset:&)/' /etc/locale.gen | less -M
              clear
@@ -255,7 +252,7 @@ if ! [[ "$disk_response" =~ ^(yes|y)$ ]]; then
 fi
 
 # Setting up LUKS password.
-lukspass_selector
+until lukspass_selector; do : ; done
 
 # Setting up the kernel.
 until kernel_selector; do : ; done
@@ -271,8 +268,8 @@ until hostname_selector; do : ; done
 
 # User chooses username.
 read -r -p "Please enter name for a user account (enter empty to not create one): " username
-userpass_selector
-rootpass_selector
+until userpass_selector; do : ; done
+until rootpass_selector; do : ; done
 
 # Deleting old partition scheme.
 print "Wiping $DISK."
