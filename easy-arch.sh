@@ -326,7 +326,7 @@ mkdir -p /mnt/{home,root,srv,.snapshots,var/{log,cache/pacman/pkg},boot}
 for subvol in "${subvols[@]:2}"; do # ":2" excludes first two subvols (@snapshots and @var_pkgs) from loop
 mount -o "$mountopts",subvol=@"$subvol" "$BTRFS" /mnt/"$(sed 's,_,/,g' <<< "$subvol")"
 done
-chmod -R 750 /mnt/root
+chmod 750 /mnt/root
 mount -o $mountopts,subvol=@snapshots $BTRFS /mnt/.snapshots
 mount -o $mountopts,subvol=@var_pkgs $BTRFS /mnt/var/cache/pacman/pkg
 chattr +C /mnt/var/log
@@ -375,7 +375,7 @@ EOF
 # Setting up LUKS2 encryption in grub.
 print "Setting up grub config."
 UUID=$(blkid -s UUID -o value $CRYPTROOT)
-sed -i "s,^GRUB_CMDLINE_LINUX=\",&rd.luks.name=$UUID=cryptroot root=$BTRFS\",g" /mnt/etc/default/grub
+sed -i "\,^GRUB_CMDLINE_LINUX=\"\",s,\",&rd.luks.name=$UUID=cryptroot root=$BTRFS," /mnt/etc/default/grub
 
 # Configuring the system.
 arch-chroot /mnt /bin/bash -e <<EOF
