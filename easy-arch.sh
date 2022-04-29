@@ -5,7 +5,6 @@ clear
 
 # Colors/formatting for echo
   BOLD='\e[1m'
-  UNDERLINE='\e[4m'
   RESET='\e[0m' # Reset text to default appearance
 #   High intensity colors:
     BRED='\e[91m'
@@ -15,7 +14,7 @@ clear
 
 # Pretty print (function).
 print () {
-    echo -e "${BOLD}${BYELLOW}[ ${BGREEN}•${BYELLOW} ] ${UNDERLINE}$1${RESET}"
+    echo -e "${BOLD}${BYELLOW}[ ${BGREEN}•${BYELLOW} ] $1${RESET}"
 }
 # Alert user of bad input (function).
 incEcho () {
@@ -247,7 +246,7 @@ do
 done
 
 # Warn user about deletion of old partition scheme.
-echo -en "${BOLD}${UNDERLINE}${BRED}This will delete the current partition table on $DISK once installation starts. Do you agree [y/N]?:${RESET} "
+echo -en "${BOLD}${BRED}This will delete the current partition table on $DISK once installation starts. Do you agree [y/N]?:${RESET} "
 read -r disk_response
 disk_response=${disk_response,,}
 if ! [[ "$disk_response" =~ ^(yes|y)$ ]]; then
