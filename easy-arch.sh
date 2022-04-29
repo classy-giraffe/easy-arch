@@ -203,7 +203,7 @@ locale_selector () {
         '/') sed -E '/^# +|^#$/d;s/^#| *$//g;s/ .*/      (Charset:&)/' /etc/locale.gen | less -M
              clear
              return 1;;
-        *) if ! grep -Fxq $locale /etc/locale.gen; then
+        *) if ! grep -q "^#\?$(sed 's/[].*[]/\\&/g' <<< $locale) " /etc/locale.gen; then
                incEcho "The specified locale doesn't exist or isn't supported."
                return 1
            fi
