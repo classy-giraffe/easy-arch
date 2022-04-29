@@ -196,7 +196,7 @@ hostname_selector () {
 
 # User chooses the locale (function).
 locale_selector () {
-    read -r -p "Please insert the locale you use (format: xx_XX. Enter empty to use en_US, or "/" to search locales): " locale
+    read -r -p "Please insert the locale you use (format: xx_XX. Enter empty to use en_US, or \"/\" to search locales): " locale
     case $locale in
         '') print "en_US will be used as default locale."
             locale="en_US.UTF-8";;
@@ -213,7 +213,7 @@ locale_selector () {
 
 # User chooses the console keyboard layout (function).
 keyboard_selector () {
-    read -r -p "Please insert the keyboard keymap/layout to use in console (enter empty to use us, or "/" to search keymaps): " kblayout
+    read -r -p "Please insert the keyboard keymap/layout to use in console (enter empty to use us, or \"/\" to search keymaps): " kblayout
     case $kblayout in
         '') print "The us keymap will be used in console by default."
             kblayout="us"
@@ -221,7 +221,7 @@ keyboard_selector () {
         '/') localectl list-keymaps
              clear
              return 1;;
-        *) if ! $(localectl list-keymaps | grep -Fxq $kblayout); then
+        *) if ! localectl list-keymaps | grep -Fxq $kblayout; then
                incEcho "The specified keymap doesn't exist."
                return 1
            fi
@@ -313,8 +313,8 @@ mount $BTRFS /mnt
 # Creating BTRFS subvolumes.
 print "Creating BTRFS subvolumes."
 subvols=(snapshots var_pkgs var_log home root srv)
-for subvol in '' ${subvols[@]}; do
-    btrfs su cr /mnt/@$subvol
+for subvol in '' "${subvols[@]}"; do
+    btrfs su cr /mnt/@"$subvol"
 done
 
 # Mounting the newly created subvolumes.
@@ -323,8 +323,8 @@ print "Mounting the newly created subvolumes."
 mountopts="ssd,noatime,compress-force=zstd:3,discard=async"
 mount -o $mountopts,subvol=@ $BTRFS /mnt
 mkdir -p /mnt/{home,root,srv,.snapshots,var/{log,cache/pacman/pkg},boot}
-for subvol in ${subvols[@]:2}; do # ":2" excludes first two subvols (@snapshots and @var_pkgs) from loop
-mount -o $mountopts,subvol=@$subvol $BTRFS /mnt/$(sed 's,_,/,g' <<< $subvol)
+for subvol in "${subvols[@]:2}"; do # ":2" excludes first two subvols (@snapshots and @var_pkgs) from loop
+mount -o "$mountopts",subvol=@"$subvol" "$BTRFS" /mnt/$(sed 's,_,/,g' <<< "$subvol")
 done
 chmod -R 750 /mnt/root
 mount -o $mountopts,subvol=@snapshots $BTRFS /mnt/.snapshots
