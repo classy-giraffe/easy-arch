@@ -341,7 +341,7 @@ print "Generating a new fstab."
 genfstab -U /mnt >> /mnt/etc/fstab
 
 # Configure selected locale and console keymap
-sed -i "s/^#$locale/$locale/" /mnt/etc/locale.gen
+sed -i "/^#$locale/s/^#//" /mnt/etc/locale.gen
 echo "LANG=$locale" > /mnt/etc/locale.conf
 echo "KEYMAP=$kblayout" > /mnt/etc/vconsole.conf
 
@@ -453,7 +453,7 @@ EOF
 
 # Pacman eye-candy features.
 print "Enabling colours, animations, and parallel in pacman."
-sed -i 's/^#Color$/Color\nILoveCandy/;s/^#ParallelDownloads.*/ParallelDownloads = 10/' /mnt/etc/pacman.conf
+sed -Ei 's/^#(Color)$/\1\nILoveCandy/;s/^#(ParallelDownloads).*/\1 = 10/' /mnt/etc/pacman.conf
 
 # Enabling various services.
 print "Enabling Reflector, automatic snapshots, BTRFS scrubbing and systemd-oomd."
