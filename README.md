@@ -3,12 +3,13 @@
 ![](https://img.shields.io/github/forks/classy-giraffe/easy-arch?label=Forks)
 
 ### Introduction
-[easy-arch](https://github.com/classy-giraffe/easy-arch) is a **bash script** made in order to boostrap a basic but modern **Arch Linux** environment, with a few cherry-picked  features:
+[easy-arch](https://github.com/classy-giraffe/easy-arch) is a **bash script** made in order to install **Arch Linux** and configure it with proper settings (while keeping it vanilla):
 1. BTRFS bootable snapshots from GRUB
 2. LUKS2 encryption
 3. [ZRAM](https://fedoraproject.org/wiki/Changes/SwapOnZRAM) as swap
 4. [systemd-oomd](https://fedoraproject.org/wiki/Changes/EnableSystemdOomd)
 5. Autodetect VMs and provide guest tools (if available)
+6. Sane defaults
 
 ### How does it work?
 1. Download an Arch Linux ISO from [here](https://archlinux.org/download/)
