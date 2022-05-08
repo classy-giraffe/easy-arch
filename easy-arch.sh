@@ -3,14 +3,13 @@
 # Cleaning the TTY.
 clear
 
-# Colors/formatting for echo
-  BOLD='\e[1m'
-  RESET='\e[0m' # Reset text to default appearance
-#   High intensity colors:
-    BRED='\e[91m'
-    BGREEN='\e[92m'
-    BYELLOW='\e[93m'
-    BPURPLE='\e[95m'
+# Cosmetics (colours for text).
+BOLD='\e[1m'
+BRED='\e[91m'
+BGREEN='\e[92m'
+BYELLOW='\e[93m'
+BPURPLE='\e[95m'
+RESET='\e[0m'
 
 # Pretty print (function).
 print () {
@@ -80,7 +79,7 @@ kernel_selector () {
 network_selector () {
     print "Network utilities:"
     print "1) IWD: iNet wireless daemon is a wireless daemon for Linux written by Intel (WiFi-only)"
-    print "2) NetworkManager: Universal network utility to automatically connect to networks (both WiFi and Ethernet)"
+    print "2) NetworkManager: Universal network utility to automatically connect to networks (both WiFi and Ethernet, highly recommended)"
     print "3) wpa_supplicant: Cross-platform supplicant with support for WEP, WPA and WPA2 (WiFi-only, a DHCP client will be automatically installed as well)"
     print "4) dhcpcd: Basic DHCP client (Ethernet only or VMs)"
     print "5) I will do this on my own (only advanced users)"
