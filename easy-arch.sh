@@ -6,6 +6,7 @@ clear
 # Cosmetics (colours for text).
 BOLD='\e[1m'
 BRED='\e[91m'
+BBLUE='\e[34m'  
 BGREEN='\e[92m'
 BYELLOW='\e[93m'
 RESET='\e[0m'
@@ -16,7 +17,7 @@ print () {
 }
 # Alert user of bad input (function).
 incEcho () {
-    echo -e "${BRED}$1${RESET}"
+    echo -e "${BOLD}${BRED}[ ${BBLUE}•${BRED} ] $1${RESET}"
 }
 
 # Virtualization check (function).
