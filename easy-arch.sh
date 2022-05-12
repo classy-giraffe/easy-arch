@@ -8,7 +8,6 @@ BOLD='\e[1m'
 BRED='\e[91m'
 BGREEN='\e[92m'
 BYELLOW='\e[93m'
-BPURPLE='\e[95m'
 RESET='\e[0m'
 
 # Pretty print (function).
@@ -17,7 +16,7 @@ print () {
 }
 # Alert user of bad input (function).
 incEcho () {
-    echo -e "${BPURPLE}$1${RESET}"
+    echo -e "${BRED}$1${RESET}"
 }
 
 # Virtualization check (function).
@@ -58,8 +57,8 @@ kernel_selector () {
     print "List of kernels:"
     print "1) Stable: Vanilla Linux kernel with a few specific Arch Linux patches applied"
     print "2) Hardened: A security-focused Linux kernel"
-    print "3) LTS: Long-term support (LTS) Linux kernel"
-    print "4) Zen: A Linux kernel optimized for desktop usage"
+    print "3) Longterm: Long-term support (LTS) Linux kernel"
+    print "4) Zen Kernel: A Linux kernel optimized for desktop usage"
     read -r -p "Insert the number of the corresponding kernel: " kernel_choice
     case $kernel_choice in
         1 ) kernel="linux"
@@ -319,10 +318,9 @@ print "Mounting the newly created subvolumes."
 mountopts="ssd,noatime,compress-force=zstd:3,discard=async"
 mount -o $mountopts,subvol=@ $BTRFS /mnt
 mkdir -p /mnt/{home,root,srv,.snapshots,var/{log,cache/pacman/pkg},boot}
-for subvol in "${subvols[@]:2}"; do # ":2" excludes first two subvols (@snapshots and @var_pkgs) from loop
+for subvol in "${subvols[@]:2}"; do
     mount -o "$mountopts",subvol=@"$subvol" "$BTRFS" /mnt/"${subvol//_//}"
 done
-chmod 750 /mnt/root
 mount -o $mountopts,subvol=@snapshots $BTRFS /mnt/.snapshots
 mount -o $mountopts,subvol=@var_pkgs $BTRFS /mnt/var/cache/pacman/pkg
 chattr +C /mnt/var/log
