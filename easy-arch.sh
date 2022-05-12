@@ -209,10 +209,10 @@ locale_selector () {
 
 # User chooses the console keyboard layout (function).
 keyboard_selector () {
-    read -r -p "Please insert the keyboard keymap/layout to use in console (enter empty to use us, or \"/\" to search keymaps): " kblayout
+    read -r -p "Please insert the keyboard layout to use in console (enter empty to use US, or \"/\" to look up for keyboard layouts): " kblayout
     case $kblayout in
         '') kblayout="us"
-            print "$kblayout will be the default console keymap."
+            print "The standard US will be used as the default console keymap."
             return 0;;
         '/') localectl list-keymaps
              clear
@@ -228,12 +228,14 @@ keyboard_selector () {
 
 }
 
-# Selecting the target for the installation.
+# Welcome screen.
 print "Welcome to easy-arch, a script made in order to simplify the process of installing Arch Linux."
 
 # Setting up keyboard layout.
 until keyboard_selector; do : ; done
 
+# Choosing the target for the installation.
+print "Available disks for the installation:"
 PS3="Please select the disk NUMBER (e.g. 1) where Arch Linux is going to be installed: "
 select ENTRY in $(lsblk -dpnoNAME|grep -P "/dev/sd|nvme|vd");
 do
