@@ -119,16 +119,16 @@ network_installer () {
 
 # User enters a password for the LUKS Container (function).
 lukspass_selector () {
-    read -r -s -p "Insert password for the LUKS container (you're not going to see the password): " password
+    read -r -s -p "Insert the password for the LUKS container (you're not going to see the password): " password
     if [ -z "$password" ]; then
-        incEcho "\nYou need to enter a password for the LUKS Container in order to continue."
+        incEcho "You need to enter a password for the LUKS Container in order to continue."
         return 1
     fi
     echo
-    read -r -s -p "Password (again): " password2
+    read -r -s -p "Insert the password for the LUKS container again: " password2
     echo
     if [ "$password" != "$password2" ]; then
-        incEcho "Passwords don't match, try again."
+        incEcho "Passwords don't match, please try again."
         return 1
     fi
     return 0
