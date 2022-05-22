@@ -134,15 +134,15 @@ lukspass_selector () {
     return 0
 }
 
-# User enters a password for the user account (function).
+# Setting up a password for the user account (function).
 userpass_selector () {
-    read -r -s -p "Set a user password for $username: " userpass
+    read -r -s -p "Insert a user password for $username (you're not going to see it): " userpass
     if [ -z "$userpass" ]; then
         incEcho "\nYou need to enter a password for $username."
         return 1
     fi
     echo
-    read -r -s -p "Insert password again: " userpass2
+    read -r -s -p "Insert the password again (for double checking): " userpass2
     echo
     if [ "$userpass" != "$userpass2" ]; then
         incEcho "Passwords don't match, try again."
@@ -151,15 +151,15 @@ userpass_selector () {
     return 0
 }
 
-# User enters a password for the root account (function).
+# Setting up a password for the root account (function).
 rootpass_selector () {
-    read -r -s -p "Set a root password: " rootpass
+    read -r -s -p "Insert a user password for the root user (you're not going to see it): " rootpass
     if [ -z "$rootpass" ]; then
         incEcho "\nYou need to enter a root password."
         return 1
     fi
     echo
-    read -r -s -p "Password (again): " rootpass2
+    read -r -s -p "Insert the password again (for double checking): " rootpass2
     echo
     if [ "$rootpass" != "$rootpass2" ]; then
         incEcho "Passwords don't match, try again."
