@@ -373,7 +373,7 @@ sed -i "\,^GRUB_CMDLINE_LINUX=\"\",s,\",&rd.luks.name=$UUID=cryptroot root=$BTRF
 arch-chroot /mnt /bin/bash -e <<EOF
 
     # Setting up timezone.
-    print "Setting up the timezone."
+    echo "Setting up the timezone."
     ln -sf /usr/share/zoneinfo/$(curl -s http://ip-api.com/line?fields=timezone) /etc/localtime &>/dev/null
 
     # Setting up clock.
