@@ -295,8 +295,8 @@ mkfs.fat -F 32 "$ESP" &>/dev/null
 
 # Creating a LUKS Container for the root partition.
 print "Creating LUKS Container for the root partition."
-echo -n "$password" | cryptsetup luksFormat "$CRYPTROOT" -d -
-echo -n "$password" | cryptsetup open "$CRYPTROOT" cryptroot -d - &>/dev/null
+echo -n "$password" | cryptsetup luksFormat "$CRYPTROOT" -d - &>/dev/null
+echo -n "$password" | cryptsetup open "$CRYPTROOT" cryptroot -d - 
 BTRFS="/dev/mapper/cryptroot"
 
 # Formatting the LUKS Container as BTRFS.
