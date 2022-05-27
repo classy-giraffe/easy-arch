@@ -442,7 +442,7 @@ zram-size = min(ram, 8192)
 EOF
 
 # Pacman eye-candy features.
-print "Enabling colours, animations, and parallel in pacman."
+print "Enabling colours, animations, and parallel downloads for pacman."
 sed -Ei 's/^#(Color)$/\1\nILoveCandy/;s/^#(ParallelDownloads).*/\1 = 10/' /mnt/etc/pacman.conf
 
 # Enabling various services.
