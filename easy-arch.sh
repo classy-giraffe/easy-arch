@@ -120,14 +120,14 @@ network_installer () {
 # User enters a password for the LUKS Container (function).
 lukspass_selector () {
     read -r -s -p "Insert the password for the LUKS container (you're not going to see the password): " password
-    if [ -z "$password" ]; then
+    if [[ -z "$password" ]]; then
         incEcho "You need to enter a password for the LUKS Container in order to continue."
         return 1
     fi
     echo
     read -r -s -p "Insert the password for the LUKS container again (you're not going to see the password): " password2
     echo
-    if [ "$password" != "$password2" ]; then
+    if [[ "$password" != "$password2" ]]; then
         incEcho "Passwords don't match, please try again."
         return 1
     fi
@@ -136,18 +136,18 @@ lukspass_selector () {
 
 # Setting up a password for the user account (function).
 userpass_selector () {
-    if [ -z "$username" ]; then
+    if [[ -z "$username" ]]; then
         return 0
     fi
     read -r -s -p "Insert a user password for $username (you're not going to see the password): " userpass
-    if [ -z "$userpass" ]; then
+    if [[ -z "$userpass" ]]; then
         incEcho "You need to enter a password for $username."
         return 1
     fi
     echo
     read -r -s -p "Insert the password again (for double checking): " userpass2
     echo
-    if [ "$userpass" != "$userpass2" ]; then
+    if [[ "$userpass" != "$userpass2" ]]; then
         incEcho "Passwords don't match, try again."
         return 1
     fi
@@ -157,14 +157,14 @@ userpass_selector () {
 # Setting up a password for the root account (function).
 rootpass_selector () {
     read -r -s -p "Insert a user password for the root user (you're not going to see it): " rootpass
-    if [ -z "$rootpass" ]; then
+    if [[ -z "$rootpass" ]]; then
         incEcho "You need to enter a root password."
         return 1
     fi
     echo
     read -r -s -p "Insert the password again (for double checking): " rootpass2
     echo
-    if [ "$rootpass" != "$rootpass2" ]; then
+    if [[ "$rootpass" != "$rootpass2" ]]; then
         incEcho "Passwords don't match, try again."
         return 1
     fi
@@ -174,7 +174,7 @@ rootpass_selector () {
 # Microcode detector (function).
 microcode_detector () {
     CPU=$(grep vendor_id /proc/cpuinfo)
-    if [[ $CPU == *"AuthenticAMD"* ]]; then
+    if [[ "$CPU" == *"AuthenticAMD"* ]]; then
         print "An AMD CPU has been detected, the AMD microcode will be installed."
         microcode="amd-ucode"
     else
@@ -186,7 +186,7 @@ microcode_detector () {
 # User enters a hostname (function).
 hostname_selector () {
     read -r -p "Please enter the hostname: " hostname
-    if [ -z "$hostname" ]; then
+    if [[ -z "$hostname" ]]; then
         incEcho "You need to enter a hostname in order to continue."
         return 1
     fi
@@ -196,7 +196,7 @@ hostname_selector () {
 # User chooses the locale (function).
 locale_selector () {
     read -r -p "Please insert the locale you use (format: xx_XX. Enter empty to use en_US, or \"/\" to search locales): " locale
-    case $locale in
+    case "$locale" in
         '') locale="en_US.UTF-8"
             print "$locale will be the default locale."
             return 0;;
@@ -214,7 +214,7 @@ locale_selector () {
 # User chooses the console keyboard layout (function).
 keyboard_selector () {
     read -r -p "Please insert the keyboard layout to use in console (enter empty to use US, or \"/\" to look up for keyboard layouts): " kblayout
-    case $kblayout in
+    case "$kblayout" in
         '') kblayout="us"
             print "The standard US will be used as the default console keymap."
             return 0;;
@@ -225,9 +225,9 @@ keyboard_selector () {
                incEcho "The specified keymap doesn't exist."
                return 1
            fi
-           print "Changing console layout to $kblayout."
-           loadkeys $kblayout
-           return 0
+        print "Changing console layout to $kblayout."
+        loadkeys "$kblayout"
+        return 0
     esac
 
 }
@@ -243,7 +243,7 @@ print "Available disks for the installation:"
 PS3="Please select the disk NUMBER (e.g. 1) where Arch Linux is going to be installed: "
 select ENTRY in $(lsblk -dpnoNAME|grep -P "/dev/sd|nvme|vd");
 do
-    DISK=$ENTRY
+    DISK="$ENTRY"
     print "Arch Linux will be installed to $DISK."
     break
 done
@@ -298,7 +298,7 @@ partprobe "$DISK"
 
 # Formatting the ESP as FAT32.
 print "Formatting the EFI Partition as FAT32."
-mkfs.fat -F 32 $ESP &>/dev/null
+mkfs.fat -F 32 "$ESP" &>/dev/null
 
 # Creating a LUKS Container for the root partition.
 print "Creating LUKS Container for the root partition."
@@ -308,8 +308,8 @@ BTRFS="/dev/mapper/cryptroot"
 
 # Formatting the LUKS Container as BTRFS.
 print "Formatting the LUKS container as BTRFS."
-mkfs.btrfs $BTRFS &>/dev/null
-mount $BTRFS /mnt
+mkfs.btrfs "$BTRFS" &>/dev/null
+mount "$BTRFS" /mnt
 
 # Creating BTRFS subvolumes.
 print "Creating BTRFS subvolumes."
@@ -322,20 +322,20 @@ done
 umount /mnt
 print "Mounting the newly created subvolumes."
 mountopts="ssd,noatime,compress-force=zstd:3,discard=async"
-mount -o $mountopts,subvol=@ $BTRFS /mnt
+mount -o "$mountopts",subvol=@ "$BTRFS" /mnt
 mkdir -p /mnt/{home,root,srv,.snapshots,var/{log,cache/pacman/pkg},boot}
 for subvol in "${subvols[@]:2}"; do
     mount -o "$mountopts",subvol=@"$subvol" "$BTRFS" /mnt/"${subvol//_//}"
 done
 chmod 750 /mnt/root
-mount -o $mountopts,subvol=@snapshots $BTRFS /mnt/.snapshots
-mount -o $mountopts,subvol=@var_pkgs $BTRFS /mnt/var/cache/pacman/pkg
+mount -o "$mountopts",subvol=@snapshots "$BTRFS" /mnt/.snapshots
+mount -o "$mountopts",subvol=@var_pkgs "$BTRFS" /mnt/var/cache/pacman/pkg
 chattr +C /mnt/var/log
-mount $ESP /mnt/boot/
+mount "$ESP" /mnt/boot/
 
 # Pacstrap (setting up a base sytem onto the new root).
 print "Installing the base system (it may take a while)."
-pacstrap /mnt --needed base $kernel $microcode linux-firmware $kernel-headers btrfs-progs grub grub-btrfs rsync efibootmgr snapper reflector base-devel snap-pac zram-generator >/dev/null
+pacstrap /mnt --needed "$kernel" "$microcode" "$kernel"-headers base linux-firmware btrfs-progs grub grub-btrfs rsync efibootmgr snapper reflector base-devel snap-pac zram-generator >/dev/null
 
 # Setting up the hostname.
 echo "$hostname" > /mnt/etc/hostname
@@ -354,7 +354,7 @@ print "Setting hosts file."
 cat > /mnt/etc/hosts <<EOF
 127.0.0.1   localhost
 ::1         localhost
-127.0.1.1   $hostname.localdomain   $hostname
+127.0.1.1   "$hostname".localdomain   "$hostname"
 EOF
 
 # Checking the microcode to install.
@@ -421,10 +421,12 @@ print "Setting root password."
 echo "root:$rootpass" | arch-chroot /mnt chpasswd
 
 # Setting user password.
-if [ -n "$username" ]; then
+if [[ -n "$username" ]]; then
+    cat > /mnt/etc/sudoers.d/wheel <<EOF
+    %wheel ALL=(ALL:ALL) ALL
+EOF
     print "Adding the user $username to the system with root privilege."
     arch-chroot /mnt useradd -m -G wheel -s /bin/bash "$username"
-    sed -i '/^# %wheel ALL=(ALL) ALL/s/^# //' /mnt/etc/sudoers
     print "Setting user password for $username."
     echo "$username:$userpass" | arch-chroot /mnt chpasswd
 fi
@@ -460,8 +462,8 @@ sed -Ei 's/^#(Color)$/\1\nILoveCandy/;s/^#(ParallelDownloads).*/\1 = 10/' /mnt/e
 
 # Enabling various services.
 print "Enabling Reflector, automatic snapshots, BTRFS scrubbing and systemd-oomd."
-for service in reflector.timer snapper-timeline.timer snapper-cleanup.timer btrfs-scrub@-.timer btrfs-scrub@home.timer btrfs-scrub@var-log.timer btrfs-scrub@\\x2esnapshots.timer grub-btrfs.path systemd-oomd
-do
+services=(reflector.timer snapper-timeline.timer snapper-cleanup.timer btrfs-scrub@-.timer btrfs-scrub@home.timer btrfs-scrub@var-log.timer btrfs-scrub@\\x2esnapshots.timer grub-btrfs.path systemd-oomd)
+for service in '' "${services[@]}"; do
     systemctl enable "$service" --root=/mnt &>/dev/null
 done
 
