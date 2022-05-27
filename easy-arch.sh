@@ -324,6 +324,7 @@ mkdir -p /mnt/{home,root,srv,.snapshots,var/{log,cache/pacman/pkg},boot}
 for subvol in "${subvols[@]:2}"; do
     mount -o "$mountopts",subvol=@"$subvol" "$BTRFS" /mnt/"${subvol//_//}"
 done
+chmod 750 /mnt/root
 mount -o $mountopts,subvol=@snapshots $BTRFS /mnt/.snapshots
 mount -o $mountopts,subvol=@var_pkgs $BTRFS /mnt/var/cache/pacman/pkg
 chattr +C /mnt/var/log
@@ -345,6 +346,14 @@ sed -i "/^#$locale/s/^#//" /mnt/etc/locale.gen
 echo "LANG=$locale" > /mnt/etc/locale.conf
 echo "KEYMAP=$kblayout" > /mnt/etc/vconsole.conf
 
+# Setting hosts file.
+print "Setting hosts file."
+cat > /mnt/etc/hosts <<EOF
+127.0.0.1   localhost
+::1         localhost
+127.0.1.1   $hostname.localdomain   $hostname
+EOF
+
 # Checking the microcode to install.
 microcode_detector
 
@@ -357,8 +366,7 @@ network_installer
 # Configuring /etc/mkinitcpio.conf.
 print "Configuring /etc/mkinitcpio.conf."
 cat > /mnt/etc/mkinitcpio.conf <<EOF
-HOOKS=(base systemd autodetect keyboard sd-vconsole modconf block sd-encrypt filesystems)
-COMPRESSION=(zstd)
+HOOKS=(systemd autodetect keyboard sd-vconsole modconf block sd-encrypt filesystems)
 EOF
 
 # Setting up LUKS2 encryption in grub.
