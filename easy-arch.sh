@@ -294,7 +294,7 @@ mkfs.fat -F 32 "$ESP" &>/dev/null
 
 # Creating a LUKS Container for the root partition.
 print "Creating LUKS Container for the root partition."
-echo -n "$password" | cryptsetup luksFormat "$CRYPTROOT" -d - &>/dev/null
+echo -n "$password" | cryptsetup luksFormat "$CRYPTROOT" -d -
 echo -n "$password" | cryptsetup open "$CRYPTROOT" cryptroot -d -
 BTRFS="/dev/mapper/cryptroot"
 
@@ -327,7 +327,7 @@ mount "$ESP" /mnt/boot/
 
 # Pacstrap (setting up a base sytem onto the new root).
 print "Installing the base system (it may take a while)."
-pacstrap /mnt --needed "$kernel" "$microcode" "$kernel"-headers base linux-firmware btrfs-progs grub grub-btrfs rsync efibootmgr snapper reflector base-devel snap-pac zram-generator >/dev/null
+pacstrap /mnt --needed "$kernel" "$microcode" "$kernel"-headers base linux-firmware btrfs-progs grub grub-btrfs rsync efibootmgr snapper reflector base-devel snap-pac zram-generator &>/dev/null
 
 # Setting up the hostname.
 echo "$hostname" > /mnt/etc/hostname
