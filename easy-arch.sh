@@ -188,7 +188,7 @@ hostname_selector () {
 # User chooses the locale (function).
 locale_selector () {
     read -r -p "Please insert the locale you use (format: xx_XX. Enter empty to use en_US, or \"/\" to search locales): " locale
-    case "$locale" in
+    case $locale in
         '') locale="en_US.UTF-8"
             print "$locale will be the default locale."
             return 0;;
@@ -206,7 +206,7 @@ locale_selector () {
 # User chooses the console keyboard layout (function).
 keyboard_selector () {
     read -r -p "Please insert the keyboard layout to use in console (enter empty to use US, or \"/\" to look up for keyboard layouts): " kblayout
-    case "$kblayout" in
+    case $kblayout in
         '') kblayout="us"
             print "The standard US will be used as the default console keymap."
             return 0;;
@@ -327,7 +327,7 @@ mount "$ESP" /mnt/boot/
 
 # Pacstrap (setting up a base sytem onto the new root).
 print "Installing the base system (it may take a while)."
-pacstrap /mnt --needed "$kernel" "$microcode" "$kernel"-headers base linux-firmware btrfs-progs grub grub-btrfs rsync efibootmgr snapper reflector base-devel snap-pac zram-generator &>/dev/null
+pacstrap /mnt --needed base "$kernel" "$microcode" "$kernel"-headers linux-firmware btrfs-progs grub grub-btrfs rsync efibootmgr snapper reflector base-devel snap-pac zram-generator &>/dev/null
 
 # Setting up the hostname.
 echo "$hostname" > /mnt/etc/hostname
