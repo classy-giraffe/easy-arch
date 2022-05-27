@@ -25,7 +25,7 @@ virt_check () {
     hypervisor=$(systemd-detect-virt)
     case $hypervisor in
         kvm )   print "KVM has been detected, setting up guest tools."
-                pacstrap /mnt qemu-guest-agent >/dev/null
+                pacstrap /mnt qemu-guest-agent &>/dev/null
                 systemctl enable qemu-guest-agent --root=/mnt &>/dev/null
                 ;;
         vmware  )   print "VMWare Workstation/ESXi has been detected, setting up guest tools."
@@ -34,14 +34,15 @@ virt_check () {
                     systemctl enable vmware-vmblock-fuse --root=/mnt &>/dev/null
                     ;;
         oracle )    print "VirtualBox has been detected, setting up guest tools."
-                    pacstrap /mnt virtualbox-guest-utils >/dev/null
+                    pacstrap /mnt virtualbox-guest-utils &>/dev/null
                     systemctl enable vboxservice --root=/mnt &>/dev/null
                     ;;
         microsoft ) print "Hyper-V has been detected, setting up guest tools."
-                    pacstrap /mnt hyperv >/dev/null
+                    pacstrap /mnt hyperv &>/dev/null
                     systemctl enable hv_fcopy_daemon --root=/mnt &>/dev/null
                     systemctl enable hv_kvp_daemon --root=/mnt &>/dev/null
                     systemctl enable hv_vss_daemon --root=/mnt &>/dev/null
+                    ;;
     esac
 }
 
