@@ -71,10 +71,10 @@ kernel_selector () {
 # Selecting a way to handle internet connection (function).
 network_selector () {
     print "Network utilities:"
-    print "1) IWD: iNet wireless daemon is a wireless daemon for Linux written by Intel (WiFi-only)"
-    print "2) NetworkManager: Universal network utility to automatically connect to networks (both WiFi and Ethernet, highly recommended)"
-    print "3) wpa_supplicant: Cross-platform supplicant with support for WEP, WPA and WPA2 (WiFi-only, a DHCP client will be automatically installed as well)"
-    print "4) dhcpcd: Basic DHCP client (Ethernet only or VMs)"
+    print "1) IWD: Utility to connect to networks written by Intel (WiFi-only, built-in DHCP client)"
+    print "2) NetworkManager: Universal network utility (both WiFi and Ethernet, highly recommended)"
+    print "3) wpa_supplicant: Utility with support for WEP and WPA/WPA2 (WiFi-only, DHCPCD will be automatically installed)"
+    print "4) dhcpcd: Basic DHCP client (Ethernet connections or VMs)"
     print "5) I will do this on my own (only advanced users)"
     read -r -p "Insert the number of the corresponding networking utility: " network_choice
     if ! ((1 <= network_choice <= 5)); then
