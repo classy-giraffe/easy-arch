@@ -141,7 +141,7 @@ userpass_selector () {
     fi
     read -r -s -p "Insert a user password for $username (you're not going to see the password): " userpass
     if [ -z "$userpass" ]; then
-        incEcho "\nYou need to enter a password for $username."
+        incEcho "You need to enter a password for $username."
         return 1
     fi
     echo
@@ -158,7 +158,7 @@ userpass_selector () {
 rootpass_selector () {
     read -r -s -p "Insert a user password for the root user (you're not going to see it): " rootpass
     if [ -z "$rootpass" ]; then
-        incEcho "\nYou need to enter a root password."
+        incEcho "You need to enter a root password."
         return 1
     fi
     echo
@@ -302,7 +302,7 @@ mkfs.fat -F 32 $ESP &>/dev/null
 
 # Creating a LUKS Container for the root partition.
 print "Creating LUKS Container for the root partition."
-echo -n "$password" | cryptsetup luksFormat "$CRYPTROOT" -d -
+echo -n "$password" | cryptsetup luksFormat "$CRYPTROOT" -d - &>/dev/null
 echo -n "$password" | cryptsetup open "$CRYPTROOT" cryptroot -d -
 BTRFS="/dev/mapper/cryptroot"
 
@@ -315,7 +315,7 @@ mount $BTRFS /mnt
 print "Creating BTRFS subvolumes."
 subvols=(snapshots var_pkgs var_log home root srv)
 for subvol in '' "${subvols[@]}"; do
-    btrfs su cr /mnt/@"$subvol"
+    btrfs su cr /mnt/@"$subvol" &>/dev/null
 done
 
 # Mounting the newly created subvolumes.
@@ -381,7 +381,7 @@ sed -i "\,^GRUB_CMDLINE_LINUX=\"\",s,\",&rd.luks.name=$UUID=cryptroot root=$BTRF
 arch-chroot /mnt /bin/bash -e <<EOF
 
     # Setting up timezone.
-    echo "Setting up the timezone."
+    print "Setting up the timezone."
     ln -sf /usr/share/zoneinfo/$(curl -s http://ip-api.com/line?fields=timezone) /etc/localtime &>/dev/null
 
     # Setting up clock.
