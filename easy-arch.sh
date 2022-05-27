@@ -125,7 +125,7 @@ lukspass_selector () {
         return 1
     fi
     echo
-    read -r -s -p "Insert the password for the LUKS container again: " password2
+    read -r -s -p "Insert the password for the LUKS container again (you're not going to see the password): " password2
     echo
     if [ "$password" != "$password2" ]; then
         incEcho "Passwords don't match, please try again."
@@ -136,7 +136,10 @@ lukspass_selector () {
 
 # Setting up a password for the user account (function).
 userpass_selector () {
-    read -r -s -p "Insert a user password for $username (you're not going to see it): " userpass
+    if [ -z "$username" ]; then
+        return 0
+    fi
+    read -r -s -p "Insert a user password for $username (you're not going to see the password): " userpass
     if [ -z "$userpass" ]; then
         incEcho "\nYou need to enter a password for $username."
         return 1
