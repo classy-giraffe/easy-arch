@@ -296,7 +296,7 @@ mkfs.fat -F 32 "$ESP" &>/dev/null
 # Creating a LUKS Container for the root partition.
 print "Creating LUKS Container for the root partition."
 echo -n "$password" | cryptsetup luksFormat "$CRYPTROOT" -d -
-echo -n "$password" | cryptsetup open "$CRYPTROOT" cryptroot -d -
+echo -n "$password" | cryptsetup open "$CRYPTROOT" cryptroot -d - &>/dev/null
 BTRFS="/dev/mapper/cryptroot"
 
 # Formatting the LUKS Container as BTRFS.
@@ -371,40 +371,34 @@ UUID=$(blkid -s UUID -o value $CRYPTROOT)
 sed -i "\,^GRUB_CMDLINE_LINUX=\"\",s,\",&rd.luks.name=$UUID=cryptroot root=$BTRFS," /mnt/etc/default/grub
 
 # Configuring the system.
+print "Configuring the system (timezone, system clock, initramfs, Snapper, GRUB)."
 arch-chroot /mnt /bin/bash -e <<EOF
 
     # Setting up timezone.
-    echo "Setting up the timezone."
     ln -sf /usr/share/zoneinfo/$(curl -s http://ip-api.com/line?fields=timezone) /etc/localtime &>/dev/null
 
     # Setting up clock.
-    echo "Setting up the system clock."
     hwclock --systohc
 
     # Generating locales.
-    echo "Generating locales."
     locale-gen &>/dev/null
 
     # Generating a new initramfs.
-    echo "Creating a new initramfs."
     mkinitcpio -P &>/dev/null
 
-    # Snapper configuration
-    echo "Configuring Snapper."
+    # Snapper configuration.
     umount /.snapshots
     rm -r /.snapshots
     snapper --no-dbus -c root create-config /
     btrfs subvolume delete /.snapshots &>/dev/null
     mkdir /.snapshots
-    mount -a
+    mount -a &>/dev/null
     chmod 750 /.snapshots
 
     # Installing GRUB.
-    echo "Installing GRUB on /boot."
     grub-install --target=x86_64-efi --efi-directory=/boot/ --bootloader-id=GRUB &>/dev/null
 
     # Creating grub config file.
-    echo "Creating GRUB config file."
     grub-mkconfig -o /boot/grub/grub.cfg &>/dev/null
 
 EOF
