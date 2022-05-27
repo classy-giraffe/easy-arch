@@ -134,14 +134,14 @@ userpass_selector () {
     fi
     read -r -s -p "Insert a user password for $username (you're not going to see the password): " userpass
     if [[ -z "$userpass" ]]; then
-        incEcho "You need to enter a password for $username."
+        incEcho "You need to enter a password for $username in order to continue."
         return 1
     fi
     echo
-    read -r -s -p "Insert the password again (for double checking): " userpass2
+    read -r -s -p "Insert the password again (you're not going to see the password): " userpass2
     echo
     if [[ "$userpass" != "$userpass2" ]]; then
-        incEcho "Passwords don't match, try again."
+        incEcho "Passwords don't match, please try again."
         return 1
     fi
     return 0
