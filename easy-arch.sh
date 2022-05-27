@@ -327,7 +327,7 @@ mount "$ESP" /mnt/boot/
 
 # Pacstrap (setting up a base sytem onto the new root).
 print "Installing the base system (it may take a while)."
-pacstrap /mnt --needed base "$kernel" "$microcode" "$kernel"-headers linux-firmware btrfs-progs grub grub-btrfs rsync efibootmgr snapper reflector base-devel snap-pac zram-generator &>/dev/null
+pacstrap /mnt --needed base $kernel $microcode linux-firmware $kernel-headers btrfs-progs grub grub-btrfs rsync efibootmgr snapper reflector base-devel snap-pac zram-generator &>/dev/null
 
 # Setting up the hostname.
 echo "$hostname" > /mnt/etc/hostname
