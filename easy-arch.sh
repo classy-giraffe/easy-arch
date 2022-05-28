@@ -168,7 +168,7 @@ rootpass_selector () {
     input_print "Insert the password again (for double checking): " 
     read -r -s rootpass2
     if [[ "$rootpass" != "$rootpass2" ]]; then
-        error_print "Passwords don't match, try again."
+        error_print "Passwords don't match, please try again."
         return 1
     fi
     return 0
