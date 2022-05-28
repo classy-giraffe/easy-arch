@@ -12,11 +12,11 @@ BYELLOW='\e[93m'
 RESET='\e[0m'
 
 # Pretty print (function).
-print () {
+info_print () {
     echo -e "${BOLD}${BYELLOW}[ ${BGREEN}•${BYELLOW} ] $1${RESET}"
 }
 # Alert user of bad input (function).
-incEcho () {
+error_print () {
     echo -e "${BOLD}${BRED}[ ${BBLUE}•${BRED} ] $1${RESET}"
 }
 
@@ -24,20 +24,20 @@ incEcho () {
 virt_check () {
     hypervisor=$(systemd-detect-virt)
     case $hypervisor in
-        kvm )   print "KVM has been detected, setting up guest tools."
+        kvm )   info_print "KVM has been detected, setting up guest tools."
                 pacstrap /mnt qemu-guest-agent &>/dev/null
                 systemctl enable qemu-guest-agent --root=/mnt &>/dev/null
                 ;;
-        vmware  )   print "VMWare Workstation/ESXi has been detected, setting up guest tools."
+        vmware  )   info_print "VMWare Workstation/ESXi has been detected, setting up guest tools."
                     pacstrap /mnt open-vm-tools >/dev/null
                     systemctl enable vmtoolsd --root=/mnt &>/dev/null
                     systemctl enable vmware-vmblock-fuse --root=/mnt &>/dev/null
                     ;;
-        oracle )    print "VirtualBox has been detected, setting up guest tools."
+        oracle )    info_print "VirtualBox has been detected, setting up guest tools."
                     pacstrap /mnt virtualbox-guest-utils &>/dev/null
                     systemctl enable vboxservice --root=/mnt &>/dev/null
                     ;;
-        microsoft ) print "Hyper-V has been detected, setting up guest tools."
+        microsoft ) info_print "Hyper-V has been detected, setting up guest tools."
                     pacstrap /mnt hyperv &>/dev/null
                     systemctl enable hv_fcopy_daemon --root=/mnt &>/dev/null
                     systemctl enable hv_kvp_daemon --root=/mnt &>/dev/null
@@ -48,11 +48,11 @@ virt_check () {
 
 # Selecting a kernel to install (function).
 kernel_selector () {
-    print "List of kernels:"
-    print "1) Stable: Vanilla Linux kernel with a few specific Arch Linux patches applied"
-    print "2) Hardened: A security-focused Linux kernel"
-    print "3) Longterm: Long-term support (LTS) Linux kernel"
-    print "4) Zen Kernel: A Linux kernel optimized for desktop usage"
+    info_print "List of kernels:"
+    info_print "1) Stable: Vanilla Linux kernel with a few specific Arch Linux patches applied"
+    info_print "2) Hardened: A security-focused Linux kernel"
+    info_print "3) Longterm: Long-term support (LTS) Linux kernel"
+    info_print "4) Zen Kernel: A Linux kernel optimized for desktop usage"
     read -r -p "Please select the number of the corresponding kernel (e.g. 1): " kernel_choice
     case $kernel_choice in
         1 ) kernel="linux"
@@ -63,22 +63,22 @@ kernel_selector () {
             return 0;;
         4 ) kernel="linux-zen"
             return 0;;
-        * ) incEcho "You did not enter a valid selection."
+        * ) error_print "You did not enter a valid selection."
             return 1
     esac
 }
 
 # Selecting a way to handle internet connection (function).
 network_selector () {
-    print "Network utilities:"
-    print "1) IWD: Utility to connect to networks written by Intel (WiFi-only, built-in DHCP client)"
-    print "2) NetworkManager: Universal network utility (both WiFi and Ethernet, highly recommended)"
-    print "3) wpa_supplicant: Utility with support for WEP and WPA/WPA2 (WiFi-only, DHCPCD will be automatically installed)"
-    print "4) dhcpcd: Basic DHCP client (Ethernet connections or VMs)"
-    print "5) I will do this on my own (only advanced users)"
+    info_print "Network utilities:"
+    info_print "1) IWD: Utility to connect to networks written by Intel (WiFi-only, built-in DHCP client)"
+    info_print "2) NetworkManager: Universal network utility (both WiFi and Ethernet, highly recommended)"
+    info_print "3) wpa_supplicant: Utility with support for WEP and WPA/WPA2 (WiFi-only, DHCPCD will be automatically installed)"
+    info_print "4) dhcpcd: Basic DHCP client (Ethernet connections or VMs)"
+    info_print "5) I will do this on my own (only advanced users)"
     read -r -p "Please select the number of the corresponding networking utility (e.g. 1): " network_choice
     if ! ((1 <= network_choice <= 5)); then
-        incEcho "You did not enter a valid selection."
+        error_print "You did not enter a valid selection."
         return 1
     fi
     return 0
@@ -87,25 +87,25 @@ network_selector () {
 # Installing the chosen networking method to the system (function).
 network_installer () {
     case $network_choice in
-        1 ) print "Installing IWD."
+        1 ) info_print "Installing IWD."
             pacstrap /mnt iwd >/dev/null
-            print "Enabling IWD."
+            info_print "Enabling IWD."
             systemctl enable iwd --root=/mnt &>/dev/null
             ;;
-        2 ) print "Installing NetworkManager."
+        2 ) info_print "Installing NetworkManager."
             pacstrap /mnt networkmanager >/dev/null
-            print "Enabling NetworkManager."
+            info_print "Enabling NetworkManager."
             systemctl enable NetworkManager --root=/mnt &>/dev/null
             ;;
-        3 ) print "Installing wpa_supplicant and dhcpcd."
+        3 ) info_print "Installing wpa_supplicant and dhcpcd."
             pacstrap /mnt wpa_supplicant dhcpcd >/dev/null
-            print "Enabling wpa_supplicant and dhcpcd."
+            info_print "Enabling wpa_supplicant and dhcpcd."
             systemctl enable wpa_supplicant --root=/mnt &>/dev/null
             systemctl enable dhcpcd --root=/mnt &>/dev/null
             ;;
-        4 ) print "Installing dhcpcd."
+        4 ) info_print "Installing dhcpcd."
             pacstrap /mnt dhcpcd >/dev/null
-            print "Enabling dhcpcd."
+            info_print "Enabling dhcpcd."
             systemctl enable dhcpcd --root=/mnt &>/dev/null
     esac
 }
@@ -114,12 +114,12 @@ network_installer () {
 lukspass_selector () {
     read -r -s -p "Insert the password for the LUKS container (you're not going to see the password): " password
     if [[ -z "$password" ]]; then
-        incEcho "You need to enter a password for the LUKS Container in order to continue."
+        error_print "\nYou need to enter a password for the LUKS Container in order to continue."
         return 1
     fi
     read -r -s -p "Insert the password for the LUKS container again (you're not going to see the password): " password2
     if [[ "$password" != "$password2" ]]; then
-        incEcho "Passwords don't match, please try again."
+        error_print "Passwords don't match, please try again."
         return 1
     fi
     return 0
@@ -133,12 +133,12 @@ userpass_selector () {
     fi
     read -r -s -p "Insert a user password for $username (you're not going to see the password): " userpass
     if [[ -z "$userpass" ]]; then
-        incEcho "You need to enter a password for $username in order to continue."
+        error_print "You need to enter a password for $username in order to continue."
         return 1
     fi
     read -r -s -p "Insert the password again (you're not going to see the password): " userpass2
     if [[ "$userpass" != "$userpass2" ]]; then
-        incEcho "Passwords don't match, please try again."
+        error_print "Passwords don't match, please try again."
         return 1
     fi
     return 0
@@ -148,12 +148,12 @@ userpass_selector () {
 rootpass_selector () {
     read -r -s -p "Insert a user password for the root user (you're not going to see it): " rootpass
     if [[ -z "$rootpass" ]]; then
-        incEcho "You need to enter a root password."
+        error_print "You need to enter a root password."
         return 1
     fi
     read -r -s -p "Insert the password again (for double checking): " rootpass2
     if [[ "$rootpass" != "$rootpass2" ]]; then
-        incEcho "Passwords don't match, try again."
+        error_print "Passwords don't match, try again."
         return 1
     fi
     return 0
@@ -163,10 +163,10 @@ rootpass_selector () {
 microcode_detector () {
     CPU=$(grep vendor_id /proc/cpuinfo)
     if [[ "$CPU" == *"AuthenticAMD"* ]]; then
-        print "An AMD CPU has been detected, the AMD microcode will be installed."
+        info_print "An AMD CPU has been detected, the AMD microcode will be installed."
         microcode="amd-ucode"
     else
-        print "An Intel CPU has been detected, the Intel microcode will be installed."
+        info_print "An Intel CPU has been detected, the Intel microcode will be installed."
         microcode="intel-ucode"
     fi
 }
@@ -175,7 +175,7 @@ microcode_detector () {
 hostname_selector () {
     read -r -p "Please enter the hostname: " hostname
     if [[ -z "$hostname" ]]; then
-        incEcho "You need to enter a hostname in order to continue."
+        error_print "You need to enter a hostname in order to continue."
         return 1
     fi
     return 0
@@ -183,16 +183,17 @@ hostname_selector () {
 
 # User chooses the locale (function).
 locale_selector () {
-    read -r -p "Please insert the locale you use (format: xx_XX. Enter empty to use en_US, or \"/\" to search locales): " locale
-    case $locale in
+    info_print "Please insert the locale you use (format: xx_XX. Enter empty to use en_US, or \"/\" to search locales): " locale
+    read -r locale
+    case "$locale" in
         '') locale="en_US.UTF-8"
-            print "$locale will be the default locale."
+            info_print "$locale will be the default locale."
             return 0;;
         '/')    sed -E '/^# +|^#$/d;s/^#| *$//g;s/ .*/      (Charset:&)/' /etc/locale.gen | less -M
                 clear
                 return 1;;
         *)  if ! grep -q "^#\?$(sed 's/[].*[]/\\&/g' <<< $locale) " /etc/locale.gen; then
-                incEcho "The specified locale doesn't exist or isn't supported."
+                error_print "The specified locale doesn't exist or isn't supported."
                 return 1
             fi
             return 0
@@ -204,16 +205,16 @@ keyboard_selector () {
     read -r -p "Please insert the keyboard layout to use in console (enter empty to use US, or \"/\" to look up for keyboard layouts): " kblayout
     case "$kblayout" in
         '') kblayout="us"
-            print "The standard US keyboard layout will be used."
+            info_print "The standard US keyboard layout will be used."
             return 0;;
         '/') localectl list-keymaps
              clear
              return 1;;
         *) if ! localectl list-keymaps | grep -Fxq "$kblayout"; then
-               incEcho "The specified keymap doesn't exist."
+               error_print "The specified keymap doesn't exist."
                return 1
            fi
-        print "Changing console layout to $kblayout."
+        info_print "Changing console layout to $kblayout."
         loadkeys "$kblayout"
         return 0
     esac
@@ -231,28 +232,20 @@ echo -ne "${BOLD}${BYELLOW}
 ╚══════╝╚═╝  ╚═╝╚══════╝   ╚═╝        ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝
 ======================================================================
 ${RESET}"
-print "Welcome to easy-arch, a script made in order to simplify the process of installing Arch Linux."
+info_print "Welcome to easy-arch, a script made in order to simplify the process of installing Arch Linux."
 
 # Setting up keyboard layout.
 until keyboard_selector; do : ; done
 
 # Choosing the target for the installation.
-print "Available disks for the installation (this is the disk where Arch Linux is going to be installed on):"
+info_print "Available disks for the installation (this is the disk where Arch Linux is going to be installed on)"
 PS3="Please select the number of the corresponding disk (e.g. 1): "
 select ENTRY in $(lsblk -dpnoNAME|grep -P "/dev/sd|nvme|vd");
 do
     DISK="$ENTRY"
-    print "Arch Linux will be installed to $DISK."
+    info_print "Arch Linux will be installed to $DISK."
     break
 done
-
-# Warn user about deletion of old partition scheme.
-echo -en "${BOLD}${BRED}This will delete the current partition table on $DISK once installation starts. Do you agree [y/N]?:${RESET} "
-read -r disk_response
-if ! [[ "${disk_response,,}" =~ ^(yes|y)$ ]]; then
-    print "Quitting."
-    exit
-fi
 
 # Setting up LUKS password.
 until lukspass_selector; do : ; done
@@ -273,13 +266,19 @@ until hostname_selector; do : ; done
 until userpass_selector; do : ; done
 until rootpass_selector; do : ; done
 
-# Deleting old partition scheme.
-print "Wiping $DISK."
+# Warn user about deletion of old partition scheme.
+error_print "This will delete the current partition table on $DISK once installation starts. Do you agree [y/N]?: "
+read -r disk_response
+if ! [[ "${disk_response,,}" =~ ^(yes|y)$ ]]; then
+    info_print "Quitting."
+    exit
+fi
+info_print "Wiping $DISK."
 wipefs -af "$DISK" &>/dev/null
 sgdisk -Zo "$DISK" &>/dev/null
 
 # Creating a new partition scheme.
-print "Creating the partitions on $DISK."
+info_print "Creating the partitions on $DISK."
 parted -s "$DISK" \
     mklabel gpt \
     mkpart ESP fat32 1MiB 513MiB \
@@ -290,26 +289,26 @@ ESP="/dev/disk/by-partlabel/ESP"
 CRYPTROOT="/dev/disk/by-partlabel/CRYPTROOT"
 
 # Informing the Kernel of the changes.
-print "Informing the Kernel about the disk changes."
+info_print "Informing the Kernel about the disk changes."
 partprobe "$DISK"
 
 # Formatting the ESP as FAT32.
-print "Formatting the EFI Partition as FAT32."
+info_print "Formatting the EFI Partition as FAT32."
 mkfs.fat -F 32 "$ESP" &>/dev/null
 
 # Creating a LUKS Container for the root partition.
-print "Creating LUKS Container for the root partition."
+info_print "Creating LUKS Container for the root partition."
 echo -n "$password" | cryptsetup luksFormat "$CRYPTROOT" -d - &>/dev/null
 echo -n "$password" | cryptsetup open "$CRYPTROOT" cryptroot -d - 
 BTRFS="/dev/mapper/cryptroot"
 
 # Formatting the LUKS Container as BTRFS.
-print "Formatting the LUKS container as BTRFS."
+info_print "Formatting the LUKS container as BTRFS."
 mkfs.btrfs "$BTRFS" &>/dev/null
 mount "$BTRFS" /mnt
 
 # Creating BTRFS subvolumes.
-print "Creating BTRFS subvolumes."
+info_print "Creating BTRFS subvolumes."
 subvols=(snapshots var_pkgs var_log home root srv)
 for subvol in '' "${subvols[@]}"; do
     btrfs su cr /mnt/@"$subvol" &>/dev/null
@@ -317,7 +316,7 @@ done
 
 # Mounting the newly created subvolumes.
 umount /mnt
-print "Mounting the newly created subvolumes."
+info_print "Mounting the newly created subvolumes."
 mountopts="ssd,noatime,compress-force=zstd:3,discard=async"
 mount -o "$mountopts",subvol=@ "$BTRFS" /mnt
 mkdir -p /mnt/{home,root,srv,.snapshots,var/{log,cache/pacman/pkg},boot}
@@ -331,14 +330,14 @@ chattr +C /mnt/var/log
 mount "$ESP" /mnt/boot/
 
 # Pacstrap (setting up a base sytem onto the new root).
-print "Installing the base system (it may take a while)."
+info_print "Installing the base system (it may take a while)."
 pacstrap /mnt --needed base $kernel $microcode linux-firmware $kernel-headers btrfs-progs grub grub-btrfs rsync efibootmgr snapper reflector base-devel snap-pac zram-generator &>/dev/null
 
 # Setting up the hostname.
 echo "$hostname" > /mnt/etc/hostname
 
 # Generating /etc/fstab.
-print "Generating a new fstab."
+info_print "Generating a new fstab."
 genfstab -U /mnt >> /mnt/etc/fstab
 
 # Configure selected locale and console keymap
@@ -347,7 +346,7 @@ echo "LANG=$locale" > /mnt/etc/locale.conf
 echo "KEYMAP=$kblayout" > /mnt/etc/vconsole.conf
 
 # Setting hosts file.
-print "Setting hosts file."
+info_print "Setting hosts file."
 cat > /mnt/etc/hosts <<EOF
 127.0.0.1   localhost
 ::1         localhost
@@ -364,18 +363,18 @@ virt_check
 network_installer
 
 # Configuring /etc/mkinitcpio.conf.
-print "Configuring /etc/mkinitcpio.conf."
+info_print "Configuring /etc/mkinitcpio.conf."
 cat > /mnt/etc/mkinitcpio.conf <<EOF
 HOOKS=(systemd autodetect keyboard sd-vconsole modconf block sd-encrypt filesystems)
 EOF
 
 # Setting up LUKS2 encryption in grub.
-print "Setting up grub config."
+info_print "Setting up grub config."
 UUID=$(blkid -s UUID -o value $CRYPTROOT)
 sed -i "\,^GRUB_CMDLINE_LINUX=\"\",s,\",&rd.luks.name=$UUID=cryptroot root=$BTRFS," /mnt/etc/default/grub
 
 # Configuring the system.
-print "Configuring the system (timezone, system clock, initramfs, Snapper, GRUB)."
+info_print "Configuring the system (timezone, system clock, initramfs, Snapper, GRUB)."
 arch-chroot /mnt /bin/bash -e <<EOF
 
     # Setting up timezone.
@@ -408,20 +407,20 @@ arch-chroot /mnt /bin/bash -e <<EOF
 EOF
 
 # Setting root password.
-print "Setting root password."
+info_print "Setting root password."
 echo "root:$rootpass" | arch-chroot /mnt chpasswd
 
 # Setting user password.
 if [[ -n "$username" ]]; then
     echo "%wheel ALL=(ALL:ALL) ALL" > /mnt/etc/sudoers.d/wheel
-    print "Adding the user $username to the system with root privilege."
+    info_print "Adding the user $username to the system with root privilege."
     arch-chroot /mnt useradd -m -G wheel -s /bin/bash "$username"
-    print "Setting user password for $username."
+    info_print "Setting user password for $username."
     echo "$username:$userpass" | arch-chroot /mnt chpasswd
 fi
 
 # Boot backup hook.
-print "Configuring /boot backup when pacman transactions are made."
+info_print "Configuring /boot backup when pacman transactions are made."
 mkdir /mnt/etc/pacman.d/hooks
 cat > /mnt/etc/pacman.d/hooks/50-bootbackup.hook <<EOF
 [Trigger]
@@ -439,23 +438,23 @@ Exec = /usr/bin/rsync -a --delete /boot /.bootbackup
 EOF
 
 # ZRAM configuration.
-print "Configuring ZRAM."
+info_print "Configuring ZRAM."
 cat > /mnt/etc/systemd/zram-generator.conf <<EOF
 [zram0]
 zram-size = min(ram, 8192)
 EOF
 
 # Pacman eye-candy features.
-print "Enabling colours, animations, and parallel downloads for pacman."
+info_print "Enabling colours, animations, and parallel downloads for pacman."
 sed -Ei 's/^#(Color)$/\1\nILoveCandy/;s/^#(ParallelDownloads).*/\1 = 10/' /mnt/etc/pacman.conf
 
 # Enabling various services.
-print "Enabling Reflector, automatic snapshots, BTRFS scrubbing and systemd-oomd."
+info_print "Enabling Reflector, automatic snapshots, BTRFS scrubbing and systemd-oomd."
 services=(reflector.timer snapper-timeline.timer snapper-cleanup.timer btrfs-scrub@-.timer btrfs-scrub@home.timer btrfs-scrub@var-log.timer btrfs-scrub@\\x2esnapshots.timer grub-btrfs.path systemd-oomd)
 for service in '' "${services[@]}"; do
     systemctl enable "$service" --root=/mnt &>/dev/null
 done
 
 # Finishing up.
-print "Done, you may now wish to reboot (further changes can be done by chrooting into /mnt)."
+info_print "Done, you may now wish to reboot (further changes can be done by chrooting into /mnt)."
 exit
