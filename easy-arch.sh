@@ -13,11 +13,11 @@ RESET='\e[0m'
 
 # Pretty print (function).
 info_print () {
-    echo -e "${BOLD}${BYELLOW}[ ${BGREEN}•${BYELLOW} ] $1${RESET}"
+    echo -ne "${BOLD}${BYELLOW}[ ${BGREEN}•${BYELLOW} ] $1${RESET}"
 }
 # Alert user of bad input (function).
 error_print () {
-    echo -e "${BOLD}${BRED}[ ${BBLUE}•${BRED} ] $1${RESET}"
+    echo -ne "${BOLD}${BRED}[ ${BBLUE}•${BRED} ] $1${RESET}"
 }
 
 # Virtualization check (function).
@@ -238,12 +238,12 @@ info_print "Welcome to easy-arch, a script made in order to simplify the process
 until keyboard_selector; do : ; done
 
 # Choosing the target for the installation.
-info_print "Available disks for the installation (this is the disk where Arch Linux is going to be installed on)"
+info_print "Available disks for the installation:"
 PS3="Please select the number of the corresponding disk (e.g. 1): "
 select ENTRY in $(lsblk -dpnoNAME|grep -P "/dev/sd|nvme|vd");
 do
     DISK="$ENTRY"
-    info_print "Arch Linux will be installed to $DISK."
+    info_print "Arch Linux will be installed on the following disk: $DISK."
     break
 done
 
