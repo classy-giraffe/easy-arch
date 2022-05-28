@@ -205,7 +205,7 @@ keyboard_selector () {
     read -r -p "Please insert the keyboard layout to use in console (enter empty to use US, or \"/\" to look up for keyboard layouts): " kblayout
     case $kblayout in
         '') kblayout="us"
-            print "The standard US will be used as the default console keymap."
+            print "The standard US keyboard layout will be used."
             return 0;;
         '/') localectl list-keymaps
              clear
