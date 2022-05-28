@@ -53,7 +53,7 @@ kernel_selector () {
     print "2) Hardened: A security-focused Linux kernel"
     print "3) Longterm: Long-term support (LTS) Linux kernel"
     print "4) Zen Kernel: A Linux kernel optimized for desktop usage"
-    read -r -p "Insert the number of the corresponding kernel: " kernel_choice
+    read -r -p "Please select the number of the corresponding kernel (e.g. 1): " kernel_choice
     case $kernel_choice in
         1 ) kernel="linux"
             return 0;;
@@ -76,7 +76,7 @@ network_selector () {
     print "3) wpa_supplicant: Utility with support for WEP and WPA/WPA2 (WiFi-only, DHCPCD will be automatically installed)"
     print "4) dhcpcd: Basic DHCP client (Ethernet connections or VMs)"
     print "5) I will do this on my own (only advanced users)"
-    read -r -p "Insert the number of the corresponding networking utility: " network_choice
+    read -r -p "Please select the number of the corresponding networking utility (e.g. 1): " network_choice
     if ! ((1 <= network_choice <= 5)); then
         incEcho "You did not enter a valid selection."
         return 1
@@ -228,8 +228,8 @@ print "Welcome to easy-arch, a script made in order to simplify the process of i
 until keyboard_selector; do : ; done
 
 # Choosing the target for the installation.
-print "Available disks for the installation:"
-PS3="Please select the disk NUMBER (e.g. 1) where Arch Linux is going to be installed: "
+print "Available disks for the installation (this is the disk where Arch Linux is going to be installed on):"
+PS3="Please select the number of the corresponding disk (e.g. 1): "
 select ENTRY in $(lsblk -dpnoNAME|grep -P "/dev/sd|nvme|vd");
 do
     DISK="$ENTRY"
