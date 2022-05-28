@@ -123,7 +123,7 @@ lukspass_selector () {
     input_print "Insert the password for the LUKS container (you're not going to see the password): "
     read -r -s password
     if [[ -z "$password" ]]; then
-        error_print "\nYou need to enter a password for the LUKS Container in order to continue."
+        error_print "You need to enter a password for the LUKS Container in order to continue."
         return 1
     fi
     input_print "Insert the password for the LUKS container again (you're not going to see the password): "
