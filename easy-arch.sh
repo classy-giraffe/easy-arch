@@ -120,15 +120,15 @@ network_installer () {
 
 # User enters a password for the LUKS Container (function).
 lukspass_selector () {
-    input_print "Insert the password for the LUKS container (you're not going to see the password): "
+    input_print "Please enter a password for the LUKS container (you're not going to see the password): "
     read -r -s password
     if [[ -z "$password" ]]; then
         echo
-        error_print "You need to enter a password for the LUKS Container in order to continue."
+        error_print "You need to enter a password for the LUKS Container, please try again."
         return 1
     fi
     echo
-    input_print "Insert the password for the LUKS container again (you're not going to see the password): "
+    input_print "Please enter the password for the LUKS container again (you're not going to see the password): "
     read -r -s password2
     if [[ "$password" != "$password2" ]]; then
         echo
@@ -145,13 +145,13 @@ userpass_selector () {
     if [[ -z "$username" ]]; then
         return 0
     fi
-    input_print "Insert a user password for $username (you're not going to see the password): "
+    input_print "Please enter a password for $username (you're not going to see the password): "
     read -r -s userpass
     if [[ -z "$userpass" ]]; then
-        error_print "You need to enter a password for $username in order to continue."
+        error_print "You need to enter a password for $username, please try again."
         return 1
     fi
-    input_print "Insert the password again (you're not going to see the password): " 
+    input_print "Please enter the password again (you're not going to see it): " 
     read -r -s userpass2
     if [[ "$userpass" != "$userpass2" ]]; then
         error_print "Passwords don't match, please try again."
@@ -162,13 +162,13 @@ userpass_selector () {
 
 # Setting up a password for the root account (function).
 rootpass_selector () {
-    input_print "Insert a user password for the root user (you're not going to see it): "
+    input_print "Please enter a password for the root user (you're not going to see it): "
     read -r -s rootpass
     if [[ -z "$rootpass" ]]; then
-        error_print "You need to enter a root password."
+        error_print "You need to enter a password for the root user, please try again."
         return 1
     fi
-    input_print "Insert the password again (for double checking): " 
+    input_print "Please enter the password again (you're not going to see it): " 
     read -r -s rootpass2
     if [[ "$rootpass" != "$rootpass2" ]]; then
         error_print "Passwords don't match, please try again."
