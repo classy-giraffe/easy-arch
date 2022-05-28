@@ -13,7 +13,7 @@ RESET='\e[0m'
 
 # Pretty print (function).
 info_print () {
-    echo -e "${BOLD}${BYELLOW}[ ${BGREEN}•${BYELLOW} ] $1${RESET}"
+    echo -e "${BOLD}${BGREEN}[ ${BYELLOW}•${BGREEN} ] $1${RESET}"
 }
 
 # Pretty print for input (function).
@@ -59,7 +59,8 @@ kernel_selector () {
     info_print "2) Hardened: A security-focused Linux kernel"
     info_print "3) Longterm: Long-term support (LTS) Linux kernel"
     info_print "4) Zen Kernel: A Linux kernel optimized for desktop usage"
-    read -r -p "Please select the number of the corresponding kernel (e.g. 1): " kernel_choice
+    input_print "Please select the number of the corresponding kernel (e.g. 1): " 
+    read -r kernel_choice
     case $kernel_choice in
         1 ) kernel="linux"
             return 0;;
@@ -82,7 +83,8 @@ network_selector () {
     info_print "3) wpa_supplicant: Utility with support for WEP and WPA/WPA2 (WiFi-only, DHCPCD will be automatically installed)"
     info_print "4) dhcpcd: Basic DHCP client (Ethernet connections or VMs)"
     info_print "5) I will do this on my own (only advanced users)"
-    read -r -p "Please select the number of the corresponding networking utility (e.g. 1): " network_choice
+    input_print "Please select the number of the corresponding networking utility (e.g. 1): "
+    read -r network_choice
     if ! ((1 <= network_choice <= 5)); then
         error_print "You did not enter a valid selection."
         return 1
@@ -118,12 +120,14 @@ network_installer () {
 
 # User enters a password for the LUKS Container (function).
 lukspass_selector () {
-    read -r -s -p "Insert the password for the LUKS container (you're not going to see the password): " password
+    input_print "Insert the password for the LUKS container (you're not going to see the password): "
+    read -r -s password
     if [[ -z "$password" ]]; then
         error_print "\nYou need to enter a password for the LUKS Container in order to continue."
         return 1
     fi
-    read -r -s -p "Insert the password for the LUKS container again (you're not going to see the password): " password2
+    input_print "Insert the password for the LUKS container again (you're not going to see the password): "
+    read -r -s password2
     if [[ "$password" != "$password2" ]]; then
         error_print "Passwords don't match, please try again."
         return 1
@@ -133,16 +137,19 @@ lukspass_selector () {
 
 # Setting up a password for the user account (function).
 userpass_selector () {
-    read -r -p "Please enter name for a user account (enter empty to not create one): " username
+    input_print "Please enter name for a user account (enter empty to not create one): "
+    read -r username
     if [[ -z "$username" ]]; then
         return 0
     fi
-    read -r -s -p "Insert a user password for $username (you're not going to see the password): " userpass
+    input_print "Insert a user password for $username (you're not going to see the password): "
+    read -r -s userpass
     if [[ -z "$userpass" ]]; then
         error_print "You need to enter a password for $username in order to continue."
         return 1
     fi
-    read -r -s -p "Insert the password again (you're not going to see the password): " userpass2
+    input_print "Insert the password again (you're not going to see the password): " 
+    read -r -s userpass2
     if [[ "$userpass" != "$userpass2" ]]; then
         error_print "Passwords don't match, please try again."
         return 1
@@ -152,12 +159,14 @@ userpass_selector () {
 
 # Setting up a password for the root account (function).
 rootpass_selector () {
-    read -r -s -p "Insert a user password for the root user (you're not going to see it): " rootpass
+    input_print "Insert a user password for the root user (you're not going to see it): "
+    read -r -s rootpass
     if [[ -z "$rootpass" ]]; then
         error_print "You need to enter a root password."
         return 1
     fi
-    read -r -s -p "Insert the password again (for double checking): " rootpass2
+    input_print "Insert the password again (for double checking): " 
+    read -r -s rootpass2
     if [[ "$rootpass" != "$rootpass2" ]]; then
         error_print "Passwords don't match, try again."
         return 1
@@ -179,7 +188,8 @@ microcode_detector () {
 
 # User enters a hostname (function).
 hostname_selector () {
-    read -r -p "Please enter the hostname: " hostname
+    input_print "Please enter the hostname: "
+    read -r hostname
     if [[ -z "$hostname" ]]; then
         error_print "You need to enter a hostname in order to continue."
         return 1
@@ -208,7 +218,8 @@ locale_selector () {
 
 # User chooses the console keyboard layout (function).
 keyboard_selector () {
-    read -r -p "Please insert the keyboard layout to use in console (enter empty to use US, or \"/\" to look up for keyboard layouts): " kblayout
+    input_print "Please insert the keyboard layout to use in console (enter empty to use US, or \"/\" to look up for keyboard layouts): "
+    read -r kblayout
     case "$kblayout" in
         '') kblayout="us"
             info_print "The standard US keyboard layout will be used."
@@ -276,7 +287,7 @@ until rootpass_selector; do : ; done
 error_print "This will delete the current partition table on $DISK once installation starts. Do you agree [y/N]?: "
 read -r disk_response
 if ! [[ "${disk_response,,}" =~ ^(yes|y)$ ]]; then
-    info_print "Quitting."
+    error_print "Quitting."
     exit
 fi
 info_print "Wiping $DISK."
