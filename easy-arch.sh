@@ -117,9 +117,7 @@ lukspass_selector () {
         incEcho "You need to enter a password for the LUKS Container in order to continue."
         return 1
     fi
-    echo
     read -r -s -p "Insert the password for the LUKS container again (you're not going to see the password): " password2
-    echo
     if [[ "$password" != "$password2" ]]; then
         incEcho "Passwords don't match, please try again."
         return 1
@@ -129,6 +127,7 @@ lukspass_selector () {
 
 # Setting up a password for the user account (function).
 userpass_selector () {
+    read -r -p "Please enter name for a user account (enter empty to not create one): " username
     if [[ -z "$username" ]]; then
         return 0
     fi
@@ -203,14 +202,14 @@ locale_selector () {
 # User chooses the console keyboard layout (function).
 keyboard_selector () {
     read -r -p "Please insert the keyboard layout to use in console (enter empty to use US, or \"/\" to look up for keyboard layouts): " kblayout
-    case $kblayout in
+    case "$kblayout" in
         '') kblayout="us"
             print "The standard US keyboard layout will be used."
             return 0;;
         '/') localectl list-keymaps
              clear
              return 1;;
-        *) if ! localectl list-keymaps | grep -Fxq $kblayout; then
+        *) if ! localectl list-keymaps | grep -Fxq "$kblayout"; then
                incEcho "The specified keymap doesn't exist."
                return 1
            fi
@@ -260,8 +259,7 @@ until locale_selector; do : ; done
 # User choses the hostname.
 until hostname_selector; do : ; done
 
-# User chooses username.
-read -r -p "Please enter name for a user account (enter empty to not create one): " username
+# User sets up the user/root passwords.
 until userpass_selector; do : ; done
 until rootpass_selector; do : ; done
 
