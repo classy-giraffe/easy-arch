@@ -17,10 +17,11 @@
 3. Boot the live environment
 4. Set the keyboard layout by using `loadkeys <kblayout>`
 5. Connect to the internet
-6. Run either one of these (always check twice before piping script into bash)
+6. Run either one of these (always check twice before piping script into bash):
 ```
 bash <(curl -s https://raw.githubusercontent.com/classy-giraffe/easy-arch/main/easy-arch.sh)
-bash <(curl -sL bit.ly/easy-arch)```
+bash <(curl -sL bit.ly/easy-arch)
+```
 
 ### Partitions layout 
 
