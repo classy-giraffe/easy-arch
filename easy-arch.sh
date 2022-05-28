@@ -137,9 +137,7 @@ userpass_selector () {
         incEcho "You need to enter a password for $username in order to continue."
         return 1
     fi
-    echo
     read -r -s -p "Insert the password again (you're not going to see the password): " userpass2
-    echo
     if [[ "$userpass" != "$userpass2" ]]; then
         incEcho "Passwords don't match, please try again."
         return 1
@@ -154,9 +152,7 @@ rootpass_selector () {
         incEcho "You need to enter a root password."
         return 1
     fi
-    echo
     read -r -s -p "Insert the password again (for double checking): " rootpass2
-    echo
     if [[ "$rootpass" != "$rootpass2" ]]; then
         incEcho "Passwords don't match, try again."
         return 1
@@ -193,14 +189,14 @@ locale_selector () {
         '') locale="en_US.UTF-8"
             print "$locale will be the default locale."
             return 0;;
-        '/') sed -E '/^# +|^#$/d;s/^#| *$//g;s/ .*/      (Charset:&)/' /etc/locale.gen | less -M
-             clear
-             return 1;;
-        *) if ! grep -q "^#\?$(sed 's/[].*[]/\\&/g' <<< $locale) " /etc/locale.gen; then
-               incEcho "The specified locale doesn't exist or isn't supported."
-               return 1
-           fi
-           return 0
+        '/')    sed -E '/^# +|^#$/d;s/^#| *$//g;s/ .*/      (Charset:&)/' /etc/locale.gen | less -M
+                clear
+                return 1;;
+        *)  if ! grep -q "^#\?$(sed 's/[].*[]/\\&/g' <<< $locale) " /etc/locale.gen; then
+                incEcho "The specified locale doesn't exist or isn't supported."
+                return 1
+            fi
+            return 0
     esac
 }
 
