@@ -13,11 +13,11 @@ RESET='\e[0m'
 
 # Pretty print (function).
 info_print () {
-    echo -ne "${BOLD}${BYELLOW}[ ${BGREEN}•${BYELLOW} ] $1${RESET}"
+    echo -e "${BOLD}${BYELLOW}[ ${BGREEN}•${BYELLOW} ] $1${RESET}"
 }
 # Alert user of bad input (function).
 error_print () {
-    echo -ne "${BOLD}${BRED}[ ${BBLUE}•${BRED} ] $1${RESET}"
+    echo -e "${BOLD}${BRED}[ ${BBLUE}•${BRED} ] $1${RESET}"
 }
 
 # Virtualization check (function).
