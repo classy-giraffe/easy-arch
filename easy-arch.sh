@@ -15,6 +15,12 @@ RESET='\e[0m'
 info_print () {
     echo -e "${BOLD}${BYELLOW}[ ${BGREEN}•${BYELLOW} ] $1${RESET}"
 }
+
+# Pretty print for input (function).
+input_print () {
+    echo -ne "${BOLD}${BYELLOW}[ ${BGREEN}•${BYELLOW} ] $1${RESET}"
+}
+
 # Alert user of bad input (function).
 error_print () {
     echo -e "${BOLD}${BRED}[ ${BBLUE}•${BRED} ] $1${RESET}"
@@ -183,7 +189,7 @@ hostname_selector () {
 
 # User chooses the locale (function).
 locale_selector () {
-    info_print "Please insert the locale you use (format: xx_XX. Enter empty to use en_US, or \"/\" to search locales): " locale
+    input_print "Please insert the locale you use (format: xx_XX. Enter empty to use en_US, or \"/\" to search locales): " locale
     read -r locale
     case "$locale" in
         '') locale="en_US.UTF-8"
