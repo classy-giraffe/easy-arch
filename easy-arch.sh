@@ -127,9 +127,11 @@ lukspass_selector () {
         error_print "You need to enter a password for the LUKS Container in order to continue."
         return 1
     fi
+    echo
     input_print "Insert the password for the LUKS container again (you're not going to see the password): "
     read -r -s password2
     if [[ "$password" != "$password2" ]]; then
+        echo
         error_print "Passwords don't match, please try again."
         return 1
     fi
