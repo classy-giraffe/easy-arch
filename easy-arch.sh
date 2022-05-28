@@ -13,7 +13,7 @@ RESET='\e[0m'
 
 # Pretty print (function).
 print () {
-    echo -ne "${BOLD}${BYELLOW}[ ${BGREEN}•${BYELLOW} ] $1${RESET}"
+    echo -e "${BOLD}${BYELLOW}[ ${BGREEN}•${BYELLOW} ] $1${RESET}"
 }
 # Alert user of bad input (function).
 incEcho () {
@@ -221,7 +221,7 @@ keyboard_selector () {
 }
 
 # Welcome screen.
-print "
+echo -ne "${BOLD}${BYELLOW}
 ======================================================================
 ███████╗ █████╗ ███████╗██╗   ██╗      █████╗ ██████╗  ██████╗██╗  ██╗
 ██╔════╝██╔══██╗██╔════╝╚██╗ ██╔╝     ██╔══██╗██╔══██╗██╔════╝██║  ██║
@@ -230,7 +230,7 @@ print "
 ███████╗██║  ██║███████║   ██║        ██║  ██║██║  ██║╚██████╗██║  ██║
 ╚══════╝╚═╝  ╚═╝╚══════╝   ╚═╝        ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝
 ======================================================================
-"
+${RESET}"
 print "Welcome to easy-arch, a script made in order to simplify the process of installing Arch Linux."
 
 # Setting up keyboard layout.
