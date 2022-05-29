@@ -151,6 +151,7 @@ userpass_selector () {
     echo
     input_print "Please enter the password again (you're not going to see it): " 
     read -r -s userpass2
+    echo
     if [[ "$userpass" != "$userpass2" ]]; then
         echo
         error_print "Passwords don't match, please try again."
