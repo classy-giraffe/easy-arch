@@ -70,7 +70,7 @@ kernel_selector () {
             return 0;;
         4 ) kernel="linux-zen"
             return 0;;
-        * ) error_print "You did not enter a valid selection."
+        * ) error_print "You did not enter a valid selection, please try again."
             return 1
     esac
 }
@@ -86,7 +86,7 @@ network_selector () {
     input_print "Please select the number of the corresponding networking utility (e.g. 1): "
     read -r network_choice
     if ! ((1 <= network_choice <= 5)); then
-        error_print "You did not enter a valid selection."
+        error_print "You did not enter a valid selection, please try again."
         return 1
     fi
     return 0
@@ -95,25 +95,21 @@ network_selector () {
 # Installing the chosen networking method to the system (function).
 network_installer () {
     case $network_choice in
-        1 ) info_print "Installing IWD."
+        1 ) info_print "Installing and enabling IWD."
             pacstrap /mnt iwd >/dev/null
-            info_print "Enabling IWD."
             systemctl enable iwd --root=/mnt &>/dev/null
             ;;
-        2 ) info_print "Installing NetworkManager."
+        2 ) info_print "Installing and enabling NetworkManager."
             pacstrap /mnt networkmanager >/dev/null
-            info_print "Enabling NetworkManager."
             systemctl enable NetworkManager --root=/mnt &>/dev/null
             ;;
-        3 ) info_print "Installing wpa_supplicant and dhcpcd."
+        3 ) info_print "Installing and enabling wpa_supplicant and dhcpcd."
             pacstrap /mnt wpa_supplicant dhcpcd >/dev/null
-            info_print "Enabling wpa_supplicant and dhcpcd."
             systemctl enable wpa_supplicant --root=/mnt &>/dev/null
             systemctl enable dhcpcd --root=/mnt &>/dev/null
             ;;
         4 ) info_print "Installing dhcpcd."
             pacstrap /mnt dhcpcd >/dev/null
-            info_print "Enabling dhcpcd."
             systemctl enable dhcpcd --root=/mnt &>/dev/null
     esac
 }
@@ -130,8 +126,8 @@ lukspass_selector () {
     echo
     input_print "Please enter the password for the LUKS container again (you're not going to see the password): "
     read -r -s password2
+    echo
     if [[ "$password" != "$password2" ]]; then
-        echo
         error_print "Passwords don't match, please try again."
         return 1
     fi
@@ -140,7 +136,7 @@ lukspass_selector () {
 
 # Setting up a password for the user account (function).
 userpass_selector () {
-    input_print "Please enter name for a user account (enter empty to not create one): "
+    input_print "Please enter a name for the user account (enter empty to not create one): "
     read -r username
     if [[ -z "$username" ]]; then
         return 0
@@ -165,11 +161,14 @@ rootpass_selector () {
     input_print "Please enter a password for the root user (you're not going to see it): "
     read -r -s rootpass
     if [[ -z "$rootpass" ]]; then
+        echo
         error_print "You need to enter a password for the root user, please try again."
         return 1
     fi
+    echo
     input_print "Please enter the password again (you're not going to see it): " 
     read -r -s rootpass2
+    echo
     if [[ "$rootpass" != "$rootpass2" ]]; then
         error_print "Passwords don't match, please try again."
         return 1
@@ -263,7 +262,7 @@ PS3="Please select the number of the corresponding disk (e.g. 1): "
 select ENTRY in $(lsblk -dpnoNAME|grep -P "/dev/sd|nvme|vd");
 do
     DISK="$ENTRY"
-    info_print "Arch Linux will be installed on the following disk: $DISK."
+    info_print "Arch Linux will be installed on the following disk: $DISK"
     break
 done
 
@@ -471,7 +470,7 @@ sed -Ei 's/^#(Color)$/\1\nILoveCandy/;s/^#(ParallelDownloads).*/\1 = 10/' /mnt/e
 # Enabling various services.
 info_print "Enabling Reflector, automatic snapshots, BTRFS scrubbing and systemd-oomd."
 services=(reflector.timer snapper-timeline.timer snapper-cleanup.timer btrfs-scrub@-.timer btrfs-scrub@home.timer btrfs-scrub@var-log.timer btrfs-scrub@\\x2esnapshots.timer grub-btrfs.path systemd-oomd)
-for service in '' "${services[@]}"; do
+for service in "${services[@]}"; do
     systemctl enable "$service" --root=/mnt &>/dev/null
 done
 
