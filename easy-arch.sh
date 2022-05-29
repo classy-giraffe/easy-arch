@@ -241,7 +241,6 @@ keyboard_selector () {
         loadkeys "$kblayout"
         return 0
     esac
-
 }
 
 # Welcome screen.
