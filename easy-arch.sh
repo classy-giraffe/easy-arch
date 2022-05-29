@@ -136,7 +136,7 @@ lukspass_selector () {
 
 # Setting up a password for the user account (function).
 userpass_selector () {
-    input_print "Please enter a name for the user account (enter empty to not create one): "
+    input_print "Please enter name for a user account (enter empty to not create one): "
     read -r username
     if [[ -z "$username" ]]; then
         return 0
@@ -144,12 +144,15 @@ userpass_selector () {
     input_print "Please enter a password for $username (you're not going to see the password): "
     read -r -s userpass
     if [[ -z "$userpass" ]]; then
+        echo
         error_print "You need to enter a password for $username, please try again."
         return 1
     fi
+    echo
     input_print "Please enter the password again (you're not going to see it): " 
     read -r -s userpass2
     if [[ "$userpass" != "$userpass2" ]]; then
+        echo
         error_print "Passwords don't match, please try again."
         return 1
     fi
@@ -286,7 +289,7 @@ until userpass_selector; do : ; done
 until rootpass_selector; do : ; done
 
 # Warn user about deletion of old partition scheme.
-error_print "This will delete the current partition table on $DISK once installation starts. Do you agree [y/N]?: "
+input_print "This will delete the current partition table on $DISK once installation starts. Do you agree [y/N]?: "
 read -r disk_response
 if ! [[ "${disk_response,,}" =~ ^(yes|y)$ ]]; then
     error_print "Quitting."
