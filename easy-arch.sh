@@ -211,7 +211,7 @@ locale_selector () {
         '') locale="en_US.UTF-8"
             info_print "$locale will be the default locale."
             return 0;;
-        '/')    sed -E '/^# +|^#$/d;s/^#| *$//g;s/ .*/      (Charset:&)/' /etc/locale.gen | less -M
+        '/')    sed -E '/^#( +|$)/d;s/^#| *$//g;s/ .*/      (Charset:&)/' /etc/locale.gen | less -M
                 clear
                 return 1;;
         *)  if ! grep -q "^#\?$(sed 's/[].*[]/\\&/g' <<< $locale) " /etc/locale.gen; then
@@ -363,7 +363,7 @@ info_print "Generating a new fstab."
 genfstab -U /mnt >> /mnt/etc/fstab
 
 # Configure selected locale and console keymap
-sed -i "/^#$locale/s/^#//" /mnt/etc/locale.gen
+sed -i "/^#$locale /s/^#//" /mnt/etc/locale.gen
 echo "LANG=$locale" > /mnt/etc/locale.conf
 echo "KEYMAP=$kblayout" > /mnt/etc/vconsole.conf
 
