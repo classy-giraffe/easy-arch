@@ -2,31 +2,28 @@
 ![](https://img.shields.io/github/stars/classy-giraffe/easy-arch?label=Stars)
 ![](https://img.shields.io/github/forks/classy-giraffe/easy-arch?label=Forks)
 
-### Introduction
-[easy-arch](https://github.com/classy-giraffe/easy-arch) is a **bash script** that boostraps **Arch Linux** and configures it:
-1. BTRFS bootable snapshots from GRUB
-2. LUKS2 encryption
-3. [ZRAM](https://fedoraproject.org/wiki/Changes/SwapOnZRAM) as swap
-4. [systemd-oomd](https://fedoraproject.org/wiki/Changes/EnableSystemdOomd)
-5. Autodetect VMs and provide guest tools (if available)
+[easy-arch](https://github.com/classy-giraffe/easy-arch) is a **bash script** that boostraps [Arch Linux](https://archlinux.org/) with sane defaults.
 
-### How does it work?
-1. Download an Arch Linux ISO from [here](https://archlinux.org/download/)
-2. Flash the ISO onto an [USB Flash Drive](https://wiki.archlinux.org/index.php/USB_flash_installation_medium)
-3. Boot the live environment
-4. Set the keyboard layout by using `loadkeys <kblayout>`
-5. Connect to the internet
-6. Run either one of these (always check twice before piping internet downloaded scripts into bash):
-```
-Short version:
-bash <(curl -sL bit.ly/easy-arch)
-```
-```
-Long version:
-bash <(curl -s https://raw.githubusercontent.com/classy-giraffe/easy-arch/main/easy-arch.sh)
+- **BTRFS snapshots**: you will have a resilient set up that will automatically takes snapshots of your volumes based on a weekly schedule
+- **LUKS2 encryption**: your data will live on a LUKS2 partition protected by a password
+- **ZRAM**: we use ZRAM which is a modern technology that allows us to use ram as a disk and swaps on it which is way faster than traditional swap
+- **systemd-oomd**: systemd-oomd makes sure that OOM killing happens in the userspace rather than resorting to the traditional OOM killing which happens at kernel level
+- **VM additions**: we aim to provide guest tools if we detect that you're installing Arch Linux on a virtualized environment such as VMWare Workstation, VirtualBox, QEMU-KVM etc...
+- **User setup**: you'll be walked through the process of setting up a default user account with sudo permissions
+
+## One-step Automated Install (shorter)
+
+### `bash <(curl -sL bit.ly/easy-arch)`
+
+## Alternative Methods (manual)
+
+```bash 
+wget -O easy-arch.sh https://raw.githubusercontent.com/classy-giraffe/easy-arch/main/easy-arch.sh
+chmod +x easy-arch.sh
+bash easy-arch.sh
 ```
 
-### Partitions layout 
+## Partitions layout 
 
 The **partitions layout** is simple and it consists of only two partitions:
 1. A **FAT32** partition (512MiB), mounted at `/boot/` as ESP.
@@ -37,7 +34,7 @@ The **partitions layout** is simple and it consists of only two partitions:
 | 1                | ESP       | 512 MiB           | /boot/         | FAT32                   |
 | 2                | Cryptroot | Rest of the disk  | /              | BTRFS Encrypted (LUKS2) |
 
-### BTRFS subvolumes layout
+## BTRFS subvolumes layout
 
 The **BTRFS subvolumes layout** follows the traditional and suggested layout used by **Snapper**, you can find it [here](https://wiki.archlinux.org/index.php/Snapper#Suggested_filesystem_layout).
 
