@@ -1,5 +1,8 @@
 #!/usr/bin/env -S bash -e
 
+# Fixing annoying issue that breaks GitHub Actions
+# shellcheck disable=SC2001
+
 # Cleaning the TTY.
 clear
 
@@ -214,7 +217,7 @@ locale_selector () {
         '/') sed -E '/^# +|^#$/d;s/^#| *$//g;s/ .*/ (Charset:&)/' /etc/locale.gen | less -M
                 clear
                 return 1;;
-        *)  if ! grep -q "^#\?$(sed 's/[].*[]/\\&/g' <<< $locale) " /etc/locale.gen; then
+        *)  if ! grep -q "^#\?$(sed 's/[].*[]/\\&/g' <<< "$locale") " /etc/locale.gen; then
                 error_print "The specified locale doesn't exist or isn't supported."
                 return 1
             fi
