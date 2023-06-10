@@ -4,12 +4,12 @@
 
 [easy-arch](https://github.com/classy-giraffe/easy-arch) is a **bash script** that boostraps [Arch Linux](https://archlinux.org/) with sane opinionated defaults.
 
-- **BTRFS snapshots**: you will have a resilient set up that will automatically takes snapshots of your volumes based on a weekly schedule
+- **BTRFS snapshots**: you will have a resilient setup that automatically takes snapshots of your volumes based on a weekly schedule
 - **LUKS2 encryption**: your data will live on a LUKS2 partition protected by a password
-- **ZRAM**: we use ZRAM which is a modern technology that allows us to use ram as a disk and swaps on it which is way faster than traditional swap
-- **systemd-oomd**: systemd-oomd makes sure that OOM killing happens in the userspace rather than resorting to the traditional OOM killing which happens at kernel level
-- **VM additions**: we aim to provide guest tools if we detect that you're installing Arch Linux on a virtualized environment such as VMWare Workstation, VirtualBox, QEMU-KVM etc...
-- **User setup**: you'll be walked through the process of setting up a default user account with sudo permissions
+- **ZRAM**: the setup use ZRAM which aims to replace traditional swap partition/files by making the system snappier
+- **systemd-oomd**: systemd-oomd will take care of OOM situations at userspace level rather than at kernel level, making the system less prone to kernel crashes 
+- **VM additions**: the script automatically provides guest tools if it detects that a virtualized environment such as VMWare Workstation, VirtualBox, QEMU-KVM is being used
+- **User account setup**: A default user account with sudo permissions can be configured in order to avoid hassle in the post installation phase
 
 ## One-step Automated Install (shorter)
 
@@ -25,7 +25,7 @@ bash easy-arch.sh
 
 ## Partitions layout 
 
-The **partitions layout** is simple and it consists of only two partitions:
+The **partitions layout** is simple and it consists solely of two partitions:
 1. A **FAT32** partition (512MiB), mounted at `/boot/` as ESP.
 2. A **LUKS2 encrypted container**, which takes the rest of the disk space, mounted at `/` as root.
 
