@@ -9,7 +9,8 @@
 - **ZRAM**: the setup use ZRAM which aims to replace traditional swap partition/files by making the system snappier
 - **systemd-oomd**: systemd-oomd will take care of OOM situations at userspace level rather than at kernel level, making the system less prone to kernel crashes 
 - **VM additions**: the script automatically provides guest tools if it detects that a virtualized environment such as VMWare Workstation, VirtualBox, QEMU-KVM is being used
-- **User account setup**: A default user account with sudo permissions can be configured in order to avoid hassle in the post installation phase
+- **User account setup**: a default user account with sudo permissions can be configured in order to avoid hassle in the post installation phase
+- **CI checks**: ShellChecker checks every PR periodically for bash syntax errors, bad coding practices, etc... 
 
 ## One-step Automated Install (shorter)
 
