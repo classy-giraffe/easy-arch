@@ -2,7 +2,7 @@
 ![](https://img.shields.io/github/stars/classy-giraffe/easy-arch?label=Stars)
 ![](https://img.shields.io/github/forks/classy-giraffe/easy-arch?label=Forks)
 
-[easy-arch](https://github.com/classy-giraffe/easy-arch) is a **bash script** that boostraps [Arch Linux](https://archlinux.org/) with sane opinionated defaults.
+[easy-arch](https://github.com/classy-giraffe/easy-arch) is a **bash script** that boostraps [Arch Linux](https://archlinux.org/) with sane opinionated defaults (Beta version)
 
 - **BTRFS snapshots**: you will have a resilient setup that automatically takes snapshots of your volumes based on a weekly schedule
 - **LUKS2 encryption**: your data will live on a LUKS2 partition protected by a password
