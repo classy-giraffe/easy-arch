@@ -12,14 +12,10 @@
 - **User account setup**: a default user account with sudo permissions can be configured in order to avoid hassle in the post installation phase
 - **CI checks**: ShellChecker checks every PR periodically for bash syntax errors, bad coding practices, etc... 
 
-## One-step Automated Install (shorter)
-
-### `bash <(curl -sL bit.ly/easy-arch)`
-
-## Alternative Methods (manual)
+## Manual method
 
 ```bash 
-wget -O easy-arch.sh https://raw.githubusercontent.com/classy-giraffe/easy-arch/main/easy-arch.sh
+wget -O easy-arch.sh https://raw.githubusercontent.com/classy-giraffe/easy-arch/refind/easy-arch.sh
 chmod +x easy-arch.sh
 bash easy-arch.sh
 ```
