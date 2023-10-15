@@ -393,11 +393,6 @@ cat > /mnt/etc/mkinitcpio.conf <<EOF
 HOOKS=(systemd autodetect keyboard sd-vconsole modconf block sd-encrypt filesystems)
 EOF
 
-# Setting up LUKS2 encryption in grub.
-info_print "Setting up grub config (does nothing)"
-UUID=$(blkid -s UUID -o value $CRYPTROOT)
-
-
 # Configuring the system.
 info_print "Configuring the system (timezone, system clock, initramfs, Snapper, GRUB)."
 arch-chroot /mnt /bin/bash -e <<EOF
@@ -424,9 +419,29 @@ arch-chroot /mnt /bin/bash -e <<EOF
     chmod 750 /.snapshots
 
     # Installing and configuring rEFInd.
-    # notes on how to use refind
+    refind-install
 
 EOF
+
+# Setting up rEFInd.
+info_print "Setting up rEFInd."
+UUID=$(blkid -s UUID -o value $CRYPTROOT)
+cat << EOF >> /boot/EFI/refind/refind.conf
+timeout 20
+scan_all_linux_kernels off
+
+menuentry "Arch Linux" {
+    icon     /EFI/refind/icons/os_arch.png
+    volume   "Arch Linux"
+    loader   /vmlinuz-$kernel
+    initrd   /initramfs-$kernel.img
+    options  "rd.luks.name=$UUID=cryptroot root=$BTRFS rootflags=subvol=@ initrd=/$microcode.img"
+    submenuentry "Boot using fallback initramfs" {
+        initrd /boot/initramfs-$kernel-fallback.img
+    }
+}"
+EOF
+
 
 # Setting root password.
 info_print "Setting root password."
