@@ -436,9 +436,9 @@ menuentry "Arch Linux" {
     volume   "Arch Linux"
     loader   /vmlinuz-$kernel
     initrd   /initramfs-$kernel.img
-    options  "rd.luks.name=$UUID=cryptroot root=$BTRFS rootflags=subvol=@ initrd=/$microcode.img"
+    options  "rd.luks.name=$UUID=cryptroot root=$BTRFS rootflags=subvol=@ initrd=/$microcode.img quiet splash"
     submenuentry "Boot using fallback initramfs" {
-        initrd /boot/initramfs-$kernel-fallback.img
+        initrd /initramfs-$kernel-fallback.img
     }
 }
 EOF
