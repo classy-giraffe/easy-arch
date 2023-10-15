@@ -419,14 +419,14 @@ arch-chroot /mnt /bin/bash -e <<EOF
     chmod 750 /.snapshots
 
     # Installing and configuring rEFInd.
-    refind-install
+    refind-install &>/dev/null
 
 EOF
 
 # Setting up rEFInd.
 info_print "Setting up rEFInd."
 UUID=$(blkid -s UUID -o value $CRYPTROOT)
-cat << EOF >> /boot/EFI/refind/refind.conf
+cat << EOF >> /mnt/boot/EFI/refind/refind.conf
 timeout 20
 scan_all_linux_kernels off
 
