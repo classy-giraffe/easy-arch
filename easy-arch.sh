@@ -426,7 +426,8 @@ EOF
 # Setting up rEFInd.
 info_print "Setting up rEFInd."
 UUID=$(blkid -s UUID -o value $CRYPTROOT)
-cat << EOF >> /mnt/boot/EFI/refind/refind.conf
+rm -rf /mnt/boot/EFI/refind/refind.conf
+cat > /mnt/boot/EFI/refind/refind.conf <<EOF
 timeout 20
 scan_all_linux_kernels off
 
@@ -439,7 +440,7 @@ menuentry "Arch Linux" {
     submenuentry "Boot using fallback initramfs" {
         initrd /boot/initramfs-$kernel-fallback.img
     }
-}"
+}
 EOF
 
 
