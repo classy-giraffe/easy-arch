@@ -12,6 +12,10 @@
 - **User account setup**: a default user account with sudo permissions can be configured in order to avoid hassle in the post installation phase
 - **CI checks**: ShellChecker checks every PR periodically for bash syntax errors, bad coding practices, etc... 
 
+## One-step Automated Install (shorter)
+
+### `bash <(curl -sL t.ly/ZFid7)`
+
 ## Manual method
 
 ```bash 

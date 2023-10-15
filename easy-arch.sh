@@ -394,7 +394,7 @@ HOOKS=(systemd autodetect keyboard sd-vconsole modconf block sd-encrypt filesyst
 EOF
 
 # Configuring the system.
-info_print "Configuring the system (timezone, system clock, initramfs, Snapper, GRUB)."
+info_print "Configuring the system (timezone, system clock, initramfs, Snapper, rEFInd)."
 arch-chroot /mnt /bin/bash -e <<EOF
 
     # Setting up timezone.
