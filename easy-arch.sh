@@ -359,7 +359,7 @@ microcode_detector
 
 # Pacstrap (setting up a base sytem onto the new root).
 info_print "Installing the base system (it may take a while)."
-pacstrap -K /mnt base "$kernel" "$microcode" linux-firmware "$kernel"-headers btrfs-progs grub grub-btrfs rsync efibootmgr snapper reflector snap-pac zram-generator sudo &>/dev/null
+pacstrap -K /mnt base "$kernel" "$microcode" linux-firmware "$kernel"-headers sbctl btrfs-progs grub grub-btrfs rsync efibootmgr snapper reflector snap-pac zram-generator sudo &>/dev/null
 
 # Setting up the hostname.
 echo "$hostname" > /mnt/etc/hostname
@@ -410,6 +410,10 @@ arch-chroot /mnt /bin/bash -e <<EOF
 
     # Generating locales.
     locale-gen &>/dev/null
+
+    # Create SecureBoot keys. 
+    # This isn't strictly necessary, linux-hardened preset expects it and mkinitcpio will fail without it
+    sbctl create-keys
 
     # Generating a new initramfs.
     mkinitcpio -P &>/dev/null
