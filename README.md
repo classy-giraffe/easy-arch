@@ -28,12 +28,12 @@ bash easy-arch.sh
 ## Partitions layout 
 
 The **partitions layout** is simple and it consists solely of two partitions:
-1. A **FAT32** partition (512MiB), mounted at `/boot/` as ESP.
+1. A **FAT32** partition (1GiB), mounted at `/boot/` as ESP.
 2. A **LUKS2 encrypted container**, which takes the rest of the disk space, mounted at `/` as root.
 
 | Partition Number | Label     | Size              | Mountpoint     | Filesystem              |
 |------------------|-----------|-------------------|----------------|-------------------------|
-| 1                | ESP       | 512 MiB           | /boot/         | FAT32                   |
+| 1                | ESP       | 1 GiB              | /boot/         | FAT32                   |
 | 2                | Cryptroot | Rest of the disk  | /              | BTRFS Encrypted (LUKS2) |
 
 ## BTRFS subvolumes layout

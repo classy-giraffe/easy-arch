@@ -306,9 +306,9 @@ sgdisk -Zo "$DISK" &>/dev/null
 info_print "Creating the partitions on $DISK."
 parted -s "$DISK" \
     mklabel gpt \
-    mkpart ESP fat32 1MiB 513MiB \
+    mkpart ESP fat32 1MiB 1025MiB \
     set 1 esp on \
-    mkpart CRYPTROOT 513MiB 100% \
+    mkpart CRYPTROOT 1025MiB 100% \
 
 ESP="/dev/disk/by-partlabel/ESP"
 CRYPTROOT="/dev/disk/by-partlabel/CRYPTROOT"
@@ -405,6 +405,10 @@ arch-chroot /mnt /bin/bash -e <<EOF
 
     # Generating locales.
     locale-gen &>/dev/null
+
+    # Create SecureBoot keys. 
+    # This isn't strictly necessary, linux-hardened preset expects it and mkinitcpio will fail without it
+    sbctl create-keys
 
     # Generating a new initramfs.
     mkinitcpio -P &>/dev/null
