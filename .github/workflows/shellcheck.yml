@@ -17,6 +17,6 @@ jobs:
     name: Bash syntax checker
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Run ShellCheck
       uses: ludeeus/action-shellcheck@master
