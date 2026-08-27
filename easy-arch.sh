@@ -268,7 +268,7 @@ mapfile -t ARR < <(lsblk -dpno NAME,SIZE,MODEL | grep -P "/dev/sd|nvme|vd");
 PS3="Please select the number of the corresponding disk (e.g. 1): "
 select ENTRY in "${ARR[@]}";
 do
-    DISK="$($ENTRY | awk '{print $1;}')"
+    DISK="$(echo "$ENTRY" | awk '{print $1;}')"
     info_print "Arch Linux will be installed on the following disk: $DISK"
     break
 done
